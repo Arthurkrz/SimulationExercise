@@ -1,0 +1,14 @@
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\bin\Debug\net8.0\SimulationExercise.exe
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\bin\Debug\net8.0\SimulationExercise.deps.json
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\bin\Debug\net8.0\SimulationExercise.runtimeconfig.json
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\bin\Debug\net8.0\SimulationExercise.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\bin\Debug\net8.0\SimulationExercise.pdb
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.AssemblyInfoInputs.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.AssemblyInfo.cs
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.csproj.CoreCompileInputs.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\refint\SimulationExercise.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.pdb
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\SimulationExercise.genruntimeconfig.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\obj\Debug\net8.0\ref\SimulationExercise.dll

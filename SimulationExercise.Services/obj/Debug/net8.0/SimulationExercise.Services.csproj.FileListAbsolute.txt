@@ -1,0 +1,15 @@
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.csproj.AssemblyReference.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.AssemblyInfoInputs.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.AssemblyInfo.cs
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.csproj.CoreCompileInputs.cache
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\bin\Debug\net8.0\SimulationExercise.Services.deps.json
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\bin\Debug\net8.0\SimulationExercise.Services.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\bin\Debug\net8.0\SimulationExercise.Services.pdb
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\bin\Debug\net8.0\SimulationExercise.Core.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\bin\Debug\net8.0\SimulationExercise.Core.pdb
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\Simulati.FDB4598C.Up2Date
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\refint\SimulationExercise.Services.dll
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\SimulationExercise.Services.pdb
+C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Services\obj\Debug\net8.0\ref\SimulationExercise.Services.dll
