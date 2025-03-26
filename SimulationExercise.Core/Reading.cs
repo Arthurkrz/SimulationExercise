@@ -4,11 +4,11 @@ namespace SimulationExercise.Core
 {
     public class Reading
     {
-        public Reading(long sensorID, string sensorTypeName, string unit, long stationId, string stationName, int value,
+        public Reading(long sensorId, string sensorTypeName, string unit, long stationId, string stationName, int value,
                        string province, string city, bool isHistoric, DateTime startDate, DateTime? stopDate, int utmNord,
                        int utmEst, string latitude, string longitude)
         {
-            SensorID = sensorID;
+            SensorId = sensorId;
             SensorTypeName = sensorTypeName;
             Unit = unit;
             StationId = stationId;
@@ -25,7 +25,7 @@ namespace SimulationExercise.Core
             Longitude = longitude;
         }
 
-        public long SensorID { get; set; }
+        public long SensorId { get; set; }
         public string SensorTypeName { get; set; }
         public string Unit { get; set; }
         public long StationId { get; set; }
