@@ -20,7 +20,7 @@ namespace SimulationExercise.Services
                 var header = engine.GetFileHeader();
                 if (!header.Equals(currentHeader, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new FormatException("Invalid header format.");
+                    throw new FormatException("Invalid header values.");
                 }
 
                 var engineRecords = engine.ReadStream(sr);
@@ -35,22 +35,23 @@ namespace SimulationExercise.Services
                 List<Reading> recordReading = new List<Reading>();
                 foreach (var record in engineRecords)
                 {
+                    bool readingIsHistoric = IsHistoric(record.Storico);
                     Reading reading = new Reading(
-                        record.SensorID,
-                        record.SensorTypeName,
-                        record.Unit,
-                        record.StationId,
-                        record.StationName,
-                        record.Value,
-                        record.Province,
-                        record.City,
-                        record.IsHistoric,
-                        record.StartDate,
-                        record.StopDate,
-                        record.UtmNord,
-                        record.UtmEst,
-                        record.Latitude,
-                        record.Longitude
+                        record.IdSensore,
+                        record.NomeTipoSensore,
+                        record.UnitaMisura,
+                        record.Idstazione,
+                        record.NomeStazione,
+                        record.Quota,
+                        record.Provincia,
+                        record.Comune,
+                        readingIsHistoric,
+                        record.DataStart,
+                        record.DataStop,
+                        record.Utm_Nord,
+                        record.UTM_Est,
+                        record.lat,
+                        record.lng
                     );
 
                     recordReading.Add(reading);
@@ -58,6 +59,10 @@ namespace SimulationExercise.Services
 
                 return new ImportResult(recordReading, errorString);
             }
+        }
+        private bool IsHistoric(string storico)
+        {
+            return storico.Equals("S", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

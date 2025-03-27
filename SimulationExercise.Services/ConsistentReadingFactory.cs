@@ -22,7 +22,8 @@ namespace SimulationExercise.Services
                                               .Replace("³", "3");
 
             reading.Unit = unitForConsistent;
-            var validationResult = _validator.Validate(reading);
+
+                var validationResult = _validator.Validate(reading);
             if (!validationResult.IsValid)
             {
                 IList<string> errors = new List<string>();
@@ -43,7 +44,7 @@ namespace SimulationExercise.Services
                 reading.SensorTypeName, unit, reading.Value,
                 reading.Province, reading.City, reading.IsHistoric,
                 reading.UtmNord, reading.UtmEst, reading.Latitude,
-                reading.Longitude, reading.Location)
+                reading.Longitude)
                 {
                     DaysOfMeasure = daysOfMeasure
                 };

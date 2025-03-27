@@ -35,15 +35,14 @@ namespace SimulationExercise.Core
         public string City { get; set; }
         public bool IsHistoric { get; set; }
 
-        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
+        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy")]
         public DateTime StartDate { get; set; }
-        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
+        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy")]
         public DateTime? StopDate { get; set; }
 
         public int UtmNord { get; set; }
         public int UtmEst { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
-        public string Location { get; set; }
     }
 }
