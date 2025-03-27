@@ -43,7 +43,7 @@ namespace SimulationExercise.Services
                 reading.SensorTypeName, unit, reading.Value,
                 reading.Province, reading.City, reading.IsHistoric,
                 reading.UtmNord, reading.UtmEst, reading.Latitude,
-                reading.Longitude, reading.Location)
+                reading.Longitude)
                 {
                     DaysOfMeasure = daysOfMeasure
                 };

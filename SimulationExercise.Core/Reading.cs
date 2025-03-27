@@ -44,6 +44,5 @@ namespace SimulationExercise.Core
         public int UtmEst { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
-        public string Location { get; set; }
     }
 }

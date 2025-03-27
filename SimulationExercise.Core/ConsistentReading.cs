@@ -6,7 +6,7 @@ namespace SimulationExercise.Core
     {
         public ConsistentReading(long sensorId, string sensorTypeName, Unit unit,
                int value, string province, string city, bool isHistoric, int utmNord,
-               int utmEst, string latitude, string longitude, string location)
+               int utmEst, string latitude, string longitude)
         {
             SensorId = sensorId;
             SensorTypeName = sensorTypeName;
@@ -19,7 +19,6 @@ namespace SimulationExercise.Core
             UtmEst = utmEst;
             Latitude = latitude;
             Longitude = longitude;
-            Location = location;
         }
 
         public long SensorId { get; set; }
@@ -34,6 +33,5 @@ namespace SimulationExercise.Core
         public int UtmEst { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
-        public string Location { get; set; }
     }
 }

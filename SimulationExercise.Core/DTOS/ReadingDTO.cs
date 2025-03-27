@@ -7,46 +7,47 @@ namespace SimulationExercise.Core.DTOS
     {
         public ReadingDTO() { }
 
-        public ReadingDTO(long sensorID, string sensorTypeName, string unit, long stationId, string stationName, int value,
-               string province, string city, bool isHistoric, DateTime startDate, DateTime? stopDate, int utmNord,
-               int utmEst, string latitude, string longitude)
+        public ReadingDTO(long idSensore, string nomeTipoSensore, string unitaMisura, long idStazione, string nomeStazione, int quota,
+               string provincia, string comune, bool storico, DateTime dataStart, DateTime? dataStop, int utmNord,
+               int utmEst, string latitude, string longitude, string location)
         {
-            SensorID = sensorID;
-            SensorTypeName = sensorTypeName;
-            Unit = unit;
-            StationId = stationId;
-            StationName = stationName;
-            Value = value;
-            Province = province;
-            City = city;
-            IsHistoric = isHistoric;
-            StartDate = startDate;
-            StopDate = stopDate;
-            UtmNord = utmNord;
-            UtmEst = utmEst;
-            Latitude = latitude;
-            Longitude = longitude;
+            IdSensore = idSensore;
+            NomeTipoSensore = nomeTipoSensore;
+            UnitaMisura = unitaMisura;
+            Idstazione = idStazione;
+            NomeStazione = nomeStazione;
+            Quota = quota;
+            Provincia = provincia;
+            Comune = comune;
+            Storico = storico;
+            DataStart = dataStart;
+            DataStop = dataStop;
+            Utm_Nord = utmNord;
+            UTM_Est = utmEst;
+            lat = latitude;
+            lng = longitude;
+            Location = location;
         }
 
-        public long SensorID { get; set; }
-        public string SensorTypeName { get; set; }
-        public string Unit { get; set; }
-        public long StationId { get; set; }
-        public string StationName { get; set; }
-        public int Value { get; set; }
-        public string Province { get; set; }
-        public string City { get; set; }
-        public bool IsHistoric { get; set; }
+        public long IdSensore { get; set; }
+        public string NomeTipoSensore { get; set; }
+        public string UnitaMisura { get; set; }
+        public long Idstazione { get; set; }
+        public string NomeStazione { get; set; }
+        public int Quota { get; set; }
+        public string Provincia { get; set; }
+        public string Comune { get; set; }
+        public bool Storico { get; set; }
 
         [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
-        public DateTime StartDate { get; set; }
+        public DateTime DataStart { get; set; }
         [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
-        public DateTime? StopDate { get; set; }
+        public DateTime? DataStop { get; set; }
 
-        public int UtmNord { get; set; }
-        public int UtmEst { get; set; }
-        public string Latitude { get; set; }
-        public string Longitude { get; set; }
+        public int Utm_Nord { get; set; }
+        public int UTM_Est { get; set; }
+        public string lat { get; set; }
+        public string lng { get; set; }
         public string Location { get; set; }
     }
 }
