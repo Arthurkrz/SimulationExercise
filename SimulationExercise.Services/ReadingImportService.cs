@@ -16,7 +16,7 @@ namespace SimulationExercise.Services
             using (var sr = new StreamReader(stream))
             {
                 var currentHeader = sr.ReadLine();
-                //currentHeader = currentHeader.Replace(" ", "");
+                currentHeader = currentHeader.Replace(" ", "");
                 var header = engine.GetFileHeader();
                 if (!header.Equals(currentHeader, StringComparison.OrdinalIgnoreCase))
                 {
@@ -35,6 +35,7 @@ namespace SimulationExercise.Services
                 List<Reading> recordReading = new List<Reading>();
                 foreach (var record in engineRecords)
                 {
+                    bool readingIsHistoric = IsHistoric(record.Storico);
                     Reading reading = new Reading(
                         record.IdSensore,
                         record.NomeTipoSensore,
@@ -44,7 +45,7 @@ namespace SimulationExercise.Services
                         record.Quota,
                         record.Provincia,
                         record.Comune,
-                        record.Storico,
+                        readingIsHistoric,
                         record.DataStart,
                         record.DataStop,
                         record.Utm_Nord,
@@ -58,6 +59,10 @@ namespace SimulationExercise.Services
 
                 return new ImportResult(recordReading, errorString);
             }
+        }
+        private bool IsHistoric(string storico)
+        {
+            return storico.Equals("S", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

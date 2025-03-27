@@ -22,7 +22,8 @@ namespace SimulationExercise.Services
                                               .Replace("³", "3");
 
             reading.Unit = unitForConsistent;
-            var validationResult = _validator.Validate(reading);
+
+                var validationResult = _validator.Validate(reading);
             if (!validationResult.IsValid)
             {
                 IList<string> errors = new List<string>();

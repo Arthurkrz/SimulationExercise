@@ -8,7 +8,7 @@ namespace SimulationExercise.Core.DTOS
         public ReadingDTO() { }
 
         public ReadingDTO(long idSensore, string nomeTipoSensore, string unitaMisura, long idStazione, string nomeStazione, int quota,
-               string provincia, string comune, bool storico, DateTime dataStart, DateTime? dataStop, int utmNord,
+               string provincia, string comune, string storico, DateTime dataStart, DateTime? dataStop, int utmNord,
                int utmEst, string latitude, string longitude, string location)
         {
             IdSensore = idSensore;
@@ -37,11 +37,11 @@ namespace SimulationExercise.Core.DTOS
         public int Quota { get; set; }
         public string Provincia { get; set; }
         public string Comune { get; set; }
-        public bool Storico { get; set; }
+        public string Storico { get; set; }
 
-        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
+        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy")]
         public DateTime DataStart { get; set; }
-        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy HH:mm:ss")]
+        [FieldConverter(ConverterKind.Date, "dd/MM/yyyy")]
         public DateTime? DataStop { get; set; }
 
         public int Utm_Nord { get; set; }

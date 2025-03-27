@@ -61,7 +61,7 @@ namespace SimulationExercise.Tests
                 "Stop date is before start date",
                 "Null or negative UTMNord.",
                 "Null or negative UTMEst.",
-                "Null or empty latidude.",
+                "Null or empty latitude.",
                 "Null or empty longitude."
             };
 

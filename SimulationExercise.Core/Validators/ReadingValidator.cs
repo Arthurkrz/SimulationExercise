@@ -76,10 +76,10 @@ namespace SimulationExercise.Core.Validators
 
             this.RuleFor(x => x.Latitude).NotEmpty()
                                          .WithMessage("Null or empty" +
-                                                          " latidude.")
+                                                          " latitude.")
                                          .NotNull()
                                          .WithMessage("Null or empty" +
-                                                          " latidude.");
+                                                          " latitude.");
 
             this.RuleFor(x => x.Longitude).NotEmpty()
                                           .WithMessage("Null or empty" +
