@@ -9,49 +9,42 @@ namespace SimulationExercise.Core.Validators
         {
             this.RuleFor(x => x.SensorId).GreaterThan(0)
                                          .WithMessage
-                                         ("Null or negative" +
-                                          " sensor ID.");
+                                         ("Sensor ID less or " +
+                                          "equal to 0.");
 
-            this.RuleFor(x => x.SensorTypeName).NotEmpty()
+            this.RuleFor(x => x.SensorTypeName).Must(x => 
+                                                !string.IsNullOrWhiteSpace(x))
                                                .WithMessage
-                                               ("Null or empty" +
-                                               " sensor name.")
-                                               .NotNull()
-                                               .WithMessage
-                                               ("Null or empty" +
-                                               " sensor name.");
+                                               ("Null or empty " +
+                                                "sensor name.");
 
             this.RuleFor(x => x.Unit).IsEnumName(typeof(Unit))
                                      .WithMessage("Unit not " +
                                                   "supported.");
 
             this.RuleFor(x => x.StationId).GreaterThan(0)
-                                          .WithMessage("Null or " +
-                                            "negative station ID.");
+                                          .WithMessage
+                                          ("Station ID less or " +
+                                           "equal to 0.");
 
-            this.RuleFor(x => x.StationName).NotEmpty()
-                                            .WithMessage("Null or " +
-                                               "empty station name.")
-                                            .NotNull()
-                                            .WithMessage("Null or " +
-                                               "empty station name.");
+            this.RuleFor(x => x.StationName).Must(x =>
+                                            !string.IsNullOrWhiteSpace(x))
+                                            .WithMessage
+                                            ("Null or empty " +
+                                             "station name.");
 
             this.RuleFor(x => x.Value).GreaterThan(-1)
                                       .WithMessage("Negative value.");
 
-            this.RuleFor(x => x.Province).NotEmpty()
-                                         .WithMessage("Null province" +
-                                                              " name.")
-                                         .NotNull()
-                                         .WithMessage("Null province" +
-                                                              " name.");
+            this.RuleFor(x => x.Province).Must(x =>
+                                         !string.IsNullOrWhiteSpace(x))
+                                         .WithMessage("Null or empty " +
+                                                      "province name.");
 
-            this.RuleFor(x => x.City).NotEmpty()
+            this.RuleFor(x => x.City).Must(x =>
+                                     !string.IsNullOrWhiteSpace(x))
                                      .WithMessage("Null or empty " +
-                                                       "city name.")
-                                     .NotNull()
-                                     .WithMessage("Null or empty " +
-                                                       "city name.");
+                                                  "city name.");
 
             this.RuleFor(x => x.StartDate.Date).GreaterThan
                                                 (new DateTime
@@ -64,29 +57,23 @@ namespace SimulationExercise.Core.Validators
                                           (x => x.StartDate.Date)
                                           .When(x => x.StopDate.HasValue)
                                           .WithMessage("Stop date is " +
-                                                    "before start date");
+                                                    "before start date.");
 
             this.RuleFor(x => x.UtmNord).GreaterThan(0)
-                                        .WithMessage("Null or negative" +
-                                                             " UTMNord.");
+                                        .WithMessage("UTMNord less or equal to 0.");
 
             this.RuleFor(x => x.UtmEst).GreaterThan(0)
-                                       .WithMessage("Null or negative" +
-                                                             " UTMEst.");
+                                       .WithMessage("UTMEst less or equal to 0.");
 
-            this.RuleFor(x => x.Latitude).NotEmpty()
+            this.RuleFor(x => x.Latitude).Must(x =>
+                                         !string.IsNullOrWhiteSpace(x))
                                          .WithMessage("Null or empty" +
-                                                          " latitude.")
-                                         .NotNull()
-                                         .WithMessage("Null or empty" +
-                                                          " latitude.");
+                                                      " latitude.");
 
-            this.RuleFor(x => x.Longitude).NotEmpty()
+            this.RuleFor(x => x.Longitude).Must(x =>
+                                          !string.IsNullOrWhiteSpace(x))
                                           .WithMessage("Null or empty" +
-                                                          " longitude.")
-                                          .NotNull()
-                                          .WithMessage("Null or empty" +
-                                                          " longitude.");
+                                                       " longitude.");
         }
     }
 

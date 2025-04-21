@@ -17,13 +17,15 @@ namespace SimulationExercise.Services
         public Result<ConsistentReading> CreateConsistentReading
                                                (Reading reading)
         {
-            string unitForConsistent = reading.Unit
-                                              .Replace("/", "_")
-                                              .Replace("³", "3");
+            reading.Unit = reading.Unit switch
+            {
+                "ng/m³" => Unit.ng_m3.ToString(),
+                "mg/m³" => Unit.mg_m3.ToString(),
+                "µg/m³" => Unit.µg_m3.ToString(),
+                _ => ""
+            };
 
-            reading.Unit = unitForConsistent;
-
-                var validationResult = _validator.Validate(reading);
+            var validationResult = _validator.Validate(reading);
             if (!validationResult.IsValid)
             {
                 IList<string> errors = new List<string>();
@@ -35,7 +37,7 @@ namespace SimulationExercise.Services
                 return Result<ConsistentReading>.Ko(errors);
             }
 
-            var unit = Enum.Parse<Unit>(reading.Unit);
+            Enum.TryParse<Unit>(reading.Unit, out Unit unit);
             int daysOfMeasure = (reading.StopDate - reading.StartDate)
                                             .GetValueOrDefault().Days;
 

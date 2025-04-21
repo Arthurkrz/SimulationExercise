@@ -17,16 +17,11 @@ namespace SimulationExercise.Tests
             _sut = new ConsistentReadingFactory(_readingValidator);
         }
 
-        [Fact]
-        public void CreateConsistentReading_ShouldCreateObject_WhenCorrectReadings()
+        [Theory]
+        [MemberData(nameof(ReadingData.GetValidReadings), MemberType = typeof(ReadingData))]
+        public void CreateConsistentReading_ShouldCreateObject_WhenCorrectReadings
+                                                                 (Reading reading)
         {
-            // Arrange
-            Reading reading = new Reading(1, "Sensor Name", "ng/m³", 1,
-                                          "Station Name", 1, "Province",
-                                          "City", true,
-                                          DateTime.Now.AddYears(-1),
-                                          null, 1, 1, "Latitude", "Longitude");
-
             // Act & Assert
             var result = _sut.CreateConsistentReading(reading);
 
@@ -36,35 +31,11 @@ namespace SimulationExercise.Tests
             Assert.Null(result.Errors);
         }
 
-        [Fact]
-        public void CreateConsistentReading_ShouldReturnErrors_WhenWrongReadings()
+        [Theory]
+        [MemberData(nameof(ReadingData.GetInvalidReadings), MemberType = typeof(ReadingData))]
+        public void CreateConsistentReading_ShouldReturnErrors_WhenWrongReadings
+                                          (Reading reading, List<string> errors)
         {
-            // Arrange
-            DateTime wrongStartDate = new DateTime(1967, 1, 1);
-            DateTime wrongStopDate = new DateTime(1966, 1, 1);
-
-            Reading reading = new Reading(0, "", "", 0, "", -1, "", "",
-                              default, wrongStartDate, wrongStopDate,
-                                                      0, 0, "", "");
-
-            List<string> errors = new List<string>
-            {
-                "Null or negative sensor ID.",
-                "Null or empty sensor name.",
-                "Unit not supported.",
-                "Null or negative station ID.",
-                "Null or empty station name.",
-                "Negative value.",
-                "Null province name.",
-                "Null or empty city name.",
-                "Start date is before the possible minimum.",
-                "Stop date is before start date",
-                "Null or negative UTMNord.",
-                "Null or negative UTMEst.",
-                "Null or empty latitude.",
-                "Null or empty longitude."
-            };
-
             // Act & Assert
             var result = _sut.CreateConsistentReading(reading);
 
