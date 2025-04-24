@@ -1,5 +1,5 @@
-﻿using SimulationExercise.Core;
-using SimulationExercise.Core.Contracts;
+﻿using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 
