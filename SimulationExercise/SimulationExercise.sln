@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise", "SimulationExercise.csproj", "{C77C5D9B-ADF9-0BCF-117A-082336500711}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Console", "SimulationExercise.Console.csproj", "{C77C5D9B-ADF9-0BCF-117A-082336500711}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Services", "..\SimulationExercise.Services\SimulationExercise.Services.csproj", "{67275B7C-A532-E2E2-2DDE-D8427B3B9E0E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Core", "..\SimulationExercise.Core\SimulationExercise.Core.csproj", "{32BF53E6-9766-65A5-5950-F14541988434}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Tests", "..\SimulationExercise.Tests\SimulationExercise.Tests.csproj", "{A6B99E28-35AB-C6FC-4C61-AAF281B9BC45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Tests.Integration", "..\SimulationExercise.Tests.Integration\SimulationExercise.Tests.Integration.csproj", "{BF33A2A3-66EC-4AA3-9B95-12E271D7900F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.IOC", "..\SimulationExercise.IOC\SimulationExercise.IOC.csproj", "{06303012-FAB3-490D-8AF3-DD7401AB674B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{A6B99E28-35AB-C6FC-4C61-AAF281B9BC45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6B99E28-35AB-C6FC-4C61-AAF281B9BC45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6B99E28-35AB-C6FC-4C61-AAF281B9BC45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF33A2A3-66EC-4AA3-9B95-12E271D7900F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF33A2A3-66EC-4AA3-9B95-12E271D7900F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF33A2A3-66EC-4AA3-9B95-12E271D7900F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF33A2A3-66EC-4AA3-9B95-12E271D7900F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06303012-FAB3-490D-8AF3-DD7401AB674B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06303012-FAB3-490D-8AF3-DD7401AB674B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06303012-FAB3-490D-8AF3-DD7401AB674B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06303012-FAB3-490D-8AF3-DD7401AB674B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

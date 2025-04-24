@@ -1,2 +1,7 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Microsoft.Extensions.DependencyInjection;
+using SimulationExercise.IOC;
+
+ServiceCollection services = new ServiceCollection();
+DependencyInjection.InjectServices(services);
+DependencyInjection.InjectValidators(services);
+

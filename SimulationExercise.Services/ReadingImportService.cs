@@ -60,6 +60,7 @@ namespace SimulationExercise.Services
                 return new ImportResult(recordReading, errorString);
             }
         }
+
         private bool IsHistoric(string storico)
         {
             return storico.Equals("S", StringComparison.OrdinalIgnoreCase);
