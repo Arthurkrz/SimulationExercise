@@ -1,11 +1,6 @@
-﻿using SimulationExercise.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SimulationExercise.Core.Entities;
 
-namespace SimulationExercise.Tests
+namespace SimulationExercise.Tests.ObjectGeneration
 {
     public static class ReadingData
     {
@@ -14,8 +9,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(0, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -25,8 +20,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(-1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -36,8 +31,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, null, "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -47,8 +42,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -58,8 +53,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ERROR", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -69,8 +64,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 0,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -80,8 +75,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", -1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -91,8 +86,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           null, 1, "Province",
-                           "City", true,
+                            null, 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -100,21 +95,21 @@ namespace SimulationExercise.Tests
             };
 
             yield return new object[]
-{
+            {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "", 1, "Province",
-                           "City", true,
+                            "", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
                 new List<string> { "Null or empty station name." }
-};
+            };
 
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", -1, "Province",
-                           "City", true,
+                            "Station Name", -1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -124,8 +119,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "mg/m³", 1,
-                           "Station Name", 1, null,
-                           "City", true,
+                            "Station Name", 1, null,
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -135,8 +130,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "",
-                           "City", true,
+                            "Station Name", 1, "",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -146,8 +141,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "mg/m³", 1,
-                           "Station Name", 1, "Province",
-                           null, true,
+                            "Station Name", 1, "Province",
+                            null, true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -157,8 +152,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Station Name", "µg/m³", 1,
-                           "Station Name", 1, "Province",
-                           "", true,
+                            "Station Name", 1, "Province",
+                            "", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude"),
 
@@ -168,8 +163,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             new DateTime(1967, 1, 1),
                             DateTime.Now, 1, 1,
                             "Latitude", "Longitude"),
@@ -180,8 +175,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now,
                             DateTime.Now.AddYears(-1), 1, 1,
                             "Latitude", "Longitude"),
@@ -192,8 +187,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 0, 1, "Latitude", "Longitude"),
 
@@ -203,8 +198,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, -1, 1, "Latitude", "Longitude"),
 
@@ -214,8 +209,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 0, "Latitude", "Longitude"),
 
@@ -225,8 +220,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, -1, "Latitude", "Longitude"),
 
@@ -236,8 +231,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, null, "Longitude"),
 
@@ -247,8 +242,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "", "Longitude"),
 
@@ -258,8 +253,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", null),
 
@@ -269,8 +264,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", ""),
 
@@ -307,8 +302,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(-1, "", "ERROR", -1,
-                           "", -1, "",
-                           "", default,
+                            "", -1, "",
+                            "", default,
                             new DateTime(1967, 1, 1),
                             new DateTime(1966, 1, 1),
                             -1, -1, "", ""),
@@ -338,16 +333,16 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "ng/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude")
             };
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "mg/m³", 1,
-                           "Station Name", 0, "Province",
-                           "City", false,
+                            "Station Name", 0, "Province",
+                            "City", false,
                             DateTime.Now.AddYears(-1),
                             DateTime.Now, 1, 1, "Latitude", "Longitude")
             };
@@ -355,8 +350,8 @@ namespace SimulationExercise.Tests
             yield return new object[]
             {
                 new Reading(1, "Sensor Name", "µg/m³", 1,
-                           "Station Name", 1, "Province",
-                           "City", true,
+                            "Station Name", 1, "Province",
+                            "City", true,
                             DateTime.Now.AddYears(-1),
                             null, 1, 1, "Latitude", "Longitude")
             };

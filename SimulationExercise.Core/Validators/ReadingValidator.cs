@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Core.Validators

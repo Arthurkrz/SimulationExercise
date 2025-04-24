@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using SimulationExercise.Core;
 using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Services
+namespace SimulationExercise.Services.Factory
 {
     public class ConsistentReadingFactory : IConsistentReadingFactory
     {
@@ -14,8 +14,7 @@ namespace SimulationExercise.Services
             _validator = validator;
         }
 
-        public Result<ConsistentReading> CreateConsistentReading
-                                               (Reading reading)
+        public Result<ConsistentReading> CreateConsistentReading (Reading reading)
         {
             reading.Unit = reading.Unit switch
             {
@@ -30,14 +29,12 @@ namespace SimulationExercise.Services
             {
                 IList<string> errors = new List<string>();
                 foreach (var error in validationResult.Errors)
-                {
                     errors.Add(error.ErrorMessage);
-                }
 
                 return Result<ConsistentReading>.Ko(errors);
             }
 
-            Enum.TryParse<Unit>(reading.Unit, out Unit unit);
+            Enum.TryParse(reading.Unit, out Unit unit);
             int daysOfMeasure = (reading.StopDate - reading.StartDate)
                                             .GetValueOrDefault().Days;
 
@@ -47,9 +44,7 @@ namespace SimulationExercise.Services
                 reading.Province, reading.City, reading.IsHistoric,
                 reading.UtmNord, reading.UtmEst, reading.Latitude,
                 reading.Longitude)
-                {
-                    DaysOfMeasure = daysOfMeasure
-                };
+                { DaysOfMeasure = daysOfMeasure };
 
             return Result<ConsistentReading>.Ok(consistentReading);
         }

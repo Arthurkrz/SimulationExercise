@@ -1,7 +1,8 @@
 ﻿using Bogus;
-using SimulationExercise.Core;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
-using SimulationExercise.Services;
+using SimulationExercise.Services.Factory;
+using SimulationExercise.Tests.ObjectGeneration;
 
 namespace SimulationExercise.Tests
 {

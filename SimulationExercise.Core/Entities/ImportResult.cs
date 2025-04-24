@@ -1,6 +1,4 @@
-﻿using SimulationExercise.Core.Contracts;
-
-namespace SimulationExercise.Core
+﻿namespace SimulationExercise.Core.Entities
 {
     public class ImportResult
     {

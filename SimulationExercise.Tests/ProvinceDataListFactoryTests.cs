@@ -1,6 +1,6 @@
-﻿using SimulationExercise.Core;
+﻿using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
-using SimulationExercise.Services;
+using SimulationExercise.Services.Factory;
 
 namespace SimulationExercise.Tests
 {
@@ -18,7 +18,8 @@ namespace SimulationExercise.Tests
         public void CreateProvinceDataList_ShouldGroupSuccesfully(
                                List<ConsistentReading> consistentReadings,
                                Func<ProvinceData, bool> filterLogic,
-                               int expectedFilteredResultReadingsCount)
+                               int expectedFilteredResultReadingsCount, 
+                               Func<ConsistentReading, bool> assertionLogic)
         {
             // Act
             var result = _sut.CreateProvinceDataList(consistentReadings);
@@ -28,25 +29,36 @@ namespace SimulationExercise.Tests
             Assert.NotNull(filteredResult);
             Assert.Equal(expectedFilteredResultReadingsCount,
                          filteredResult!.ConsistentReadings.Count);
+            Assert.True(filteredResult!.ConsistentReadings
+                                       .All(assertionLogic));
         }
 
         [Fact]
-        public void CreateProvinceDataList_ShouldReturnEmptyList_WhenNoConsistentReadingsOrNull()
+        public void CreateProvinceDataList_ShouldReturnEmptyList_WhenEmptyConsistentReadingList()
         {
             // Arrange
             var emptyConsistentReadings = new List<ConsistentReading>();
-            List<ConsistentReading> nullConsistentReadings;
 
             // Act
             var result = _sut.CreateProvinceDataList(emptyConsistentReadings);
-            var result2 = _sut.CreateProvinceDataList(nullConsistentReadings = null);
 
             // Assert
             Assert.NotNull(result);
-            Assert.NotNull(result2);
-
             Assert.Empty(result);
-            Assert.Empty(result2);
+        }
+
+        [Fact]
+        public void CreateProvinceDataList_ShouldReturnEmptyList_WhenNullConsistentReadingList()
+        {
+            // Arrange
+            List<ConsistentReading> nullConsistentReadings;
+
+            // Act
+            var result = _sut.CreateProvinceDataList(nullConsistentReadings = null);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -57,10 +69,8 @@ namespace SimulationExercise.Tests
             {
                 new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
-
                 new ConsistentReading(123, "Sensor1", Unit.mg_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor1", Unit.mg_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
-
                 new ConsistentReading(123, "Sensor1", Unit.µg_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor1", Unit.µg_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor2", Unit.mg_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
@@ -78,10 +88,10 @@ namespace SimulationExercise.Tests
             Assert.Equal(6, result.Count);
 
             var filteredResult = result
-            .Single(x => x.SensorTypeName == "Sensor1" &&
-            x.Province == "Province1" &&
-            x.ConsistentReadings.Any
-            (x => x.Unit == Unit.ng_m3));
+                .Single(x => x.SensorTypeName == "Sensor1" &&
+                             x.Province == "Province1" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.ng_m3));
 
             Assert.NotNull(filteredResult);
             Assert.Equal(2, filteredResult.ConsistentReadings.Count);
@@ -90,49 +100,70 @@ namespace SimulationExercise.Tests
                      x.SensorTypeName == "Sensor1" &&
                      x.Province == "Province1"));
 
-            //filteredResult = result
-            //    .Where(x => x.SensorTypeName == "Sensor1" &&
-            //                x.Province == "Province1" &&
-            //                x.ConsistentReadings.Any
-            //                (x => x.Unit == Unit.mg_m3)).ToList();
+            filteredResult = result
+                .Single(x => x.SensorTypeName == "Sensor1" &&
+                             x.Province == "Province1" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.mg_m3));
 
-            //Assert.NotNull(filteredResult);
-            //Assert.Equal(2, filteredResult.Count);
+            Assert.NotNull(filteredResult);
+            Assert.Equal(2, filteredResult.ConsistentReadings.Count);
+            Assert.True(filteredResult.ConsistentReadings.All(
+                x => x.Unit == Unit.mg_m3 &&
+                     x.SensorTypeName == "Sensor1" &&
+                     x.Province == "Province1"));
 
-            //filteredResult = result
-            //    .Where(x => x.SensorTypeName == "Sensor1" &&
-            //                x.Province == "Province1" &&
-            //                x.ConsistentReadings.Any
-            //                (x => x.Unit == Unit.µg_m3)).ToList();
+            filteredResult = result
+                .Single(x => x.SensorTypeName == "Sensor1" &&
+                             x.Province == "Province1" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.µg_m3));
 
-            //Assert.NotNull(filteredResult);
-            //Assert.Equal(2, filteredResult.Count);
+            Assert.NotNull(filteredResult);
+            Assert.Equal(2, filteredResult.ConsistentReadings.Count);
+            Assert.True(filteredResult.ConsistentReadings.All(
+                x => x.Unit == Unit.µg_m3 &&
+                     x.SensorTypeName == "Sensor1" &&
+                     x.Province == "Province1"));
 
-            //filteredResult = result
-            //    .Where(x => x.SensorTypeName == "Sensor2" &&
-            //                x.Province == "Province1" &&
-            //                x.ConsistentReadings.Any
-            //                (x => x.Unit == Unit.mg_m3)).ToList();
-            //Assert.NotNull(filteredResult);
-            //Assert.Equal(2, filteredResult.Count);
+            filteredResult = result
+                .Single(x => x.SensorTypeName == "Sensor2" &&
+                             x.Province == "Province1" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.mg_m3));
 
-            //filteredResult = result
-            //    .Where(x => x.SensorTypeName == "Sensor3" &&
-            //                x.Province == "Province3" &&
-            //                x.ConsistentReadings.Any
-            //                (x => x.Unit == Unit.ng_m3)).ToList();
+            Assert.NotNull(filteredResult);
+            Assert.Equal(2, filteredResult.ConsistentReadings.Count);
+            Assert.True(filteredResult.ConsistentReadings.All(
+                x => x.Unit == Unit.mg_m3 &&
+                     x.SensorTypeName == "Sensor2" &&
+                     x.Province == "Province1"));
 
-            //Assert.NotNull(filteredResult);
-            //Assert.Equal(2, filteredResult.Count);
+            filteredResult = result
+                .Single(x => x.SensorTypeName == "Sensor3" &&
+                             x.Province == "Province3" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.ng_m3));
 
-            //filteredResult = result
-            //    .Where(x => x.SensorTypeName == "Sensor3" &&
-            //                x.Province == "Province2" &&
-            //                x.ConsistentReadings.Any
-            //                (x => x.Unit == Unit.ng_m3)).ToList();
+            Assert.NotNull(filteredResult);
+            Assert.Equal(2, filteredResult.ConsistentReadings.Count);
+            Assert.True(filteredResult.ConsistentReadings.All(
+                x => x.Unit == Unit.ng_m3 &&
+                     x.SensorTypeName == "Sensor3" &&
+                     x.Province == "Province3"));
 
-            //Assert.NotNull(filteredResult);
-            //Assert.Equal(1, filteredResult.Count);
+            filteredResult = result
+                .Single(x => x.SensorTypeName == "Sensor3" &&
+                             x.Province == "Province2" &&
+                             x.ConsistentReadings.Any
+                            (x => x.Unit == Unit.ng_m3));
+
+            Assert.NotNull(filteredResult);
+            Assert.Equal(1, filteredResult.ConsistentReadings.Count);
+            Assert.True(filteredResult.ConsistentReadings.All(
+                x => x.Unit == Unit.ng_m3 &&
+                     x.SensorTypeName == "Sensor3" &&
+                     x.Province == "Province2"));
         }
 
         public static IEnumerable<object[]> GetConsistentReadings()
@@ -149,7 +180,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor1" &&
                                              x.Province == "Province1" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.ng_m3)), 2
+                                            (x => x.Unit == Unit.ng_m3)), 2,
+
+                new Func<ConsistentReading, bool>(x =>
+                                                  x.Unit == Unit.ng_m3 &&
+                                                  x.SensorTypeName == "Sensor1" &&
+                                                  x.Province == "Province1")
             };
 
             yield return new object[]
@@ -164,7 +200,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor1" &&
                                              x.Province == "Province1" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.mg_m3)), 2
+                                            (x => x.Unit == Unit.mg_m3)), 2,
+
+                new Func<ConsistentReading, bool>(x =>
+                                                  x.Unit == Unit.mg_m3 &&
+                                                  x.SensorTypeName == "Sensor1" &&
+                                                  x.Province == "Province1")
             };
 
             yield return new object[]
@@ -179,7 +220,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor1" &&
                                              x.Province == "Province1" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.µg_m3)), 2
+                                            (x => x.Unit == Unit.µg_m3)), 2,
+
+                new Func<ConsistentReading, bool>(x =>
+                                                  x.Unit == Unit.µg_m3 &&
+                                                  x.SensorTypeName == "Sensor1" &&
+                                                  x.Province == "Province1")
             };
 
             yield return new object[]
@@ -194,7 +240,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor2" &&
                                              x.Province == "Province1" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.mg_m3)), 2
+                                            (x => x.Unit == Unit.mg_m3)), 2,
+
+                new Func<ConsistentReading, bool>(x =>
+                                                  x.Unit == Unit.mg_m3 &&
+                                                  x.SensorTypeName == "Sensor2" &&
+                                                  x.Province == "Province1")
 
             };
 
@@ -209,7 +260,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor3" &&
                                              x.Province == "Province2" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.ng_m3)), 1
+                                            (x => x.Unit == Unit.ng_m3)), 1,
+
+                new Func<ConsistentReading, bool>(x =>
+                                                  x.Unit == Unit.ng_m3 &&
+                                                  x.SensorTypeName == "Sensor3" &&
+                                                  x.Province == "Province2")
 
             };
 
@@ -225,7 +281,12 @@ namespace SimulationExercise.Tests
                                              x.SensorTypeName == "Sensor3" &&
                                              x.Province == "Province3" &&
                                              x.ConsistentReadings.Any
-                                            (x => x.Unit == Unit.ng_m3)), 2
+                                            (x => x.Unit == Unit.ng_m3)), 2,
+
+                new Func<ConsistentReading, bool>(x => 
+                                                  x.Unit == Unit.ng_m3 &&
+                                                  x.SensorTypeName == "Sensor3" &&
+                                                  x.Province == "Province3")
 
             };
         }

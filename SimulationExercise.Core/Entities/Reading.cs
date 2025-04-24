@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
 
-namespace SimulationExercise.Core
+namespace SimulationExercise.Core.Entities
 {
     public class Reading
     {

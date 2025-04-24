@@ -1,21 +1,19 @@
-﻿using SimulationExercise.Core;
-using SimulationExercise.Core.Contracts;
-using System.ComponentModel;
+﻿using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Entities;
 
-namespace SimulationExercise.Services
+namespace SimulationExercise.Services.Factory
 {
     public class AverageProvinceDataFactory : IAverageProvinceDataFactory
     {
-        public Result<AverageProvinceData> CreateAverageProvinceData
-                                          (ProvinceData provinceData)
+        public Result<AverageProvinceData> CreateAverageProvinceData(ProvinceData provinceData)
         {
             List<string> errors = IsEachReadingEqual(provinceData);
             if (errors.Count == 0)
             {
-                double averageValue = provinceData.ConsistentReadings
-                    .Average(r => r.Value);
-                int averageDaysOfMeasure = (int)provinceData.ConsistentReadings
-                    .Average(r => r.DaysOfMeasure);
+                double averageValue = provinceData
+                    .ConsistentReadings.Average(r => r.Value);
+                int averageDaysOfMeasure = (int)provinceData
+                    .ConsistentReadings.Average(r => r.DaysOfMeasure);
                 var unit = provinceData.ConsistentReadings[0].Unit;
 
                 var averageProvinceData = new AverageProvinceData(

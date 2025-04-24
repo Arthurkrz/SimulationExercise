@@ -1,6 +1,6 @@
 ﻿using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Core
+namespace SimulationExercise.Core.Entities
 {
     public class AverageProvinceData
     {

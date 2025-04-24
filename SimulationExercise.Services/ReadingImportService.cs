@@ -1,7 +1,7 @@
 ﻿using FileHelpers;
-using SimulationExercise.Core;
 using SimulationExercise.Core.Contracts;
 using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.Entities;
 
 namespace SimulationExercise.Services
 {
@@ -9,53 +9,35 @@ namespace SimulationExercise.Services
     {
         public ImportResult Import(Stream stream)
         {
+            if (stream == null) throw new FormatException("Empty stream.");
 
             var engine = new FileHelperEngine<ReadingDTO>();
             engine.ErrorMode = ErrorMode.SaveAndContinue;
 
             using (var sr = new StreamReader(stream))
             {
-                var currentHeader = sr.ReadLine();
-                currentHeader = currentHeader.Replace(" ", "");
+                var currentHeader = sr.ReadLine().Replace(" ", "");
                 var header = engine.GetFileHeader();
+
                 if (!header.Equals(currentHeader, StringComparison.OrdinalIgnoreCase))
-                {
                     throw new FormatException("Invalid header values.");
-                }
 
                 var engineRecords = engine.ReadStream(sr);
                 var engineErrors = engine.ErrorManager.Errors;
                 List<string> errorString = new List<string>();
 
-                foreach (var errorInfo in engineErrors)
-                {
+                foreach (var errorInfo in engineErrors) 
                     errorString.Add(errorInfo.ExceptionInfo.Message);
-                }
 
-                List<Reading> recordReading = new List<Reading>();
-                foreach (var record in engineRecords)
-                {
-                    bool readingIsHistoric = IsHistoric(record.Storico);
-                    Reading reading = new Reading(
-                        record.IdSensore,
-                        record.NomeTipoSensore,
-                        record.UnitaMisura,
-                        record.Idstazione,
-                        record.NomeStazione,
-                        record.Quota,
-                        record.Provincia,
-                        record.Comune,
-                        readingIsHistoric,
-                        record.DataStart,
-                        record.DataStop,
-                        record.Utm_Nord,
-                        record.UTM_Est,
-                        record.lat,
-                        record.lng
-                    );
-
-                    recordReading.Add(reading);
-                }
+                var recordReading = engineRecords.Select(r => 
+                                             new Reading(r.IdSensore, r.NomeTipoSensore,
+                                                         r.UnitaMisura, r.Idstazione,
+                                                         r.NomeStazione, r.Quota,
+                                                         r.Provincia, r.Comune,
+                                                         IsHistoric(r.Storico),
+                                                         r.DataStart, r.DataStop,
+                                                         r.Utm_Nord, r.UTM_Est,
+                                                         r.lat, r.lng)).ToList();
 
                 return new ImportResult(recordReading, errorString);
             }

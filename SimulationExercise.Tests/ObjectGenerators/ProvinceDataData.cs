@@ -1,8 +1,8 @@
 ﻿using Bogus;
-using SimulationExercise.Core;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Tests
+namespace SimulationExercise.Tests.ObjectGeneration
 {
     public static class ProvinceDataData
     {

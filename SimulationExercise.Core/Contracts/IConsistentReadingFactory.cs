@@ -1,4 +1,6 @@
-﻿namespace SimulationExercise.Core.Contracts
+﻿using SimulationExercise.Core.Entities;
+
+namespace SimulationExercise.Core.Contracts
 {
     public interface IConsistentReadingFactory
     {

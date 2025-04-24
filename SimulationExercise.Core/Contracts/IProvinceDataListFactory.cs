@@ -1,9 +1,9 @@
-﻿namespace SimulationExercise.Core.Contracts
+﻿using SimulationExercise.Core.Entities;
+
+namespace SimulationExercise.Core.Contracts
 {
     public interface IProvinceDataListFactory
     {
-        IList<ProvinceData> CreateProvinceDataList
-                           (IList<ConsistentReading> 
-                                  consistentReadings);
+        IList<ProvinceData> CreateProvinceDataList(IList<ConsistentReading> consistentReadings);
     }
 }
