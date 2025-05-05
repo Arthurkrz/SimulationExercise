@@ -14,7 +14,7 @@ namespace SimulationExercise.Services.Factory
             _validator = validator;
         }
 
-        public Result<ConsistentReading> CreateConsistentReading (Reading reading)
+        public Result<ConsistentReading> CreateConsistentReading(Reading reading)
         {
             reading.Unit = reading.Unit switch
             {

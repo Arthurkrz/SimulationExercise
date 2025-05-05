@@ -113,7 +113,7 @@ namespace SimulationExercise.Tests.ObjectGeneration
                 faker.Random.Int(1, 1000)
             };
 
-            double averageValue = randomValues.Average();
+            double averageValue = Math.Round(randomValues.Average(), 2);
             int averageDaysOfMeasure = (int)randomDaysOfMeasure.Average();
 
             yield return new object[]

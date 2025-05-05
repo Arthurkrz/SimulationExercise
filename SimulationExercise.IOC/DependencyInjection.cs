@@ -17,6 +17,7 @@ namespace SimulationExercise.IOC
             services.AddScoped<IAverageProvinceDataFactory, AverageProvinceDataFactory>();
             services.AddScoped<IProvinceDataListFactory, ProvinceDataListFactory>();
             services.AddScoped<IReadingImportService, ReadingImportService>();
+            services.AddScoped<IFileProcessingService, FileProcessingService>();
         }
 
         public static void InjectValidators(this IServiceCollection services)

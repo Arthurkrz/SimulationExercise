@@ -14,6 +14,7 @@
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="FileHelpers" Version="3.5.2" />
     <PackageReference Include="FluentAssertions" Version="8.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -22,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimulationExercise.Core\SimulationExercise.Core.csproj" />
+    <ProjectReference Include="..\SimulationExercise.IOC\SimulationExercise.IOC.csproj" />
     <ProjectReference Include="..\SimulationExercise.Services\SimulationExercise.Services.csproj" />
   </ItemGroup>
 

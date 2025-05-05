@@ -10,8 +10,8 @@ namespace SimulationExercise.Services.Factory
             List<string> errors = IsEachReadingEqual(provinceData);
             if (errors.Count == 0)
             {
-                double averageValue = provinceData
-                    .ConsistentReadings.Average(r => r.Value);
+                double averageValue = Math.Round(provinceData
+                    .ConsistentReadings.Average(r => r.Value), 2);
                 int averageDaysOfMeasure = (int)provinceData
                     .ConsistentReadings.Average(r => r.DaysOfMeasure);
                 var unit = provinceData.ConsistentReadings[0].Unit;
