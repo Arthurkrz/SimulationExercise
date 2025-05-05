@@ -55,23 +55,50 @@ namespace SimulationExercise.Tests
         [Fact]
         public void ProcessFile_ShouldProcessFile()
         {
+            // Arrange
+            string outDirectoryTestPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest";
 
+            // Act
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", outDirectoryTestPath);
+            var files = Directory.GetFiles(outDirectoryTestPath);
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Never);
+
+            Assert.NotEmpty(files);
         }
 
         [Fact]
-        public void ProcessFile_ShouldReturnError_WhenNoInDirectoryFound()
+        public void ProcessFile_ShouldCreateDirectory_WhenNoInDirectoryFound()
         {
-            // Act & Assert
-            _sut.ProcessFile("InvalidPath", "OutputPath");
-            _loggerMock.Verify(x => x.LogError(It.IsAny<string>()), Times.Once);
+            // Act
+            string nonExistentInDirectoryTestPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\NonExistentINDirectoryTest";
+            _sut.ProcessFile(nonExistentInDirectoryTestPath, "OutputPath");
+            
+            // Assert
+            Assert.True(Directory.Exists(nonExistentInDirectoryTestPath));
+
+            // Teardown
+            Directory.Delete(nonExistentInDirectoryTestPath);
         }
 
         [Fact]
         public void ProcessFile_ShouldReturnError_WhenNoCSVFilesFound()
         {
             // Act & Assert
-            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\EmptyINDirectory", "");
+            string emptyInDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\EmptyINDirectory";
+            _sut.ProcessFile(emptyInDirectoryPath, "");
             _loggerMock.Verify(x => x.LogError(It.IsAny<string>()), Times.Once);
+
+            // Teardown
+            Directory.Delete(emptyInDirectoryPath);
         }
 
         [Fact]
@@ -90,6 +117,16 @@ namespace SimulationExercise.Tests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                       .Contains("ERROR")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
                                                        .Contains("No readings have been imported!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
@@ -100,16 +137,26 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoConsistentReadingsCreated()
         {
             // Arrange
-            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             Result<ConsistentReading> result = 
                 Result<ConsistentReading>.Ko(new List<string> { "ERROR" });
 
-            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(reading))
+            _consistentReadingFactoryMock.Setup(x => x
+                                         .CreateConsistentReading(It.IsAny<Reading>()))
                                          .Returns(result);
 
             // Act & Assert
             var exception = Assert.Throws<NullReferenceException>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
             Assert.Equal("No consistent readings have been created!", exception.Message);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                       .Contains("ERROR")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -126,9 +173,7 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoProvinceDataCreated()
         {
             // Arrange
-            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude") };
-            
-            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(consistentReadings))
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<List<ConsistentReading>>()))
                                         .Returns(new List<ProvinceData>());
 
             // Act & Assert
@@ -150,27 +195,17 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoAverageProvinceDataCreated()
         {
             // Arrange
-            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
-            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
-            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };
-            ProvinceData provinceData = new ProvinceData("Province", "Sensor", consistentReadings);
-            AverageProvinceData averageProvinceData = new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123);
-            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
-
-            Result <ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
-            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ok(averageProvinceData);
-
             _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
-                                     .Returns(importResult);
+                                     .Returns(It.IsAny<ImportResult>);
 
-            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(reading))
-                                         .Returns(resultConsistentReadingCreation);
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(It.IsAny<Result<ConsistentReading>>);
 
-            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
-                                        .Returns(new List<ProvinceData> { provinceData });
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<List<ConsistentReading>>()))
+                                        .Returns(It.IsAny<List<ConsistentReading>>);
 
-            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(provinceData))
-                                           .Returns(resultAverageProvinceDataCreation);
+            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(It.IsAny<ProvinceData>()))
+                                           .Returns(It.IsAny<Result<AverageProvinceData>>);
 
             // Act & Assert
             var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
@@ -185,26 +220,6 @@ namespace SimulationExercise.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
-        }
-
-        [Fact]
-        public void ProcessFile_ShouldReturnWarning_WhenErrorsOccurredDuringImport()
-        {
-            // Arrange
-
-
-            // Act & Assert
-
-        }
-
-        [Fact]
-        public void ProcessFile_ShouldReturnWarning_WhenErrorsOccurredDuringConsistentReadingCreation()
-        {
-            // Arrange
-
-
-            // Act & Assert
-
         }
     }
 }

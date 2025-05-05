@@ -14,7 +14,6 @@ services.AddLogging(config =>
 
 using var serviceProvider = services.BuildServiceProvider();
 var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingService>();
-//Oque eh um service locator e qual melhor abordagem ServiceLocator x Inversao de constrole
 
 fileProcessingService.ProcessFile(
     @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\IN",
