@@ -11,7 +11,6 @@ namespace SimulationExercise.Tests.Integration
     {
         private readonly IFileProcessingService _sut;
         private readonly ServiceProvider _serviceProvider;
-        private readonly Mock<ILogger<FileProcessingService>> _loggerMock;
 
         public FileProcessingIntegrationTest()
         {
@@ -28,11 +27,10 @@ namespace SimulationExercise.Tests.Integration
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
             _sut = _serviceProvider.GetRequiredService<IFileProcessingService>();
-            _loggerMock = new Mock<ILogger<FileProcessingService>>();
         }
 
         [Fact]
-        public void FileProcessingService_ShouldExportFiles_WithNoErrors()
+        public void Program_ShouldExportFiles_WithNoErrors()
         {
             // Arrange
             string outTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTest";
@@ -44,17 +42,29 @@ namespace SimulationExercise.Tests.Integration
             var outFiles = Directory.GetFiles(outTestDirectoryPath);
 
             // Assert
-            Assert.True(outFiles.Length > 0);
-            // ASSERT DE AUSÊNCIA DE ERROS
+            Assert.Single(outFiles);
 
             // Teardown
-            Directory.Delete(outTestDirectoryPath);
+            Directory.Delete(outTestDirectoryPath, true);
         }
 
-        public void FileProcessingService_ShouldReturnError_WhenNoAverageProvinceDataCreated()
+        [Fact]
+        public void Program_ShouldReturnError_WhenNoAverageProvinceDataCreated()
         {
             // Arrange
-      
+            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestErrors";
+
+            // Act
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestErrors", 
+                outTestErrorDirectoryPath);
+
+            var outFiles = Directory.GetFiles(outTestErrorDirectoryPath);
+
+            // Assert
+            Assert.True(outFiles.Length == 2);
+
+            // Teardown
+            Directory.Delete(outTestErrorDirectoryPath, true);
         }
     }
 }

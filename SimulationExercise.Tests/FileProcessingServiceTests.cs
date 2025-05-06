@@ -86,7 +86,7 @@ namespace SimulationExercise.Tests
             Assert.True(Directory.Exists(nonExistentInDirectoryTestPath));
 
             // Teardown
-            Directory.Delete(nonExistentInDirectoryTestPath);
+            Directory.Delete(nonExistentInDirectoryTestPath, true);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace SimulationExercise.Tests
             _loggerMock.Verify(x => x.LogError(It.IsAny<string>()), Times.Once);
 
             // Teardown
-            Directory.Delete(emptyInDirectoryPath);
+            Directory.Delete(emptyInDirectoryPath, true);
         }
 
         [Fact]
@@ -201,8 +201,8 @@ namespace SimulationExercise.Tests
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
                                          .Returns(It.IsAny<Result<ConsistentReading>>);
 
-            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<List<ConsistentReading>>()))
-                                        .Returns(It.IsAny<List<ConsistentReading>>);
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<IList<ConsistentReading>>()))
+                                        .Returns(It.IsAny<IList<ProvinceData>>);
 
             _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(It.IsAny<ProvinceData>()))
                                            .Returns(It.IsAny<Result<AverageProvinceData>>);
