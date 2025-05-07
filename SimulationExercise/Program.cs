@@ -1,14 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using SimulationExercise.Core.Contracts;
 using SimulationExercise.IOC;
-using Serilog;
-using Serilog.Events;
-
-Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-                                      .WriteTo.Console()
-                                      .WriteTo.File("PATH", restrictedToMinimumLevel: LogEventLevel.Error)
-                                      .CreateLogger();
 
 ServiceCollection services = new ServiceCollection();
 DependencyInjection.InjectServices(services);
@@ -26,5 +20,3 @@ var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingSe
 fileProcessingService.ProcessFile(
     @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\IN",
     @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\OUT");
-
-Log.CloseAndFlush();

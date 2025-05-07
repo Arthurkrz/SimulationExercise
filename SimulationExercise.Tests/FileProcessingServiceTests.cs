@@ -57,10 +57,34 @@ namespace SimulationExercise.Tests
         {
             // Arrange
             string outDirectoryTestPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest";
+            var errorFile = "Error.log";
+            var readingFile = "AverageProvinceData.csv";
+
+            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };
+            ProvinceData provinceData = new ProvinceData("Province", "Sensor", consistentReadings);
+            AverageProvinceData averageProvinceData = new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123);
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ok(averageProvinceData);
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+                         .Returns(importResult);
+
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(resultConsistentReadingCreation);
+
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
+                                        .Returns(new List<ProvinceData> { provinceData });
+
+            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(provinceData))
+                                           .Returns(resultAverageProvinceDataCreation);
 
             // Act
             _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", outDirectoryTestPath);
-            var files = Directory.GetFiles(outDirectoryTestPath);
+            var files = Directory.GetFiles(outDirectoryTestPath).ToString();
 
             // Assert
             _loggerMock.Verify(
@@ -72,7 +96,11 @@ namespace SimulationExercise.Tests
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Never);
 
-            Assert.NotEmpty(files);
+            Assert.Contains(errorFile, files);
+            Assert.Contains(readingFile, files);
+
+            // Teardown
+            //Directory.Delete(outDirectoryTestPath, true);
         }
 
         [Fact]
@@ -94,8 +122,18 @@ namespace SimulationExercise.Tests
         {
             // Act & Assert
             string emptyInDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\EmptyINDirectory";
-            _sut.ProcessFile(emptyInDirectoryPath, "");
-            _loggerMock.Verify(x => x.LogError(It.IsAny<string>()), Times.Once);
+            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(emptyInDirectoryPath, ""));
+            Assert.Equal("No CSV files found in the 'IN' directory.", exception.Message);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                       .Contains("No CSV files found in the 'IN' directory.")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
 
             // Teardown
             Directory.Delete(emptyInDirectoryPath, true);
@@ -137,6 +175,12 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoConsistentReadingsCreated()
         {
             // Arrange
+            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+             .Returns(importResult);
+
             Result<ConsistentReading> result = 
                 Result<ConsistentReading>.Ko(new List<string> { "ERROR" });
 
@@ -145,7 +189,7 @@ namespace SimulationExercise.Tests
                                          .Returns(result);
 
             // Act & Assert
-            var exception = Assert.Throws<NullReferenceException>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
+            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
             Assert.Equal("No consistent readings have been created!", exception.Message);
 
             _loggerMock.Verify(
@@ -173,11 +217,24 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoProvinceDataCreated()
         {
             // Arrange
+            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+                         .Returns(importResult);
+
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(resultConsistentReadingCreation);
+
             _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<List<ConsistentReading>>()))
                                         .Returns(new List<ProvinceData>());
 
             // Act & Assert
-            var exception = Assert.Throws<NullReferenceException>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
+            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
             Assert.Equal("No province data have been created!", exception.Message);
 
             _loggerMock.Verify(
@@ -195,17 +252,27 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoAverageProvinceDataCreated()
         {
             // Arrange
+            Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };
+            ProvinceData provinceData = new ProvinceData("Province", "Sensor", consistentReadings);
+            AverageProvinceData averageProvinceData = new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123);
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ko(new List<string> { "ERROR" });
+
             _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
-                                     .Returns(It.IsAny<ImportResult>);
+                                     .Returns(importResult);
 
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
-                                         .Returns(It.IsAny<Result<ConsistentReading>>);
+                                         .Returns(resultConsistentReadingCreation);
 
-            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(It.IsAny<IList<ConsistentReading>>()))
-                                        .Returns(It.IsAny<IList<ProvinceData>>);
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
+                                        .Returns(new List<ProvinceData> { provinceData });
 
-            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(It.IsAny<ProvinceData>()))
-                                           .Returns(It.IsAny<Result<AverageProvinceData>>);
+            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(provinceData))
+                                           .Returns(resultAverageProvinceDataCreation);
 
             // Act & Assert
             var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));

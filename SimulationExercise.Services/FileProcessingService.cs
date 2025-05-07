@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 using SimulationExercise.Core.Contracts;
 using SimulationExercise.Core.Entities;
 
@@ -28,8 +30,10 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessFile(string inDirectoryPath, string outDirectoryPath)
+        public void ProcessFile(string inDirectoryPath, string baseOutDirectoryPath)
         {
+            string noErrorsFilePath = ExportDirectoryPathGeneratorAndLoggerConfiguration(baseOutDirectoryPath);
+
             if (!Directory.Exists(inDirectoryPath))
             {
                 Directory.CreateDirectory(inDirectoryPath);
@@ -37,7 +41,10 @@ namespace SimulationExercise.Services
 
             var files = Directory.GetFiles(inDirectoryPath);
             if (files.Length == 0)
+            {
                 _logger.LogError("No CSV files found in the 'IN' directory.");
+                throw new Exception("No CSV files found in the 'IN' directory.");
+            }
 
             foreach (var file in files)
             {
@@ -79,14 +86,14 @@ namespace SimulationExercise.Services
                     if (!cr.Success)
                     {
                         _logger.LogError($"Errors found!");
+                        _logger.LogDebug("test");
                         foreach (var error in cr.Errors)
                         {
                             _logger.LogError(error);
                             continue;
                         }
                     }
-
-                    consistentReadings.Add(cr.Value);
+                    else consistentReadings.Add(cr.Value);
                 }
 
                 if (consistentReadings.Count == 0)
@@ -130,8 +137,7 @@ namespace SimulationExercise.Services
                             continue;
                         }
                     }
-
-                    averageProvinceDatas.Add(averageProvinceData.Value);
+                    else averageProvinceDatas.Add(averageProvinceData.Value);
                 }
 
                 if (averageProvinceDatas.Count == 0)
@@ -145,26 +151,36 @@ namespace SimulationExercise.Services
                 : $"{averageProvinceDatas.Count} average province datas created successfully!";
                 _logger.LogInformation(successMessageAverageProvinceDataCreation);
 
-                string specificReadingsAndErrorsDirectoryName = DateTime.Now.ToString
-                                                                    ("yyyyMMdd_HHmmss");
-
-                string fullFolderPath = Path.Combine(outDirectoryPath,
-                                specificReadingsAndErrorsDirectoryName);
-
-                string noErrorsFilePath = Path.Combine(fullFolderPath, "AverageProvinceData.csv");
-
-                Directory.CreateDirectory(fullFolderPath);
-
-                _logger.LogInformation($"Export folder named '{specificReadingsAndErrorsDirectoryName}' " +
-                                        $"in path '{fullFolderPath}' created!\n");
-
                 using var fileStream = new FileStream(noErrorsFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);
 
+                Log.CloseAndFlush();
+
                 _averageProvinceDataExportService.Export(averageProvinceDatas,
                                                             fileStream);
             }
+        }
+
+        private string ExportDirectoryPathGeneratorAndLoggerConfiguration(string baseOutPath)
+        {
+            string specificReadingsAndErrorsDirectoryName = DateTime.Now.ToString
+                                                    ("yyyyMMdd_HHmmss");
+
+            string fullFolderPath = Path.Combine(baseOutPath,
+                            specificReadingsAndErrorsDirectoryName);
+
+            Directory.CreateDirectory(fullFolderPath);
+
+            string noErrorsFilePath = Path.Combine(fullFolderPath, "AverageProvinceData.csv");
+            string errorsFilePath = Path.Combine(fullFolderPath, "Errors.log");
+
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+                                                  .WriteTo.Console()
+                                                  .WriteTo.File(errorsFilePath, restrictedToMinimumLevel: LogEventLevel.Error)
+                                                  .CreateLogger();
+
+            return noErrorsFilePath;
         }
     }
 }
