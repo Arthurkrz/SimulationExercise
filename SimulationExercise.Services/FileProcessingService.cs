@@ -43,7 +43,7 @@ namespace SimulationExercise.Services
             if (files.Length == 0)
             {
                 _logger.LogError("No CSV files found in the 'IN' directory.");
-                throw new Exception("No CSV files found in the 'IN' directory.");
+                return;    
             }
 
             foreach (var file in files)
@@ -86,13 +86,13 @@ namespace SimulationExercise.Services
                     if (!cr.Success)
                     {
                         _logger.LogError($"Errors found!");
-                        _logger.LogDebug("test");
                         foreach (var error in cr.Errors)
                         {
                             _logger.LogError(error);
                             continue;
                         }
                     }
+
                     else consistentReadings.Add(cr.Value);
                 }
 
@@ -137,6 +137,7 @@ namespace SimulationExercise.Services
                             continue;
                         }
                     }
+
                     else averageProvinceDatas.Add(averageProvinceData.Value);
                 }
 
@@ -175,10 +176,7 @@ namespace SimulationExercise.Services
             string noErrorsFilePath = Path.Combine(fullFolderPath, "AverageProvinceData.csv");
             string errorsFilePath = Path.Combine(fullFolderPath, "Errors.log");
 
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-                                                  .WriteTo.Console()
-                                                  .WriteTo.File(errorsFilePath, restrictedToMinimumLevel: LogEventLevel.Error)
-                                                  .CreateLogger();
+            LogPathHolder.ErrorLogPath = errorsFilePath;
 
             return noErrorsFilePath;
         }

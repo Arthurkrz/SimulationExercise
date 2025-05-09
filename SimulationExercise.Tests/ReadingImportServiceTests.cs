@@ -76,6 +76,7 @@ namespace SimulationExercise.Tests
         {
             // Arrange
             string documentText = @"IdSensore, NomeTipoSensore, UnitaMisura, Idstazione, NomeStazione, Quota, Provincia, Comune, Storico, DataStart, DataStop, Utm_Nord, UTM_Est, lat, lng, Location
+, Arsenico, ng/m³,560, Varese v.Copelli,383, VA, Varese, N,01/04/2008,,5073728,486035,45.8169745,8.82024911, POINT (8.82024911 45.8169745)
 12691, Arsenico, ng/m³,, Varese v.Copelli,383, VA, Varese, N,01/04/2008,,5073728,486035,45.8169745,8.82024911, POINT (8.82024911 45.8169745)
 12691, Arsenico, ng/m³,560, Varese v.Copelli,, VA, Varese, N,01/04/2008,,5073728,486035,45.8169745,8.82024911, POINT (8.82024911 45.8169745)
 12691, Arsenico, ng/m³,560, Varese v.Copelli,383, VA, Varese, N,,,5073728,486035,45.8169745,8.82024911, POINT (8.82024911 45.8169745)

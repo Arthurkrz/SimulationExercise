@@ -1,11 +1,14 @@
-﻿using FluentValidation;
+﻿using System.Text;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.IOC;
 using SimulationExercise.Services;
+using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -122,8 +125,7 @@ namespace SimulationExercise.Tests
         {
             // Act & Assert
             string emptyInDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\EmptyINDirectory";
-            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(emptyInDirectoryPath, ""));
-            Assert.Equal("No CSV files found in the 'IN' directory.", exception.Message);
+            _sut.ProcessFile(emptyInDirectoryPath, "");
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -287,6 +289,131 @@ namespace SimulationExercise.Tests
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
+        }
+
+        [Fact]
+        public void ProcessFile_ShouldExportSpecificErrorsInFileThatCannotSurviveRealPipeline_WhenExportEngineFails()
+        {
+            // Arrange
+            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTestError";
+            Reading reading = new Reading(123, outTestErrorDirectoryPath, "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };
+            ProvinceData provinceData = new ProvinceData("Province", "Sensor", consistentReadings);
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            //AverageProvinceData emptyAverageProvinceData = new AverageProvinceData("", "", 0, Core.Enum.Unit.ng_m3, 0);
+            //AverageProvinceData nullAverageProvinceData = new AverageProvinceData(null, null, 0, default, 0);
+            //IList<AverageProvinceData> wrongAverageProvinceDatas = new List<AverageProvinceData> { emptyAverageProvinceData, nullAverageProvinceData };
+
+            string errors = @"";
+            var errorBytes = Enconding.UTF8.GetBytes(errors);
+            var errorStream = new MemoryStream(errorBytes);
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ok(new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123)); // null?
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+                                     .Returns(importResult);
+
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(resultConsistentReadingCreation);
+
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
+                                        .Returns(new List<ProvinceData> { provinceData });
+
+            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(provinceData))
+                                           .Returns(resultAverageProvinceDataCreation);
+
+            //_averageProvinceDataExportServiceMock.Setup(x => x.Export(x => x.Export(wrongAverageProvinceDatas, errorStream));
+
+            // Act & Assert
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", outTestErrorDirectoryPath);
+
+            var exportDirectories = Directory.GetDirectories(outTestErrorDirectoryPath);
+            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Error.log");
+
+            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+
+            Assert.Equal("", resultErrorOutputText);
+        }
+
+        [Fact]
+        public void ProcessFile_ShouldExportSpecificErrorsInFileThatCannotSurviveRealPipeline_WhenAverageProvinceDataCreationFails()
+        {
+            // Arrange
+            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTestError";
+            Reading reading = new Reading(123, outTestErrorDirectoryPath, "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+
+            ConsistentReading wrongConsistentReading1 = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            ConsistentReading wrongConsistentReading2 = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            IList<ConsistentReading> wrongConsistentReadings = new List<ConsistentReading> { wrongConsistentReading1, wrongConsistentReading2 };
+
+            ProvinceData wrongProvinceData = new ProvinceData("Province", "Sensor", wrongConsistentReadings);
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ko(new List<string> { "ERROR" });
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+                                     .Returns(importResult);
+
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(resultConsistentReadingCreation);
+
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
+                                        .Returns(new List<ProvinceData> { wrongProvinceData });
+
+            // Act & Assert
+            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", outTestErrorDirectoryPath));
+
+            var exportDirectories = Directory.GetDirectories(outTestErrorDirectoryPath);
+            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Error.log");
+
+            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+
+            Assert.Equal("No average province data have been created!", exception.Message);
+            Assert.Equal("", resultErrorOutputText);
+        }
+
+        [Fact]
+        public void ProcessFile_ShouldExportSpecificErrorsInFileThatCannotSurviveRealPipeline_WhenProvinceDataContainsNoReadings()
+        {
+            // Arrange
+            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTestError";
+            Reading reading = new Reading(123, outTestErrorDirectoryPath, "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
+            ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
+            ProvinceData provinceDataWithEmptyConsistentReadings = new ProvinceData("Province", "Sensor", new List<ConsistentReading>());
+            AverageProvinceData averageProvinceData = new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123);
+            ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
+
+            Result<ConsistentReading> resultConsistentReadingCreation = Result<ConsistentReading>.Ok(consistentReading);
+            Result<AverageProvinceData> resultAverageProvinceDataCreation = Result<AverageProvinceData>.Ok(new AverageProvinceData("Province", "Sensor", 123, Core.Enum.Unit.ng_m3, 123));
+
+            _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
+                                     .Returns(importResult);
+
+            _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(It.IsAny<Reading>()))
+                                         .Returns(resultConsistentReadingCreation);
+
+            _provinceDataListFactoryMock.Setup(x => x.CreateProvinceDataList(new List<ConsistentReading> { consistentReading }))
+                                        .Returns(new List<ProvinceData> { provinceDataWithEmptyConsistentReadings });
+
+            _averageProvinceDataFactoryMock.Setup(x => x.CreateAverageProvinceData(provinceDataWithEmptyConsistentReadings))
+                                           .Returns(resultAverageProvinceDataCreation);
+
+            // Act & Assert
+            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", outTestErrorDirectoryPath));
+
+            var exportDirectories = Directory.GetDirectories(outTestErrorDirectoryPath);
+            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Error.log");
+
+            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+
+            Assert.Equal("No average province data have been created!", exception.Message);
+            Assert.Equal("", resultErrorOutputText);
+
         }
     }
 }
