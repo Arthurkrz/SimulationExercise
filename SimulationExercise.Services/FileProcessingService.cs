@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using SimulationExercise.Core;
 using SimulationExercise.Core.Contracts;
 using SimulationExercise.Core.Entities;
 
@@ -33,6 +34,7 @@ namespace SimulationExercise.Services
         public void ProcessFile(string inDirectoryPath, string baseOutDirectoryPath)
         {
             string noErrorsFilePath = ExportDirectoryPathGeneratorAndLoggerConfiguration(baseOutDirectoryPath);
+            int i = 0;
 
             if (!Directory.Exists(inDirectoryPath))
             {
@@ -53,12 +55,13 @@ namespace SimulationExercise.Services
                                                 FileMode.Open,
                                                 FileAccess.Read))
                 {
+                    _logger.LogInformation("Importing readings...");
                     importResult = _readingImportService.Import(str);
                 } 
 
                 if (!importResult.Success)
                 {
-                    _logger.LogError("Errors found!");
+                    _logger.LogError($"Errors found! ({i++})");
                     foreach (var error in importResult.Errors)
                     {
                         _logger.LogError(error);
@@ -80,15 +83,16 @@ namespace SimulationExercise.Services
                 IList<ConsistentReading> consistentReadings = 
                     new List<ConsistentReading>();
 
+                _logger.LogInformation("Creating consistent readings...");
                 foreach (Reading reading in importResult.Readings)
                 {
                     var cr = _consistentReadingFactory.CreateConsistentReading(reading);
                     if (!cr.Success)
                     {
-                        _logger.LogError($"Errors found!");
+                        _logger.LogError($"Errors found! ({i++})");
                         foreach (var error in cr.Errors)
                         {
-                            _logger.LogError(error);
+                            _logger.LogError(error); 
                             continue;
                         }
                     }
@@ -107,6 +111,7 @@ namespace SimulationExercise.Services
                 : $"{consistentReadings.Count} consistent readings created successfully!";
                 _logger.LogInformation(successMessageConsistentReadingCreation);
 
+                _logger.LogInformation("Creating province data...");
                 IList<ProvinceData> provinceDatas =
                     _provinceDataListFactory.CreateProvinceDataList(consistentReadings); 
 
@@ -124,13 +129,14 @@ namespace SimulationExercise.Services
                 IList<AverageProvinceData> averageProvinceDatas =
                     new List<AverageProvinceData>();
 
+                _logger.LogInformation("Creating average province data...");
                 foreach (ProvinceData provinceData in provinceDatas)
                 {
                     var averageProvinceData = _averageProvinceDataFactory.CreateAverageProvinceData(provinceData);
 
                     if (!averageProvinceData.Success)
                     {
-                        _logger.LogError("Errors found!");
+                        _logger.LogError($"Errors found! ({i++})");
                         foreach (var errors in averageProvinceData.Errors)
                         {
                             _logger.LogError(errors);
@@ -152,6 +158,7 @@ namespace SimulationExercise.Services
                 : $"{averageProvinceDatas.Count} average province datas created successfully!";
                 _logger.LogInformation(successMessageAverageProvinceDataCreation);
 
+                _logger.LogInformation("Exporting average province data...");
                 using var fileStream = new FileStream(noErrorsFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);

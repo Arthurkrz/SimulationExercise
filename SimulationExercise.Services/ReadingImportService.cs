@@ -16,7 +16,7 @@ namespace SimulationExercise.Services
 
             using (var sr = new StreamReader(stream))
             {
-                var currentHeader = sr.ReadLine().Replace(" ", "");
+                var currentHeader = sr.ReadLine().Replace(" ", "").TrimEnd(';');
                 var header = engine.GetFileHeader();
 
                 if (!header.Equals(currentHeader, StringComparison.OrdinalIgnoreCase))
