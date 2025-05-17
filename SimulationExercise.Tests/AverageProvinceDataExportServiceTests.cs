@@ -25,7 +25,7 @@ namespace SimulationExercise.Tests
                 new AverageProvinceData("Province1", "Sensor2", 20, Unit.mg_m3, 35)
             };
 
-            string expectedResult = "Province1,Sensor2,10,mg/m³,25\r\nProvince1,Sensor2,15,mg/m³,30\r\nProvince1,Sensor2,20,mg/m³,35\r\n";
+            string expectedResult = "Province1,Sensor2,10,mg_m3,25\r\nProvince1,Sensor2,15,mg_m3,30\r\nProvince1,Sensor2,20,mg_m3,35\r\n";
 
             Stream outputStream = new MemoryStream();
 

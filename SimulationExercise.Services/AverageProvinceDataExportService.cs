@@ -28,12 +28,11 @@ namespace SimulationExercise.Services
 
             using (var sw = new StreamWriter(outputStream, leaveOpen: true))
             {
-                records = averageProvinceData.Select(x => new AverageProvinceDataExportDTO
-                                                    (x.Province, x.SensorTypeName,
-                                                     x.AverageValue, x.Unit.ToString()
-                                                                           .Replace("_", "/")
-                                                                           .Replace("3", "³"),
-                                                     x.AverageDaysOfMeasure)).ToList();
+                records = averageProvinceData
+                          .Select(x => new AverageProvinceDataExportDTO
+                                 (x.Province, x.SensorTypeName,
+                                  x.AverageValue, x.Unit.ToString(),
+                                  x.AverageDaysOfMeasure)).ToList();
 
                 engine.WriteStream(sw, records);
             }

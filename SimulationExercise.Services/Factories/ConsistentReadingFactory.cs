@@ -14,7 +14,7 @@ namespace SimulationExercise.Services.Factory
             _validator = validator;
         }
 
-        public Result<ConsistentReading> CreateConsistentReading (Reading reading)
+        public Result<ConsistentReading> CreateConsistentReading(Reading reading)
         {
             reading.Unit = reading.Unit switch
             {
@@ -33,6 +33,8 @@ namespace SimulationExercise.Services.Factory
 
                 return Result<ConsistentReading>.Ko(errors);
             }
+
+            if (reading.StopDate == null) reading.StopDate = DateTime.Now;
 
             Enum.TryParse(reading.Unit, out Unit unit);
             int daysOfMeasure = (reading.StopDate - reading.StartDate)
