@@ -43,9 +43,10 @@ namespace SimulationExercise.Tests.Integration
         public void Program_ShouldExportFiles_WithNoErrors(Stream inputStream, string expectedOutputText)
         {
             // Arrange
-            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTest";
-            string outTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTest";
-            string inFilePath = Path.Combine(inTestDirectoryPath, "NoErrorFile.csv");
+            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestNoErrors";
+            string outTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestNoErrors";
+            string inFilePath = Path.Combine(inTestDirectoryPath, "CSVTestNoErrors.csv");
+            string outErrorFilePath = Path.Combine(outTestDirectoryPath, "Errors.log");
 
             if (!Directory.Exists(inTestDirectoryPath)) Directory.CreateDirectory(inTestDirectoryPath);
             if (!Directory.Exists(outTestDirectoryPath)) Directory.CreateDirectory(outTestDirectoryPath);
@@ -61,11 +62,13 @@ namespace SimulationExercise.Tests.Integration
 
             var exportDirectories = Directory.GetDirectories(outTestDirectoryPath);
             var resultOutFilePath = Path.Combine(exportDirectories[0], "AverageProvinceData.csv");
-
+            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
             var resultOutputText = File.ReadAllText(resultOutFilePath).Trim();
+            var emptyErrorFileOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
             // Assert
             Assert.Single(exportDirectories);
+            Assert.Empty(emptyErrorFileOutputText);
             Assert.True(File.Exists(resultOutFilePath));
             Assert.Equal(expectedOutputText.Trim(), resultOutputText);
 

@@ -102,6 +102,7 @@ namespace SimulationExercise.Tests
             var files = Directory.GetFiles(exportDirectories[0]);
             var readingFile = Path.Combine(exportDirectories[0], files[0]);
 
+            Assert.Single(files);
             Assert.Contains(readingFile, files);
 
             // Teardown
@@ -151,8 +152,7 @@ namespace SimulationExercise.Tests
                 .Returns(new ImportResult(new List<Reading>(), new List<string> { "ERROR" }));
 
             // Act & Assert
-            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
-            Assert.Equal("No readings have been imported!", exception.Message);
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest");
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -193,8 +193,7 @@ namespace SimulationExercise.Tests
                                          .Returns(result);
 
             // Act & Assert
-            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
-            Assert.Equal("No consistent readings have been created!", exception.Message);
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest");
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -238,8 +237,7 @@ namespace SimulationExercise.Tests
                                         .Returns(new List<ProvinceData>());
 
             // Act & Assert
-            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
-            Assert.Equal("No province data have been created!", exception.Message);
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest");
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -279,8 +277,7 @@ namespace SimulationExercise.Tests
                                            .Returns(resultAverageProvinceDataCreation);
 
             // Act & Assert
-            var exception = Assert.Throws<Exception>(() => _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest"));
-            Assert.Equal("No average province data have been created!", exception.Message);
+            _sut.ProcessFile(@"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\INTest", @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests\OUTTest");
 
             _loggerMock.Verify(
                 x => x.Log(
