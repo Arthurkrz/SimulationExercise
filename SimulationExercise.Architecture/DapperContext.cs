@@ -1,4 +1,6 @@
-﻿namespace SimulationExercise.Architecture
+﻿using SimulationExercise.Core.Contracts.Repository;
+
+namespace SimulationExercise.Architecture
 {
     public class DapperContext : IContext
     {
@@ -54,7 +56,7 @@
             {
                 if (Transaction != null)
                 {
-                    if (!_isTransactionCommited) { Transaction.Rollback(); }
+                    if (!_isTransactionCommited) Transaction.Rollback();
                     Transaction.Dispose();
                 }
 
