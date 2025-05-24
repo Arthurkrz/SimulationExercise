@@ -1,4 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
+using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Architecture
 {

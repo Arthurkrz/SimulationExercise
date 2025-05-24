@@ -1,14 +1,10 @@
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SimulationExercise.Core.Contracts;
-using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.Enum;
-using SimulationExercise.IOC;
-using System.Text;
-using SimulationExercise.Console;
 using Serilog.Events;
+using SimulationExercise.Console;
+using SimulationExercise.Core.Contracts;
+using SimulationExercise.IOC;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 
 namespace SimulationExercise.Tests.Integration
@@ -47,13 +43,16 @@ namespace SimulationExercise.Tests.Integration
         public void Program_ShouldExportFiles_WithNoErrors(Stream inputStream, string expectedOutputText)
         {
             // Arrange
-            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestNoErrors";
-            string outTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestNoErrors";
-            string inFilePath = Path.Combine(inTestDirectoryPath, "CSVTestNoErrors.csv");
-            string outErrorFilePath = Path.Combine(outTestDirectoryPath, "Errors.log");
+            string inDirectoryPath = Path.Combine(Environment.CurrentDirectory, "INTestNoErrors");
+            string outDirectoryPath = Path.Combine(Environment.CurrentDirectory, "OUTTestNoErrors");
+            string inFilePath = Path.Combine(inDirectoryPath, "CSVTestNoErrors.csv");
+            string outErrorFilePath = Path.Combine(outDirectoryPath, "Errors.log");
 
-            if (!Directory.Exists(inTestDirectoryPath)) Directory.CreateDirectory(inTestDirectoryPath);
-            if (!Directory.Exists(outTestDirectoryPath)) Directory.CreateDirectory(outTestDirectoryPath);
+            if (Directory.Exists(inDirectoryPath)) Directory.Delete(inDirectoryPath, true);
+            Directory.CreateDirectory(inDirectoryPath);
+
+            if (Directory.Exists(outDirectoryPath)) Directory.Delete(outDirectoryPath, true);
+            Directory.CreateDirectory(outDirectoryPath);
 
             using (var fileStream = new FileStream(inFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -61,24 +60,29 @@ namespace SimulationExercise.Tests.Integration
                 inputStream.CopyTo(fileStream);
             }
 
-            // Act
-            _sut.ProcessFile(inTestDirectoryPath, outTestDirectoryPath);
+            try
+            {
+                // Act
+                _sut.ProcessFile(inDirectoryPath, outDirectoryPath);
 
-            var exportDirectories = Directory.GetDirectories(outTestDirectoryPath);
-            var resultOutFilePath = Path.Combine(exportDirectories[0], "AverageProvinceData.csv");
-            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
-            var resultOutputText = File.ReadAllText(resultOutFilePath).Trim();
-            var emptyErrorFileOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+                // Assert
+                var exportDirectories = Directory.GetDirectories(outDirectoryPath);
+                var resultOutFilePath = Path.Combine(exportDirectories[0], "AverageProvinceData.csv");
+                var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
+                var resultOutputText = File.ReadAllText(resultOutFilePath).Trim();
+                var emptyErrorFileOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            // Assert
-            Assert.Single(exportDirectories);
-            Assert.Empty(emptyErrorFileOutputText);
-            Assert.True(File.Exists(resultOutFilePath));
-            Assert.Equal(expectedOutputText.Trim(), resultOutputText);
-
-            // Teardown
-            Directory.Delete(outTestDirectoryPath, true);
-            Directory.Delete(inTestDirectoryPath, true);
+                Assert.Single(exportDirectories);
+                Assert.Empty(emptyErrorFileOutputText);
+                Assert.True(File.Exists(resultOutFilePath));
+                Assert.Equal(expectedOutputText.Trim(), resultOutputText);
+            }
+            catch (Exception ex)
+            {
+                // Teardown
+                Directory.Delete(outDirectoryPath, true);
+                Directory.Delete(inDirectoryPath, true);
+            }
         }
 
         [Theory]
@@ -86,12 +90,15 @@ namespace SimulationExercise.Tests.Integration
         public void Program_ShouldReturnError_WhenNoConsistentReadingCreated(Stream streamInputWithErrors, string expectedErrorsText)
         {
             // Arrange
-            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestErrors";
-            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestErrors";
-            var inErrorFilePath = Path.Combine(inTestDirectoryPath, "CSVTestErrors.csv");
+            string inErrorDirectoryPath = Path.Combine(Environment.CurrentDirectory, "INTestWithErrors");
+            string outErrorDirectoryPath = Path.Combine(Environment.CurrentDirectory, "OUTTestWithErrors");
+            string inErrorFilePath = Path.Combine(inErrorDirectoryPath, "CSVTestErrors.csv");
 
-            if (!Directory.Exists(inTestDirectoryPath)) Directory.CreateDirectory(inTestDirectoryPath);
-            if (!Directory.Exists(outTestErrorDirectoryPath)) Directory.CreateDirectory(outTestErrorDirectoryPath);
+            if (Directory.Exists(inErrorDirectoryPath)) Directory.Delete(inErrorDirectoryPath, true);
+            Directory.CreateDirectory(inErrorDirectoryPath);
+
+            if (Directory.Exists(outErrorDirectoryPath)) Directory.Delete(outErrorDirectoryPath, true);
+            Directory.CreateDirectory(outErrorDirectoryPath);
 
             using (var fileStream = new FileStream(inErrorFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -99,22 +106,27 @@ namespace SimulationExercise.Tests.Integration
                 streamInputWithErrors.CopyTo(fileStream);
             }
 
-            // Act
-            _sut.ProcessFile(inTestDirectoryPath, outTestErrorDirectoryPath);
+            try
+            {
+                // Act
+                _sut.ProcessFile(inErrorDirectoryPath, outErrorDirectoryPath);
 
-            var exportDirectories = Directory.GetDirectories(outTestErrorDirectoryPath);
-            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
+                // Assert
+                var exportDirectories = Directory.GetDirectories(outErrorDirectoryPath);
+                var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
 
-            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+                var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            // Assert
-            Assert.Single(exportDirectories);
-            Assert.True(File.Exists(resultOutErrorFilePath));
-            Assert.Equal(expectedErrorsText.Trim(), resultErrorOutputText);
-
-            // Teardown
-            Directory.Delete(outTestErrorDirectoryPath, true);
-            Directory.Delete(inTestDirectoryPath, true);
+                Assert.Single(exportDirectories);
+                Assert.True(File.Exists(resultOutErrorFilePath));
+                Assert.Equal(expectedErrorsText.Trim(), resultErrorOutputText);
+            }
+            catch (Exception ex)
+            {
+                // Teardown
+                Directory.Delete(outErrorDirectoryPath, true);
+                Directory.Delete(inErrorDirectoryPath, true);
+            }
         }
     }
 }

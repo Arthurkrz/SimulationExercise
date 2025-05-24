@@ -1,4 +1,7 @@
-﻿namespace SimulationExercise.Architecture
+﻿using Microsoft.Data.SqlClient;
+using SimulationExercise.Core.Contracts.Repository;
+
+namespace SimulationExercise.Architecture
 {
     public class DapperContextFactory : IContextFactory
     {
@@ -12,7 +15,7 @@
 
         public IContext Create()
         {
-            var connection new SqlConnection(_connectionString);
+            var connection = new SqlConnection(_connectionString);
             connection.Open();
             var transaction = connection.BeginTransaction();
             return new DapperContext(transaction);
