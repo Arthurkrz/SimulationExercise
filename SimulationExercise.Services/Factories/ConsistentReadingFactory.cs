@@ -34,6 +34,8 @@ namespace SimulationExercise.Services.Factory
                 return Result<ConsistentReading>.Ko(errors);
             }
 
+            if (reading.StopDate == null) reading.StopDate = DateTime.Now;
+
             Enum.TryParse(reading.Unit, out Unit unit);
             int daysOfMeasure = (reading.StopDate - reading.StartDate)
                                             .GetValueOrDefault().Days;
