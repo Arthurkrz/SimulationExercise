@@ -69,11 +69,12 @@ namespace SimulationExercise.Tests.Integration.Repository
             string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
             IContextFactory contextFactory = new DapperContextFactory(connectionString);
 
+            var b1 = new Basis(-1, "BasisCode", "BasisDescription");
+            var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
+            var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
+
             using (IContext context = contextFactory.Create())
             {
-                var b1 = new Basis(-1, "BasisCode", "BasisDescription");
-                var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
-                var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
                 context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
                 context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
                 context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
@@ -118,21 +119,83 @@ namespace SimulationExercise.Tests.Integration.Repository
         }
 
         [Fact]
-        public void Execute_DeletesEntity_WhenCommitted()
+        public void Execute_DeletesEntity()
         {
+            // Arrange
+            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
+            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            const long basisId = -1;
+            var basis = new Basis(basisId, "BasisCode", "BasisDescription");
 
+            using (IContext context = contextFactory.Create())
+            {
+                // Act
+                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                                "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+
+                context.Execute("DELETE FROM dbo.Basis WHERE BASISID = @basisId", new { basisId });
+
+                var result = context.Query<Basis>
+                    ("SELECT * FROM dbo.Basis WHERE BasisId = @basisId", new { basisId });
+
+                // Assert
+                Assert.Empty(result);
+            }
         }
 
         [Fact]
-        public void Execute_UpdatesEntity_WhenComitted()
+        public void Execute_UpdatesEntity()
         {
+            // Arrange
+            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
+            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            const long basisId = -1;
+            var basis = new Basis(basisId, "BasisCode", "BasisDescription");
+            var expectedUpdatedBasis = new Basis(basisId, "NewBasisCode", "NewBasisDescription");
 
+            using (IContext context = contextFactory.Create())
+            {
+                // Act
+                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                                "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+
+                context.Execute("UPDATE dbo.Basis SET BASISCODE = @newBasisCode, " +
+                                "BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @basisId", 
+                                new { basisId, newBasisCode = expectedUpdatedBasis.BasisCode, 
+                                               newBasisDescription = expectedUpdatedBasis.BasisDescription });
+
+                var result = context.Query<Basis>
+                    ("SELECT * FROM dbo.Basis WHERE BasisId = @basisId", new { basisId });
+
+                // Assert
+                Assert.Single(result);
+                Assert.Equal(result[0], expectedUpdatedBasis);
+            }
         }
 
         [Fact]
         public void ExecuteScalar_ReturnsCorrectRowCount()
         {
+            // Arrange
+            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
+            IContextFactory contextFactory = new DapperContextFactory(connectionString);
 
+            var b1 = new Basis(-1, "BasisCode", "BasisDescription");
+            var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
+            var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
+
+            using (IContext context = contextFactory.Create())
+            {
+                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
+                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
+                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
+
+                // Act
+                var result = context.ExecuteScalar<int>("SELECT COUNT(*) FROM dbo.Basis");
+
+                // Assert
+                Assert.Equal(3, result);
+            }
         }
 
         [Fact]
