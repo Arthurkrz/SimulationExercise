@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
 
@@ -6,28 +8,41 @@ namespace SimulationExercise.Tests.Integration.Repository
 {
     public class RepositoryIntegrationTest
     {
+        private readonly string _connectionString;
+        private IContextFactory _contextFactory;
+
+        public RepositoryIntegrationTest()
+        {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json").Build();
+
+            _connectionString = config.GetConnectionString("Test");
+            _contextFactory = new DapperContextFactory(_connectionString);
+        }
+
         [Fact]
         public void Query_ReturnsExpectedDynamicItem()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
+            const long basisId = -1;
+            var basis = new Basis(-1, "BasisCode", "BasisDescription");
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
-                var basis = new Basis(-1, "BasisCode", "BasisDescription");
-
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
                 // Act
                 var result = context.Query
                     ("SELECT BASISID, BASISDESCRIPTION, LEN(BASISDESCRIPTION) AS DescriptionLength " +
-                     "FROM dbo.Basis WHERE BasisId = @basisId", new { id = basis.BasisId }).First();
+                     "FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId });
+                var retrievedBasis = result[0];
 
                 // Assert
-                Assert.Equal(basis.BasisId, result.BasisId);
-                Assert.Equal(basis.BasisDescription, result.BasisDescription);
-                Assert.Equal(basis.BasisDescription.Length, result.DescriptionLength);
+                Assert.Equal(basis.BasisId, (long)retrievedBasis.BASISID);
+                Assert.Equal(basis.BasisDescription, (string)retrievedBasis.BASISDESCRIPTION);
+                Assert.Equal(basis.BasisDescription.Length, (int)retrievedBasis.DescriptionLength);
             }
         }
 
@@ -35,23 +50,22 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Query_ReturnsExpectedItem_WhenParamsExist()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 const long basisId = -1;
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
 
                 context.Execute
-                    ("INSERT INTO DBO.BASIS(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                    ("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                      "VALUES(@basisId, @basisCode, @basisDescription)", basis);
 
                 // Act
                 IList<Basis> basisList = context.Query<Basis>
-                    ("SELECT BASISID, BASISCODE, BASISDESCRIPTION" +
-                        "FROM dbo.Basis" +
-                        "WHERE = BasisId = @basisId", new { basisId });
+                    ("SELECT BASISID, BASISCODE, BASISDESCRIPTION " +
+                        "FROM dbo.BasisDataTest " +
+                        "WHERE BasisId = @basisId", new { basisId });
                 var retrievedBasis = basisList[0];
 
                 // Assert
@@ -66,22 +80,21 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Query_ReturnsExpectedItem_WhenNoParams()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
 
             var b1 = new Basis(-1, "BasisCode", "BasisDescription");
             var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
             var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
 
                 // Act
                 IList<Basis> basisList = context.Query<Basis>
-                    ("SELECT BASISID, BASISCODE, BASISDESCRIPTION FROM dbo.Basis");
+                    ("SELECT BASISID, BASISCODE, BASISDESCRIPTION FROM dbo.BasisDataTest");
 
                 // Assert
                 Assert.Equal(3, basisList.Count);
@@ -96,23 +109,23 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Execute_DoesNotEditTable_IfTransactionNotCommitted()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
+
             const long basisId = -1;
 
             // Act
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
             }
 
             // Assert
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.Basis WHERE " +
+                    ("SELECT * FROM dbo.BasisDataTest WHERE " +
                      "BasisId = @basisId", new { basisId });
                 Assert.Empty(result);
             }
@@ -122,21 +135,21 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Execute_DeletesEntity()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
+
             const long basisId = -1;
             var basis = new Basis(basisId, "BasisCode", "BasisDescription");
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
 
-                context.Execute("DELETE FROM dbo.Basis WHERE BASISID = @basisId", new { basisId });
+                context.Execute("DELETE FROM dbo.BasisDataTest WHERE BASISID = @basisId", new { basisId });
 
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.Basis WHERE BasisId = @basisId", new { basisId });
+                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId });
 
                 // Assert
                 Assert.Empty(result);
@@ -147,29 +160,31 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Execute_UpdatesEntity()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
+
             const long basisId = -1;
             var basis = new Basis(basisId, "BasisCode", "BasisDescription");
             var expectedUpdatedBasis = new Basis(basisId, "NewBasisCode", "NewBasisDescription");
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
 
-                context.Execute("UPDATE dbo.Basis SET BASISCODE = @newBasisCode, " +
+                context.Execute("UPDATE dbo.BasisDataTest SET BASISCODE = @newBasisCode, " +
                                 "BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @basisId", 
                                 new { basisId, newBasisCode = expectedUpdatedBasis.BasisCode, 
                                                newBasisDescription = expectedUpdatedBasis.BasisDescription });
 
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.Basis WHERE BasisId = @basisId", new { basisId });
+                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId }).First();
 
                 // Assert
-                Assert.Single(result);
-                Assert.Equal(result[0], expectedUpdatedBasis);
+                result.Should().BeEquivalentTo(expectedUpdatedBasis);
+                Assert.Equal(expectedUpdatedBasis.BasisId, result.BasisId);
+                Assert.Equal(expectedUpdatedBasis.BasisCode, result.BasisCode);
+                Assert.Equal(expectedUpdatedBasis.BasisDescription, result.BasisDescription);
             }
         }
 
@@ -177,21 +192,20 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void ExecuteScalar_ReturnsCorrectRowCount()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
 
             var b1 = new Basis(-1, "BasisCode", "BasisDescription");
             var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
             var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
 
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
 
                 // Act
-                var result = context.ExecuteScalar<int>("SELECT COUNT(*) FROM dbo.Basis");
+                var result = context.ExecuteScalar<int>("SELECT COUNT(*) FROM dbo.BasisDataTest");
 
                 // Assert
                 Assert.Equal(3, result);
@@ -202,27 +216,30 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Commit_SuccesfullyCommits()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContextFactory contextFactory = new DapperContextFactory(connectionString);
+            TestDataCleanup();
+
             const long basisId = -1;
 
             // Act
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-                context.Execute("INSERT INTO dbo.Basis(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
                 context.Commit();
             }
 
             // Assert
-            using (IContext context = contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.Basis WHERE " +
+                    ("SELECT * FROM dbo.BasisDataTest WHERE " +
                      "BasisId = @basisId", new { basisId });
                 
                 Assert.NotEmpty(result);
+
+                // Teardown
+                context.Execute("DELETE FROM dbo.BasisDataTest WHERE BASISID = @basisId", new { basisId });
             }
         }
 
@@ -230,13 +247,28 @@ namespace SimulationExercise.Tests.Integration.Repository
         public void Dispose_SuccesfullyDisposesConnectionAndTransaction()
         {
             // Arrange
-            string connectionString = ConfigurationManager.ConnectionStrings["Server=localhost;Database=BasisDb_Test;Trusted_Connection=True;"].ConnectionString;
-            IContext context = new DapperContextFactory(connectionString).Create();
+            TestDataCleanup();
+
+            IContext context = _contextFactory.Create();
+            var basis = new Basis(-1, "BasisCode", "BasisDescription");
+
+            // Act
+            context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                            "VALUES(@basisId, @basisCode, @basisDescription)", basis);
             context.Dispose();
 
-            // Act & Assert
-            Assert.Throws<ObjectDisposedException>(() => 
-                context.Query<Basis>("SELECT * FROM dbo.Basis"));
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => 
+            context.Query<Basis>("SELECT * FROM dbo.BasisDataTest"));
+        }
+
+        private void TestDataCleanup()
+        {
+            using (var cleanupContext = _contextFactory.Create())
+            {
+                cleanupContext.Execute("DELETE FROM dbo.BasisDataTest");
+                cleanupContext.Commit();
+            }
         }
     }
 }

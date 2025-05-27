@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Services;
 using System.Text;
@@ -19,8 +19,9 @@ namespace SimulationExercise.Tests
         private readonly Mock<IProvinceDataListFactory> _provinceDataListFactoryMock;
         private readonly Mock<IAverageProvinceDataFactory> _averageProvinceDataFactoryMock;
         private readonly Mock<IAverageProvinceDataExportService> _averageProvinceDataExportServiceMock;
-        private readonly string _inDirectoryPath = Path.Combine(Environment.CurrentDirectory, "INTest");
-        private readonly string _outDirectoryPath = Path.Combine(Environment.CurrentDirectory, "OUTTest");
+        private readonly string _basePath;
+        private readonly string _inDirectoryPath;
+        private readonly string _outDirectoryPath;
 
         public FileProcessingServiceTests()
         {
@@ -31,6 +32,7 @@ namespace SimulationExercise.Tests
             _provinceDataListFactoryMock = new Mock<IProvinceDataListFactory>();
             _averageProvinceDataFactoryMock = new Mock<IAverageProvinceDataFactory>();
             _averageProvinceDataExportServiceMock = new Mock<IAverageProvinceDataExportService>();
+
 
             var serviceCollection = new ServiceCollection();
 
@@ -50,6 +52,10 @@ namespace SimulationExercise.Tests
                 _averageProvinceDataExportServiceMock.Object,
                 _loggerMock.Object
             );
+
+            _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
+            _inDirectoryPath = Path.Combine(_basePath, "INTest");
+            _outDirectoryPath = Path.Combine(_basePath, "OUTTest");
         }
 
         [Fact]
@@ -58,8 +64,6 @@ namespace SimulationExercise.Tests
             // Arrange
             DirectoryCleanup();
             InputFileGenerator();
-
-            var readingFile = Path.Combine(_outDirectoryPath, "AverageProvinceData.csv");
 
             Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
@@ -84,8 +88,6 @@ namespace SimulationExercise.Tests
                                            .Returns(resultAverageProvinceDataCreation);
             // Act & Assert
             _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
-            var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
-            var outFiles = Directory.GetFiles(exportDirectories[0]);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -96,7 +98,13 @@ namespace SimulationExercise.Tests
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Never);
 
+            var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
+            Assert.Single(exportDirectories);
+
+            var outFiles = Directory.GetFiles(exportDirectories[0]);
             Assert.Single(outFiles);
+
+            var readingFile = Path.Combine(exportDirectories[0], "AverageProvinceData.csv");
             Assert.Contains(readingFile, outFiles);
         }
 
@@ -104,6 +112,7 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldCreateDirectory_WhenNoInDirectoryFound()
         {
             // Arrange
+            DirectoryCleanup();
             string nonExistentInDirectoryTestPath = Path.Combine(Environment.CurrentDirectory, 
                                                                 "NonExistentINDirectoryPath");
             // Act & Assert
@@ -117,10 +126,9 @@ namespace SimulationExercise.Tests
             // Arrange
             DirectoryCleanup();
 
-            // Act
+            // Act & Assert
             _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
-            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -137,6 +145,7 @@ namespace SimulationExercise.Tests
         {
             // Arrange
             DirectoryCleanup();
+            InputFileGenerator();
 
             _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
                 .Returns(new ImportResult(new List<Reading>(), new List<string> { "ERROR" }));
@@ -171,6 +180,7 @@ namespace SimulationExercise.Tests
         {
             // Arrange
             DirectoryCleanup();
+            InputFileGenerator();
 
             Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             ImportResult importResult = new ImportResult(new List<Reading> { reading }, new List<string>());
@@ -214,14 +224,8 @@ namespace SimulationExercise.Tests
         public void ProcessFile_ShouldReturnError_WhenNoProvinceDataCreated()
         {
             // Arrange
-            string inDirectoryPath = Path.Combine(Environment.CurrentDirectory, "INTest");
-            string outDirectoryPath = Path.Combine(Environment.CurrentDirectory, "OUTTest");
-
-            if (Directory.Exists(inDirectoryPath)) Directory.Delete(inDirectoryPath, true);
-            Directory.CreateDirectory(inDirectoryPath);
-
-            if (Directory.Exists(outDirectoryPath)) Directory.Delete(outDirectoryPath, true);
-            Directory.CreateDirectory(outDirectoryPath);
+            DirectoryCleanup();
+            InputFileGenerator();
 
             Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
@@ -240,7 +244,7 @@ namespace SimulationExercise.Tests
                                         .Returns(new List<ProvinceData>());
 
             // Act & Assert
-            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(inDirectoryPath, outDirectoryPath));
+            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath));
             Assert.Equal("No province data have been created!", ex.Message);
 
             _loggerMock.Verify(
@@ -259,6 +263,7 @@ namespace SimulationExercise.Tests
         {
             // Arrange
             DirectoryCleanup();
+            InputFileGenerator();
 
             Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");

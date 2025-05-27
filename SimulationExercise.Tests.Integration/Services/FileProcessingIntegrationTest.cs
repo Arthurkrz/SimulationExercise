@@ -3,18 +3,19 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using SimulationExercise.Console;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 
-namespace SimulationExercise.Tests.Integration
+namespace SimulationExercise.Tests.Integration.Services
 {
     public class FileProcessingIntegrationTest
     {
         private readonly IFileProcessingService _sut;
         private readonly ServiceProvider _serviceProvider;
-        private readonly string _inDirectoryPath = Path.Combine(Environment.CurrentDirectory, "INTest");
-        private readonly string _outDirectoryPath = Path.Combine(Environment.CurrentDirectory, "OUTTest");
+        private readonly string _basePath;
+        private readonly string _inDirectoryPath;
+        private readonly string _outDirectoryPath;
 
         public FileProcessingIntegrationTest()
         {
@@ -27,8 +28,8 @@ namespace SimulationExercise.Tests.Integration
                                                   .CreateLogger();
 
             ServiceCollection services = new ServiceCollection();
-            DependencyInjection.InjectServices(services);
-            DependencyInjection.InjectValidators(services);
+            services.InjectServices();
+            services.InjectValidators();
 
             services.AddLogging(loggingBuilder =>
             {
@@ -38,6 +39,10 @@ namespace SimulationExercise.Tests.Integration
 
             _serviceProvider = services.BuildServiceProvider();
             _sut = _serviceProvider.GetRequiredService<IFileProcessingService>();
+
+            _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
+            _inDirectoryPath = Path.Combine(_basePath, "INTest");
+            _outDirectoryPath = Path.Combine(_basePath, "OUTTest");
         }
 
         [Theory]

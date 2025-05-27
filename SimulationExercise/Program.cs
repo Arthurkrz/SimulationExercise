@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Map;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()

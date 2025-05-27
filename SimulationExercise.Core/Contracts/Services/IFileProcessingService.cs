@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Core.Contracts
+﻿namespace SimulationExercise.Core.Contracts.Services
 {
     public interface IFileProcessingService
     {

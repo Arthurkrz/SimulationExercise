@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
 using SimulationExercise.Console;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
+using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services
 {
@@ -33,6 +34,7 @@ namespace SimulationExercise.Services
         public void ProcessFile(string inDirectoryPath, string baseOutDirectoryPath)
         {
             string noErrorsFilePath = ExportDirectoryPathGeneratorAndLoggerConfiguration(baseOutDirectoryPath);
+            int errorGroupNumber = 0;
 
             if (!Directory.Exists(inDirectoryPath))
             {
@@ -58,12 +60,14 @@ namespace SimulationExercise.Services
 
                 if (!importResult.Success)
                 {
-                    _logger.LogError("Errors found!");
+                    _logger.LogError($"Errors found! ({errorGroupNumber})");
                     foreach (var error in importResult.Errors)
                     {
                         _logger.LogError(error);
                         continue;
                     }
+
+                    errorGroupNumber++;
                 }
 
                 if (importResult.Readings.Count == 0)
@@ -84,12 +88,14 @@ namespace SimulationExercise.Services
                     var cr = _consistentReadingFactory.CreateConsistentReading(reading);
                     if (!cr.Success)
                     {
-                        _logger.LogError($"Errors found!");
+                        _logger.LogError($"Errors found! ({errorGroupNumber})");
                         foreach (var error in cr.Errors)
                         {
                             _logger.LogError(error);
                             continue;
                         }
+
+                        errorGroupNumber++;
                     }
 
                     else consistentReadings.Add(cr.Value);
@@ -127,12 +133,14 @@ namespace SimulationExercise.Services
 
                     if (!averageProvinceData.Success)
                     {
-                        _logger.LogError("Errors found!");
+                        _logger.LogError($"Errors found! ({errorGroupNumber})");
                         foreach (var errors in averageProvinceData.Errors)
                         {
                             _logger.LogError(errors);
                             continue;
                         }
+
+                        errorGroupNumber++;
                     }
 
                     else averageProvinceDatas.Add(averageProvinceData.Value);
@@ -161,16 +169,19 @@ namespace SimulationExercise.Services
 
         private string ExportDirectoryPathGeneratorAndLoggerConfiguration(string baseOutPath)
         {
-            string specificReadingsAndErrorsDirectoryName = DateTime.Now.ToString
-                                                    ("yyyyMMdd_HHmmss");
+            string specificReadingsAndErrorsDirectoryName = 
+                SystemTime.Now().ToString("yyyyMMdd_HHmmss");
 
             string fullFolderPath = Path.Combine(baseOutPath,
                             specificReadingsAndErrorsDirectoryName);
 
             Directory.CreateDirectory(fullFolderPath);
 
-            string noErrorsFilePath = Path.Combine(fullFolderPath, "AverageProvinceData.csv");
-            string errorsFilePath = Path.Combine(fullFolderPath, "Errors.log");
+            string noErrorsFilePath = Path.Combine(fullFolderPath, 
+                                                   "AverageProvinceData.csv");
+
+            string errorsFilePath = Path.Combine(fullFolderPath, 
+                                                 "Errors.log");
 
             LogPathHolder.ErrorLogPath = errorsFilePath;
 

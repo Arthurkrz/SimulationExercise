@@ -2,6 +2,8 @@
 {
     public class Basis
     {
+        public Basis() { }
+
         public Basis(long basisId, string basisCode, string basisDescription)
         {
             BasisId = basisId;
