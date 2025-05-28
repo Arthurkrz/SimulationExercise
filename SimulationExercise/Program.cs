@@ -8,9 +8,10 @@ using SimulationExercise.IOC;
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                       .WriteTo.Console()
-                                      .WriteTo.Map(_ => SimulationExercise.Console.LogPathHolder.ErrorLogPath, 
-                                                  (path, config) => config.File(path, 
-                                                   restrictedToMinimumLevel: LogEventLevel.Error))
+                                      .WriteTo.Map(_ => LogPathHolder.ErrorLogPath,
+                                                  (path, config) => config.File(path,
+                                                   restrictedToMinimumLevel: LogEventLevel.Error,
+                                                   outputTemplate: "{Level:u3}: {Message:lj}{NewLine}"))
                                       .CreateLogger();
 
 ServiceCollection services = new ServiceCollection();

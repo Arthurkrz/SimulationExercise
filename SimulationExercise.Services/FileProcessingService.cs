@@ -7,6 +7,9 @@ using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services
 {
+    // separação em métodos privados
+    // metodo generico para mensagem que recebe type e usa nameof(type)
+
     public class FileProcessingService : IFileProcessingService
     {
         private readonly IReadingImportService _readingImportService;
@@ -55,6 +58,7 @@ namespace SimulationExercise.Services
                                                 FileMode.Open,
                                                 FileAccess.Read))
                 {
+                    _logger.LogInformation("Importing readings...");
                     importResult = _readingImportService.Import(str);
                 } 
 
@@ -73,7 +77,8 @@ namespace SimulationExercise.Services
                 if (importResult.Readings.Count == 0)
                 {
                     _logger.LogError("No readings have been imported!");
-                    throw new Exception("No readings have been imported!");
+                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    continue;
                 }
 
                 _logger.LogInformation(SuccessMessageGenerator
@@ -83,6 +88,7 @@ namespace SimulationExercise.Services
                 IList<ConsistentReading> consistentReadings = 
                     new List<ConsistentReading>();
 
+                _logger.LogInformation("Creating consistent readings...");
                 foreach (Reading reading in importResult.Readings)
                 {
                     var cr = _consistentReadingFactory.CreateConsistentReading(reading);
@@ -91,7 +97,7 @@ namespace SimulationExercise.Services
                         _logger.LogError($"Errors found! ({errorGroupNumber})");
                         foreach (var error in cr.Errors)
                         {
-                            _logger.LogError(error);
+                            _logger.LogError(error); 
                             continue;
                         }
 
@@ -104,20 +110,23 @@ namespace SimulationExercise.Services
                 if (consistentReadings.Count == 0)
                 {
                     _logger.LogError("No consistent readings have been created!");
-                    throw new Exception("No consistent readings have been created!");
+                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    continue;
                 }
 
                 _logger.LogInformation(SuccessMessageGenerator
                                       ("consistent reading", 
                                        consistentReadings.Count));
 
+                _logger.LogInformation("Creating province data...");
                 IList<ProvinceData> provinceDatas =
                     _provinceDataListFactory.CreateProvinceDataList(consistentReadings); 
 
                 if (provinceDatas.Count == 0)
                 {
                     _logger.LogError("No province data have been created!");
-                    throw new Exception("No province data have been created!");
+                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    continue;
                 }
 
                 _logger.LogInformation(SuccessMessageGenerator
@@ -127,6 +136,7 @@ namespace SimulationExercise.Services
                 IList<AverageProvinceData> averageProvinceDatas =
                     new List<AverageProvinceData>();
 
+                _logger.LogInformation("Creating average province data...");
                 foreach (ProvinceData provinceData in provinceDatas)
                 {
                     var averageProvinceData = _averageProvinceDataFactory.CreateAverageProvinceData(provinceData);
@@ -149,14 +159,16 @@ namespace SimulationExercise.Services
                 if (averageProvinceDatas.Count == 0)
                 {
                     _logger.LogError("No average province data have been created!");
-                    throw new Exception("No average province data have been created!");
+                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    continue;
                 }
 
                 _logger.LogInformation(SuccessMessageGenerator
                                       ("average province data", 
                                        averageProvinceDatas.Count));
 
-                using var fileStream = new FileStream(noErrorsFilePath,
+                _logger.LogInformation("Exporting average province data...");
+                using var fileStream = new FileStream(exportFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);
 
