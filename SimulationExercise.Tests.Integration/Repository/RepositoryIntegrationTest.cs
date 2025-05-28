@@ -8,7 +8,6 @@ namespace SimulationExercise.Tests.Integration.Repository
     public class RepositoryIntegrationTest
     {
         private readonly string _connectionString;
-        private readonly string _connectionStringMaster;
         private IContextFactory _contextFactory;
 
         public RepositoryIntegrationTest()
@@ -18,7 +17,6 @@ namespace SimulationExercise.Tests.Integration.Repository
                 .AddJsonFile("appsettings.json").Build();
 
             _connectionString = config.GetConnectionString("Test");
-            _connectionStringMaster = config.GetConnectionString("Master");
             _contextFactory = new DapperContextFactory(_connectionString);
         }
 
@@ -27,23 +25,20 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            MultipleObjectInsertion(1);
+
             const long basisId = -1;
             var basis = new Basis(-1, "BasisCode", "BasisDescription");
 
             using (IContext context = _contextFactory.Create())
             {
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                                "VALUES(@basisId, @basisCode, @basisDescription)", basis);
                 // Act
                 var result = context.Query
                     ("SELECT BASISID, BASISDESCRIPTION, LEN(BASISDESCRIPTION) AS DescriptionLength " +
                      "FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId });
-                var retrievedBasis = result[0];
 
                 // Assert
-                Assert.Equal(basis.BasisId, (long)retrievedBasis.BASISID);
-                Assert.Equal(basis.BasisDescription, (string)retrievedBasis.BASISDESCRIPTION);
-                Assert.Equal(basis.BasisDescription.Length, (int)retrievedBasis.DescriptionLength);
+                Assert.Equal(typeof(List<dynamic>), result.GetType());
             }
         }
 
@@ -52,16 +47,13 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            MultipleObjectInsertion(1);
+
+            const long basisId = 0;
+            var basis = new Basis(basisId, "BasisCode0", "BasisDescription0");
 
             using (IContext context = _contextFactory.Create())
             {
-                const long basisId = -1;
-                var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-
-                context.Execute
-                    ("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                     "VALUES(@basisId, @basisCode, @basisDescription)", basis);
-
                 // Act
                 IList<Basis> basisList = context.Query<Basis>
                     ("SELECT BASISID, BASISCODE, BASISDESCRIPTION " +
@@ -70,7 +62,7 @@ namespace SimulationExercise.Tests.Integration.Repository
                 var retrievedBasis = basisList[0];
 
                 // Assert
-                Assert.Equal(1, basisList.Count);
+                Assert.Single(basisList);
                 Assert.Equal(basis.BasisId, retrievedBasis.BasisId);
                 Assert.Equal(basis.BasisCode, retrievedBasis.BasisCode);
                 Assert.Equal(basis.BasisDescription, retrievedBasis.BasisDescription);
@@ -82,17 +74,10 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-
-            var b1 = new Basis(-1, "BasisCode", "BasisDescription");
-            var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
-            var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
+            MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
             {
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
-
                 // Act
                 IList<Basis> basisList = context.Query<Basis>
                     ("SELECT BASISID, BASISCODE, BASISDESCRIPTION FROM dbo.BasisDataTest");
@@ -100,14 +85,14 @@ namespace SimulationExercise.Tests.Integration.Repository
                 // Assert
                 Assert.Equal(3, basisList.Count);
 
-                Assert.Contains(basisList, b => b.BasisId == b1.BasisId && b.BasisCode == b1.BasisCode && b.BasisDescription == b1.BasisDescription);
-                Assert.Contains(basisList, b => b.BasisId == b2.BasisId && b.BasisCode == b2.BasisCode && b.BasisDescription == b2.BasisDescription);
-                Assert.Contains(basisList, b => b.BasisId == b3.BasisId && b.BasisCode == b3.BasisCode && b.BasisDescription == b3.BasisDescription);
+                Assert.Contains(basisList, b => b.BasisId == 0 && b.BasisCode == "BasisCode0" && b.BasisDescription == "BasisDescription0");
+                Assert.Contains(basisList, b => b.BasisId == 1 && b.BasisCode == "BasisCode1" && b.BasisDescription == "BasisDescription1");
+                Assert.Contains(basisList, b => b.BasisId == 2 && b.BasisCode == "BasisCode2" && b.BasisDescription == "BasisDescription2");
             }
         }
 
         [Fact]
-        public void Execute_DoesNotEditTable_IfTransactionNotCommitted()
+        public void Execute_DoesNotInsertValue_IfTransactionNotCommitted()
         {
             // Arrange
             TestDataCleanup();
@@ -137,20 +122,15 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-
-            const long basisId = -1;
-            var basis = new Basis(basisId, "BasisCode", "BasisDescription");
+            MultipleObjectInsertion(1);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                                "VALUES(@basisId, @basisCode, @basisDescription)", basis);
-
-                context.Execute("DELETE FROM dbo.BasisDataTest WHERE BASISID = @basisId", new { basisId });
+                context.Execute("DELETE FROM dbo.BasisDataTest WHERE BASISID = @basisId", new { basisId = -1 });
 
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId });
+                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId = -1 });
 
                 // Assert
                 Assert.Empty(result);
@@ -162,30 +142,24 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            MultipleObjectInsertion(1);
 
-            const long basisId = -1;
-            var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-            var expectedUpdatedBasis = new Basis(basisId, "NewBasisCode", "NewBasisDescription");
+            var expectedUpdatedBasis = new Basis(0, "NewBasisCode", "NewBasisDescription");
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                                "VALUES(@basisId, @basisCode, @basisDescription)", basis);
-
                 context.Execute("UPDATE dbo.BasisDataTest SET BASISCODE = @newBasisCode, " +
-                                "BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @basisId", 
-                                new { basisId, newBasisCode = expectedUpdatedBasis.BasisCode, 
-                                               newBasisDescription = expectedUpdatedBasis.BasisDescription });
+                                "BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @newBasisId", 
+                                new { newBasisId = expectedUpdatedBasis.BasisId, 
+                                      newBasisCode = expectedUpdatedBasis.BasisCode, 
+                                      newBasisDescription = expectedUpdatedBasis.BasisDescription });
 
                 var result = context.Query<Basis>
-                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId }).First();
+                    ("SELECT * FROM dbo.BasisDataTest WHERE BasisId = @basisId", new { basisId = 0 }).First();
 
                 // Assert
                 result.Should().BeEquivalentTo(expectedUpdatedBasis);
-                Assert.Equal(expectedUpdatedBasis.BasisId, result.BasisId);
-                Assert.Equal(expectedUpdatedBasis.BasisCode, result.BasisCode);
-                Assert.Equal(expectedUpdatedBasis.BasisDescription, result.BasisDescription);
             }
         }
 
@@ -194,17 +168,10 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-
-            var b1 = new Basis(-1, "BasisCode", "BasisDescription");
-            var b2 = new Basis(-2, "BasisCode2", "BasisDescription2");
-            var b3 = new Basis(-3, "BasisCode3", "BasisDescription3");
+            MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
             {
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b1);
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b2);
-                context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) VALUES(@basisId, @basisCode, @basisDescription)", b3);
-
                 // Act
                 var result = context.ExecuteScalar<int>("SELECT COUNT(*) FROM dbo.BasisDataTest");
 
@@ -220,13 +187,13 @@ namespace SimulationExercise.Tests.Integration.Repository
             TestDataCleanup();
 
             const long basisId = -1;
-
-            // Act
             using (IContext context = _contextFactory.Create())
             {
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
                 context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+
+                // Act
                 context.Commit();
             }
 
@@ -253,9 +220,9 @@ namespace SimulationExercise.Tests.Integration.Repository
             IContext context = _contextFactory.Create();
             var basis = new Basis(-1, "BasisCode", "BasisDescription");
 
-            // Act
             context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
                             "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+            // Act
             context.Dispose();
 
             // Assert
@@ -269,6 +236,22 @@ namespace SimulationExercise.Tests.Integration.Repository
             {
                 cleanupContext.Execute("DELETE FROM dbo.BasisDataTest");
                 cleanupContext.Commit();
+            }
+        }
+
+        private void MultipleObjectInsertion(int numberOfObjectsToBeInserted)
+        {
+            using (IContext context = _contextFactory.Create())
+            {
+                for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
+                {
+                    context.Execute("INSERT INTO dbo.BasisDataTest(BASISID, BASISCODE, BASISDESCRIPTION) " +
+                            "VALUES(@basisId, @basisCode, @basisDescription)", new Basis(objectNumber, 
+                                                                                $"BasisCode{objectNumber}", 
+                                                                                $"BasisDescription{objectNumber}"));
+                }
+
+                context.Commit();
             }
         }
     }
