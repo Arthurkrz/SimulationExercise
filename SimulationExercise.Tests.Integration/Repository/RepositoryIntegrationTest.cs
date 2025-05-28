@@ -5,7 +5,7 @@ using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Tests.Integration.Repository
 {
-    public class RepositoryIntegrationTest : IClassFixture<RepositoryTestFixture>
+    public class RepositoryIntegrationTest
     {
         private readonly string _connectionString;
         private readonly string _connectionStringMaster;

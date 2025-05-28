@@ -1,15 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
-using SimulationExercise.Console;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services
 {
-    // separação em métodos privados
-    // metodo generico para mensagem que recebe type e usa nameof(type)
-
     public class FileProcessingService : IFileProcessingService
     {
         private readonly IReadingImportService _readingImportService;
@@ -168,7 +164,7 @@ namespace SimulationExercise.Services
                                        averageProvinceDatas.Count));
 
                 _logger.LogInformation("Exporting average province data...");
-                using var fileStream = new FileStream(exportFilePath,
+                using var fileStream = new FileStream(noErrorsFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);
 

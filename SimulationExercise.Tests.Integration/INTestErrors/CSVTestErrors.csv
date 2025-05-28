@@ -1,0 +1,39 @@
+IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+ERROR,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,ERROR,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,ERROR,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,ERROR,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,ERROR,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,ERROR,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
+-1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ERROR,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,0,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,-1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,,1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,-1,Province,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,mg/m³,1,Station Name,1,,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,,City,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,mg/m³,1,Station Name,1,Province,,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,µg/m³,1,Station Name,1,Province,,S,28/05/2024,,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,01/01/1967,28/05/2025,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2025,28/05/2024,1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,0,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,-1,1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,0,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,-1,Latitude,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,,Longitude,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,,
+1,Sensor Name,ng/m³,1,Station Name,1,Province,City,S,28/05/2024,,1,1,Latitude,,
+0,,,0,,-1,,,N,01/01/1967,01/01/1966,0,0,,,
+-1,,ERROR,-1,,-1,,,N,01/01/1967,01/01/1966,-1,-1,,,

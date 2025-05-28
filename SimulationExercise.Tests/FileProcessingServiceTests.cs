@@ -65,8 +65,6 @@ namespace SimulationExercise.Tests
             DirectoryCleanup();
             InputFileGenerator();
 
-            if (!Directory.Exists(outDirectoryTestPath)) Directory.CreateDirectory(outDirectoryTestPath);
-
             Reading reading = new Reading(123, "Sensor", "ng/m³", 123, "Station", 123, "Province", "City", true, DateTime.Now, null, 123, 123, "Latitude", "Longitude");
             ConsistentReading consistentReading = new ConsistentReading(123, "Sensor", Core.Enum.Unit.ng_m3, 123, "Province", "City", true, 123, 123, "Latitude", "Longitude");
             IList<ConsistentReading> consistentReadings = new List<ConsistentReading> { consistentReading };

@@ -2,9 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using SimulationExercise.Console;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
+using SimulationExercise.Services;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 
 namespace SimulationExercise.Tests.Integration.Services
