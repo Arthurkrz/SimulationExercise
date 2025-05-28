@@ -1,14 +1,14 @@
-﻿
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Tests.Integration.Repository
 {
-    public class RepositoryIntegrationTest
+    public class RepositoryIntegrationTest : IClassFixture<RepositoryTestFixture>
     {
         private readonly string _connectionString;
+        private readonly string _connectionStringMaster;
         private IContextFactory _contextFactory;
 
         public RepositoryIntegrationTest()
@@ -18,6 +18,7 @@ namespace SimulationExercise.Tests.Integration.Repository
                 .AddJsonFile("appsettings.json").Build();
 
             _connectionString = config.GetConnectionString("Test");
+            _connectionStringMaster = config.GetConnectionString("Master");
             _contextFactory = new DapperContextFactory(_connectionString);
         }
 
