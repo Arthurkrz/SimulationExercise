@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using SimulationExercise.Core;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
+using SimulationExercise.Services;
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                       .WriteTo.Console()

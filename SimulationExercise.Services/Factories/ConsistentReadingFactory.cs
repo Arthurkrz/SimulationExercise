@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
+using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services.Factory
 {
@@ -34,7 +35,7 @@ namespace SimulationExercise.Services.Factory
                 return Result<ConsistentReading>.Ko(errors);
             }
 
-            if (reading.StopDate == null) reading.StopDate = DateTime.Now;
+            if (reading.StopDate == null) reading.StopDate = SystemTime.Now();
 
             Enum.TryParse(reading.Unit, out Unit unit);
             int daysOfMeasure = (reading.StopDate - reading.StartDate)

@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Core
+﻿namespace SimulationExercise.Services
 {
     public static class LogPathHolder
     {

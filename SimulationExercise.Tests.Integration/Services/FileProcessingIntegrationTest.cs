@@ -2,31 +2,34 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using SimulationExercise.Core;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
+using SimulationExercise.Services;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 
-namespace SimulationExercise.Tests.Integration
+namespace SimulationExercise.Tests.Integration.Services
 {
     public class FileProcessingIntegrationTest
     {
         private readonly IFileProcessingService _sut;
         private readonly ServiceProvider _serviceProvider;
+        private readonly string _basePath;
+        private readonly string _inDirectoryPath;
+        private readonly string _outDirectoryPath;
 
         public FileProcessingIntegrationTest()
         {
             Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                                   .WriteTo.Console()
-                                                  .WriteTo.Map(_ => LogPathHolder.ErrorLogPath,
-                                                              (path, config) => config.File(path,
-                                                               restrictedToMinimumLevel: LogEventLevel.Error,
+                                                  .WriteTo.Map(_ => LogPathHolder.ErrorLogPath, 
+                                                              (path, config) => config.File(path, 
+                                                               restrictedToMinimumLevel: LogEventLevel.Error, 
                                                                outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}"))
                                                   .CreateLogger();
 
             ServiceCollection services = new ServiceCollection();
-            DependencyInjection.InjectServices(services);
-            DependencyInjection.InjectValidators(services);
+            services.InjectServices();
+            services.InjectValidators();
 
             services.AddLogging(loggingBuilder =>
             {
@@ -36,6 +39,10 @@ namespace SimulationExercise.Tests.Integration
 
             _serviceProvider = services.BuildServiceProvider();
             _sut = _serviceProvider.GetRequiredService<IFileProcessingService>();
+
+            _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
+            _inDirectoryPath = Path.Combine(_basePath, "INTest");
+            _outDirectoryPath = Path.Combine(_basePath, "OUTTest");
         }
 
         [Theory]
@@ -43,13 +50,8 @@ namespace SimulationExercise.Tests.Integration
         public void Program_ShouldExportFiles_WithNoErrors(Stream inputStream, string expectedOutputText)
         {
             // Arrange
-            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestNoErrors";
-            string outTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestNoErrors";
-            string inFilePath = Path.Combine(inTestDirectoryPath, "CSVTestNoErrors.csv");
-            string outErrorFilePath = Path.Combine(outTestDirectoryPath, "Errors.log");
-
-            if (!Directory.Exists(inTestDirectoryPath)) Directory.CreateDirectory(inTestDirectoryPath);
-            if (!Directory.Exists(outTestDirectoryPath)) Directory.CreateDirectory(outTestDirectoryPath);
+            string inFilePath = Path.Combine(_inDirectoryPath, "CSVTest.csv");
+            DirectoryCleanup();
 
             using (var fileStream = new FileStream(inFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -58,23 +60,19 @@ namespace SimulationExercise.Tests.Integration
             }
 
             // Act
-            _sut.ProcessFile(inTestDirectoryPath, outTestDirectoryPath);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
-            var exportDirectories = Directory.GetDirectories(outTestDirectoryPath);
+            // Assert
+            var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
             var resultOutFilePath = Path.Combine(exportDirectories[0], "AverageProvinceData.csv");
             var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
             var resultOutputText = File.ReadAllText(resultOutFilePath).Trim();
             var emptyErrorFileOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            // Assert
             Assert.Single(exportDirectories);
             Assert.Empty(emptyErrorFileOutputText);
             Assert.True(File.Exists(resultOutFilePath));
             Assert.Equal(expectedOutputText.Trim(), resultOutputText);
-
-            // Teardown
-            Directory.Delete(outTestDirectoryPath, true);
-            Directory.Delete(inTestDirectoryPath, true);
         }
 
         [Theory]
@@ -82,12 +80,8 @@ namespace SimulationExercise.Tests.Integration
         public void Program_ShouldReturnError_WhenNoConsistentReadingCreated(Stream streamInputWithErrors, string expectedErrorsText)
         {
             // Arrange
-            string inTestDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\INTestErrors";
-            string outTestErrorDirectoryPath = @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise.Tests.Integration\OUTTestErrors";
-            var inErrorFilePath = Path.Combine(inTestDirectoryPath, "CSVTestErrors.csv");
-
-            if (!Directory.Exists(inTestDirectoryPath)) Directory.CreateDirectory(inTestDirectoryPath);
-            if (!Directory.Exists(outTestErrorDirectoryPath)) Directory.CreateDirectory(outTestErrorDirectoryPath);
+            string inErrorFilePath = Path.Combine(_inDirectoryPath, "CSVTestErrors.csv");
+            DirectoryCleanup();
 
             using (var fileStream = new FileStream(inErrorFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -96,21 +90,26 @@ namespace SimulationExercise.Tests.Integration
             }
 
             // Act
-            _sut.ProcessFile(inTestDirectoryPath, outTestErrorDirectoryPath);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
-            var exportDirectories = Directory.GetDirectories(outTestErrorDirectoryPath);
+            // Assert
+            var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
             var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
 
             var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            // Assert
             Assert.Single(exportDirectories);
             Assert.True(File.Exists(resultOutErrorFilePath));
             Assert.Equal(expectedErrorsText.Trim(), resultErrorOutputText);
+        }
 
-            // Teardown
-            Directory.Delete(outTestErrorDirectoryPath, true);
-            Directory.Delete(inTestDirectoryPath, true);
+        private void DirectoryCleanup()
+        {
+            if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath, true);
+            Directory.CreateDirectory(_inDirectoryPath);
+
+            if (Directory.Exists(_outDirectoryPath)) Directory.Delete(_outDirectoryPath, true);
+            Directory.CreateDirectory(_outDirectoryPath);
         }
     }
 }

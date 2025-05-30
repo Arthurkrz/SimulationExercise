@@ -1,15 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
-using SimulationExercise.Core;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
-using System.Runtime.CompilerServices;
+using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services
 {
-    // separação em métodos privados
-    // metodo generico para mensagem que recebe type e usa nameof(type)
-
     public class FileProcessingService : IFileProcessingService
     {
         private readonly IReadingImportService _readingImportService;
@@ -36,8 +32,8 @@ namespace SimulationExercise.Services
 
         public void ProcessFile(string inDirectoryPath, string baseOutDirectoryPath)
         {
-            string exportFilePath = ExportDirectoryPathGeneratorAndLoggerConfiguration(baseOutDirectoryPath);
-            int i = 0;
+            string noErrorsFilePath = ExportDirectoryPathGeneratorAndLoggerConfiguration(baseOutDirectoryPath);
+            int errorGroupNumber = 0;
 
             if (!Directory.Exists(inDirectoryPath))
             {
@@ -64,12 +60,14 @@ namespace SimulationExercise.Services
 
                 if (!importResult.Success)
                 {
-                    _logger.LogError($"Errors found! ({i++})");
+                    _logger.LogError($"Errors found! ({errorGroupNumber})");
                     foreach (var error in importResult.Errors)
                     {
                         _logger.LogError(error);
                         continue;
                     }
+
+                    errorGroupNumber++;
                 }
 
                 if (importResult.Readings.Count == 0)
@@ -79,8 +77,9 @@ namespace SimulationExercise.Services
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator(typeof(Reading),
-                                                  importResult.Readings.Count));
+                _logger.LogInformation(SuccessMessageGenerator
+                                      ("reading", 
+                                       importResult.Readings.Count));
 
                 IList<ConsistentReading> consistentReadings = 
                     new List<ConsistentReading>();
@@ -91,12 +90,14 @@ namespace SimulationExercise.Services
                     var cr = _consistentReadingFactory.CreateConsistentReading(reading);
                     if (!cr.Success)
                     {
-                        _logger.LogError($"Errors found! ({i++})");
+                        _logger.LogError($"Errors found! ({errorGroupNumber})");
                         foreach (var error in cr.Errors)
                         {
                             _logger.LogError(error); 
                             continue;
                         }
+
+                        errorGroupNumber++;
                     }
 
                     else consistentReadings.Add(cr.Value);
@@ -109,8 +110,9 @@ namespace SimulationExercise.Services
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator(typeof(ConsistentReading), 
-                                                               consistentReadings.Count));
+                _logger.LogInformation(SuccessMessageGenerator
+                                      ("consistent reading", 
+                                       consistentReadings.Count));
 
                 _logger.LogInformation("Creating province data...");
                 IList<ProvinceData> provinceDatas =
@@ -123,8 +125,9 @@ namespace SimulationExercise.Services
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator(typeof(ProvinceData), 
-                                                               provinceDatas.Count));
+                _logger.LogInformation(SuccessMessageGenerator
+                                      ("province data", 
+                                       provinceDatas.Count));
 
                 IList<AverageProvinceData> averageProvinceDatas =
                     new List<AverageProvinceData>();
@@ -136,12 +139,14 @@ namespace SimulationExercise.Services
 
                     if (!averageProvinceData.Success)
                     {
-                        _logger.LogError($"Errors found! ({i++})");
+                        _logger.LogError($"Errors found! ({errorGroupNumber})");
                         foreach (var errors in averageProvinceData.Errors)
                         {
                             _logger.LogError(errors);
                             continue;
                         }
+
+                        errorGroupNumber++;
                     }
 
                     else averageProvinceDatas.Add(averageProvinceData.Value);
@@ -154,11 +159,12 @@ namespace SimulationExercise.Services
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator(typeof(AverageProvinceData), 
-                                                               averageProvinceDatas.Count));
+                _logger.LogInformation(SuccessMessageGenerator
+                                      ("average province data", 
+                                       averageProvinceDatas.Count));
 
                 _logger.LogInformation("Exporting average province data...");
-                using var fileStream = new FileStream(exportFilePath,
+                using var fileStream = new FileStream(noErrorsFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);
 
@@ -171,29 +177,29 @@ namespace SimulationExercise.Services
 
         private string ExportDirectoryPathGeneratorAndLoggerConfiguration(string baseOutPath)
         {
-            string specificReadingsAndErrorsDirectoryName = DateTime.Now.ToString
-                                                    ("yyyyMMdd_HHmmss");
+            string specificReadingsAndErrorsDirectoryName = 
+                SystemTime.Now().ToString("yyyyMMdd_HHmmss");
 
             string fullFolderPath = Path.Combine(baseOutPath,
                             specificReadingsAndErrorsDirectoryName);
 
             Directory.CreateDirectory(fullFolderPath);
 
-            string noErrorsFilePath = Path.Combine(fullFolderPath, "AverageProvinceData.csv");
-            string errorsFilePath = Path.Combine(fullFolderPath, "Errors.log");
+            string noErrorsFilePath = Path.Combine(fullFolderPath, 
+                                                   "AverageProvinceData.csv");
+
+            string errorsFilePath = Path.Combine(fullFolderPath, 
+                                                 "Errors.log");
 
             LogPathHolder.ErrorLogPath = errorsFilePath;
 
             return noErrorsFilePath;
         }
 
-        private string SuccessMessageGenerator(Type type, int count)
+        private string SuccessMessageGenerator(string objectName, int count)
         {
-            string typeName = type.Name;
-
-            return count == 1
-                ? $"1 {typeName} created successfully!"
-                : $"{count} {typeName}s created successfully!";
+            return count == 1 ? $"1 {objectName} created successfully!"
+                : $"{count} {objectName + "s"} created successfully!";
         }
     }
 }

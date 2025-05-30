@@ -1,5 +1,5 @@
 using FluentAssertions;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Services;
@@ -91,7 +91,8 @@ ERROR, Arsenico, ng/m³,560, Varese v.Copelli,383, VA, Varese, N,01/04/2008,,5073
 
             IList<string> expectedErrors = new List<string>
             {
-                "Line: 1 Column: 1. No value found for the value type field: '<IdSensore>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",                "Line: 2 Column: 24. No value found for the value type field: '<Idstazione>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",
+                "Line: 1 Column: 1. No value found for the value type field: '<IdSensore>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",
+                "Line: 2 Column: 24. No value found for the value type field: '<Idstazione>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",
                 "Line: 3 Column: 46. No value found for the value type field: '<Quota>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",
                 "Line: 4 Column: 65. No value found for the value type field: '<DataStart>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",
                 "Line: 5 Column: 77. No value found for the value type field: '<Utm_Nord>k__BackingField' Class: 'ReadingDTO'. \r\nYou must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.",

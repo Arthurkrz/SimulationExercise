@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SimulationExercise.Core.Contracts;
+using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Validators;
 using SimulationExercise.Services.Factory;
