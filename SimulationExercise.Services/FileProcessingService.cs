@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
+using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Utilities;
@@ -43,7 +44,7 @@ namespace SimulationExercise.Services
             var files = Directory.GetFiles(inDirectoryPath);
             if (files.Length == 0)
             {
-                _logger.LogError("No CSV files found in the 'IN' directory.");
+                _logger.LogError(LogMessages.NOCSVFILESFOUND);
                 return;    
             }
 
@@ -54,13 +55,13 @@ namespace SimulationExercise.Services
                                                 FileMode.Open,
                                                 FileAccess.Read))
                 {
-                    _logger.LogInformation("Importing readings...");
+                    _logger.LogInformation(LogMessages.IMPORTREADING);
                     importResult = _readingImportService.Import(str);
                 } 
 
                 if (!importResult.Success)
                 {
-                    _logger.LogError($"Errors found! ({errorGroupNumber})");
+                    _logger.LogError(LogMessages.ERRORSFOUND, errorGroupNumber);
                     foreach (var error in importResult.Errors)
                     {
                         _logger.LogError(error);
@@ -72,25 +73,25 @@ namespace SimulationExercise.Services
 
                 if (importResult.Readings.Count == 0)
                 {
-                    _logger.LogError("No readings have been imported!");
-                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    _logger.LogError(LogMessages.NOREADINGIMPORTED);
+                    _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator
-                                      ("reading", 
-                                       importResult.Readings.Count));
+                _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
+                                       importResult.Readings.Count,
+                                       nameof(Reading));
 
                 IList<ConsistentReading> consistentReadings = 
                     new List<ConsistentReading>();
 
-                _logger.LogInformation("Creating consistent readings...");
+                _logger.LogInformation(LogMessages.CREATEOBJECT, nameof(ConsistentReading));
                 foreach (Reading reading in importResult.Readings)
                 {
                     var cr = _consistentReadingFactory.CreateConsistentReading(reading);
                     if (!cr.Success)
                     {
-                        _logger.LogError($"Errors found! ({errorGroupNumber})");
+                        _logger.LogError(LogMessages.ERRORSFOUND, errorGroupNumber);
                         foreach (var error in cr.Errors)
                         {
                             _logger.LogError(error); 
@@ -105,41 +106,44 @@ namespace SimulationExercise.Services
 
                 if (consistentReadings.Count == 0)
                 {
-                    _logger.LogError("No consistent readings have been created!");
-                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(ConsistentReading));
+                    _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator
-                                      ("consistent reading", 
-                                       consistentReadings.Count));
+                _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
+                                       consistentReadings.Count,
+                                       nameof(ConsistentReading));
 
-                _logger.LogInformation("Creating province data...");
+                _logger.LogInformation(LogMessages.CREATEOBJECT, nameof(ProvinceData));
+
                 IList<ProvinceData> provinceDatas =
                     _provinceDataListFactory.CreateProvinceDataList(consistentReadings); 
 
                 if (provinceDatas.Count == 0)
                 {
-                    _logger.LogError("No province data have been created!");
-                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(ProvinceData));
+                    _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator
-                                      ("province data", 
-                                       provinceDatas.Count));
+                _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
+                                       provinceDatas.Count,
+                                       nameof(ProvinceData));
 
                 IList<AverageProvinceData> averageProvinceDatas =
                     new List<AverageProvinceData>();
 
-                _logger.LogInformation("Creating average province data...");
+                _logger.LogInformation(LogMessages.CREATEOBJECT, 
+                                       nameof(AverageProvinceData));
+
                 foreach (ProvinceData provinceData in provinceDatas)
                 {
                     var averageProvinceData = _averageProvinceDataFactory.CreateAverageProvinceData(provinceData);
 
                     if (!averageProvinceData.Success)
                     {
-                        _logger.LogError($"Errors found! ({errorGroupNumber})");
+                        _logger.LogError(LogMessages.ERRORSFOUND, errorGroupNumber);
                         foreach (var errors in averageProvinceData.Errors)
                         {
                             _logger.LogError(errors);
@@ -154,16 +158,16 @@ namespace SimulationExercise.Services
 
                 if (averageProvinceDatas.Count == 0)
                 {
-                    _logger.LogError("No average province data have been created!");
-                    _logger.LogInformation("Continuing to next file (if exists)...\n");
+                    _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(AverageProvinceData));
+                    _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
                     continue;
                 }
 
-                _logger.LogInformation(SuccessMessageGenerator
-                                      ("average province data", 
-                                       averageProvinceDatas.Count));
+                _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
+                                       nameof(AverageProvinceData),
+                                       averageProvinceDatas.Count);
 
-                _logger.LogInformation("Exporting average province data...");
+                _logger.LogInformation(LogMessages.EXPORTAVERAGEPROVINCEDATA);
                 using var fileStream = new FileStream(noErrorsFilePath,
                                                         FileMode.Create,
                                                         FileAccess.Write);
@@ -194,12 +198,6 @@ namespace SimulationExercise.Services
             LogPathHolder.ErrorLogPath = errorsFilePath;
 
             return noErrorsFilePath;
-        }
-
-        private string SuccessMessageGenerator(string objectName, int count)
-        {
-            return count == 1 ? $"1 {objectName} created successfully!"
-                : $"{count} {objectName + "s"} created successfully!";
         }
     }
 }
