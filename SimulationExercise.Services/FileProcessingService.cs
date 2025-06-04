@@ -54,18 +54,18 @@ namespace SimulationExercise.Services
 
                 var consistentReadingsResult = 
                     CreateConsistentReadings(importReadingsResult);
-                if (!consistentReadingsResult.Success) continue;
+                if (consistentReadingsResult.Count == 0) continue;
 
                 var createProvinceDataResult = 
-                    CreateProvinceData(consistentReadingsResult.consistentReadings);
-                if (!createProvinceDataResult.Success) continue;
+                    CreateProvinceData(consistentReadingsResult);
+                if (createProvinceDataResult.Count == 0) continue;
 
                 var createAverageProvinceDataResult = 
-                    CreateAverageProvinceData(createProvinceDataResult.provinceDatas);
-                if (!createAverageProvinceDataResult.Success) continue;
+                    CreateAverageProvinceData(createProvinceDataResult);
+                if (createAverageProvinceDataResult.Count == 0) continue;
 
                 ExportAverageProvinceData(noErrorsFilePath, 
-                    createAverageProvinceDataResult.averageProvinceDatas);
+                    createAverageProvinceDataResult);
             }
         }
 
@@ -106,7 +106,7 @@ namespace SimulationExercise.Services
             return importResult; 
         }
 
-        public (bool Success, IList<ConsistentReading> consistentReadings) CreateConsistentReadings(ImportResult importResult)
+        public IList<ConsistentReading> CreateConsistentReadings(ImportResult importResult)
         {
             IList<ConsistentReading> consistentReadings =
                 new List<ConsistentReading>();
@@ -134,17 +134,17 @@ namespace SimulationExercise.Services
             {
                 _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(ConsistentReading));
                 _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                return (false, consistentReadings);
+                return consistentReadings;
             }
 
             _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
                                    consistentReadings.Count,
                                    nameof(ConsistentReading));
 
-            return (true, consistentReadings);
+            return consistentReadings;
         }
 
-        public (bool Success, IList<ProvinceData> provinceDatas) CreateProvinceData(IList<ConsistentReading> consistentReadings)
+        public IList<ProvinceData> CreateProvinceData(IList<ConsistentReading> consistentReadings)
         {
             _logger.LogInformation(LogMessages.CREATEOBJECT, nameof(ProvinceData));
 
@@ -155,17 +155,17 @@ namespace SimulationExercise.Services
             {
                 _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(ProvinceData));
                 _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                return (false, provinceDatas);
+                return provinceDatas;
             }
 
             _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
                                    provinceDatas.Count,
                                    nameof(ProvinceData));
 
-            return (true, provinceDatas);
+            return provinceDatas;
         }
 
-        public (bool Success, IList<AverageProvinceData> averageProvinceDatas) CreateAverageProvinceData(IList<ProvinceData> provinceDatas)
+        public IList<AverageProvinceData> CreateAverageProvinceData(IList<ProvinceData> provinceDatas)
         {
             IList<AverageProvinceData> averageProvinceDatas =
                 new List<AverageProvinceData>();
@@ -196,14 +196,14 @@ namespace SimulationExercise.Services
             {
                 _logger.LogError(LogMessages.NOOBJECTCREATED, nameof(AverageProvinceData));
                 _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                return (false, averageProvinceDatas);
+                return averageProvinceDatas;
             }
 
             _logger.LogInformation(LogMessages.OBJECTCREATIONSUCCESS,
                                    nameof(AverageProvinceData),
                                    averageProvinceDatas.Count);
 
-            return (true, averageProvinceDatas);
+            return averageProvinceDatas;
         }
 
         public void ExportAverageProvinceData(string noErrorsFilePath, IList<AverageProvinceData> averageProvinceDatas)
