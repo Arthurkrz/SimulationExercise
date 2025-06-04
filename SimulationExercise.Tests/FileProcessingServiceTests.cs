@@ -151,8 +151,7 @@ namespace SimulationExercise.Tests
                 .Returns(new ImportResult(new List<Reading>(), new List<string> { "ERROR" }));
 
             // Act & Assert
-            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath));
-            Assert.Equal("No readings have been imported!", ex.Message);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -196,8 +195,7 @@ namespace SimulationExercise.Tests
                                          .Returns(result);
 
             // Act & Assert
-            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath));
-            Assert.Equal("No consistent readings have been created!", ex.Message);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -214,7 +212,7 @@ namespace SimulationExercise.Tests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No consistent readings have been created!")),
+                                                        .Contains("No ConsistentReadings have been created!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
@@ -244,15 +242,14 @@ namespace SimulationExercise.Tests
                                         .Returns(new List<ProvinceData>());
 
             // Act & Assert
-            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath));
-            Assert.Equal("No province data have been created!", ex.Message);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No province data have been created!")),
+                                                        .Contains("No ProvinceDatas have been created!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
@@ -288,15 +285,14 @@ namespace SimulationExercise.Tests
                                            .Returns(resultAverageProvinceDataCreation);
 
             // Act & Assert
-            var ex = Assert.Throws<Exception>(() => _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath));
-            Assert.Equal("No average province data have been created!", ex.Message);
+            _sut.ProcessFile(_inDirectoryPath, _outDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No average province data have been created!")),
+                                                        .Contains("No AverageProvinceDatas have been created!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
