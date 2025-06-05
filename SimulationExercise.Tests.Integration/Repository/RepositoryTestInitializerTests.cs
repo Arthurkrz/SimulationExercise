@@ -6,55 +6,39 @@ namespace SimulationExercise.Tests.Integration.Repository
 {
     public class RepositoryTestInitializerTests
     {
-        private readonly string _connectionStringTest;
-        private readonly string _connectionStringMaster;
+        private readonly string _tableName;
+        private readonly string _connectionString;
         private readonly RepositoryTestInitializer _sut;
 
         public RepositoryTestInitializerTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
+                .AddJsonFile("appsettingstest.json").Build();
 
-            _connectionStringMaster = config.GetConnectionString("Master");
-
+            _tableName = "TableCreationTest";
+            _connectionString = config.GetConnectionString("Test");
             _sut = new RepositoryTestInitializer();
         }
 
         [Fact]
-        public void Initialize_CreatesDatabaseAndTables_WhenDoesntExist()
+        public void Initialize_CreatesTables_WhenDoesntExist()
         {
-            // Arrange
-            var databaseName = $"DBCreationTest_{Guid.NewGuid():N}";
-            var connectionString = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog={databaseName};Integrated Security=True;TrustServerCertificate=True;";
-
-            // Act
+            // Act & Assert
             _sut.Initialize();
 
-            using (var masterConnection = new SqlConnection(_connectionStringMaster))
+            using (var testConnection = new SqlConnection(_connectionString))
             {
-                masterConnection.Open();
+                testConnection.Open();
 
-                var databaseExistanceResult = masterConnection.ExecuteScalar<int>
-                ($"SELECT COUNT(*) FROM sys.databases WHERE name = '{databaseName}'");
+                var tableExistanceResult = testConnection.ExecuteScalar<int>
+                    ($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
+                    $"WHERE TABLE_NAME = '{_tableName}'");
 
-                using (var testConnection = new SqlConnection(connectionString))
-                {
-                    testConnection.Open();
-
-                    var tableExistanceResult = testConnection.ExecuteScalar<int>
-                        ($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
-                        $"WHERE TABLE_NAME = 'BasisDataTest'");
-
-                    // Assert
-                    Assert.Equal(1, databaseExistanceResult);
-                    Assert.Equal(1, tableExistanceResult);
-                }
+                Assert.Equal(1, tableExistanceResult);
 
                 // Teardown
-                masterConnection.Execute($"ALTER DATABASE [{databaseName}] " +
-                                         $"SET SINGLE_USER WITH ROLLBACK " +
-                                         $"IMMEDIATE; DROP DATABASE [{databaseName}]");
+                testConnection.Execute("DROP TABLE dbo.TableCreationTest");
             }
         }
     }
