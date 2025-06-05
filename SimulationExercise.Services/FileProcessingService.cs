@@ -69,7 +69,7 @@ namespace SimulationExercise.Services
             }
         }
 
-        public ImportResult ImportReadings(string file)
+        private ImportResult ImportReadings(string file)
         {
             ImportResult importResult = null;
             using (var str = new FileStream(file,
@@ -106,7 +106,7 @@ namespace SimulationExercise.Services
             return importResult; 
         }
 
-        public IList<ConsistentReading> CreateConsistentReadings(ImportResult importResult)
+        private IList<ConsistentReading> CreateConsistentReadings(ImportResult importResult)
         {
             IList<ConsistentReading> consistentReadings =
                 new List<ConsistentReading>();
@@ -144,7 +144,7 @@ namespace SimulationExercise.Services
             return consistentReadings;
         }
 
-        public IList<ProvinceData> CreateProvinceData(IList<ConsistentReading> consistentReadings)
+        private IList<ProvinceData> CreateProvinceData(IList<ConsistentReading> consistentReadings)
         {
             _logger.LogInformation(LogMessages.CREATEOBJECT, nameof(ProvinceData));
 
@@ -165,7 +165,7 @@ namespace SimulationExercise.Services
             return provinceDatas;
         }
 
-        public IList<AverageProvinceData> CreateAverageProvinceData(IList<ProvinceData> provinceDatas)
+        private IList<AverageProvinceData> CreateAverageProvinceData(IList<ProvinceData> provinceDatas)
         {
             IList<AverageProvinceData> averageProvinceDatas =
                 new List<AverageProvinceData>();
@@ -206,7 +206,7 @@ namespace SimulationExercise.Services
             return averageProvinceDatas;
         }
 
-        public void ExportAverageProvinceData(string noErrorsFilePath, IList<AverageProvinceData> averageProvinceDatas)
+        private void ExportAverageProvinceData(string noErrorsFilePath, IList<AverageProvinceData> averageProvinceDatas)
         {
             _logger.LogInformation(LogMessages.EXPORTAVERAGEPROVINCEDATA);
             using var fileStream = new FileStream(noErrorsFilePath,
