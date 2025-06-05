@@ -27,9 +27,9 @@ The project is composed by the following layers:
   - Create the database and test database manually using SQL Server Management Studio or Object Explorer from Visual Studio, applying the following query:
 
 	```sql
-	(QUERY FOR DB CREATION)
+	CREATE DATABASE [Basis]
 	
-	(QUERY FOR TEST DB CREATION)
+	CREATE DATABASE [Basis_Test]
 	```
 ### 2. Project Configuration:
   - Execute the command `dotnet restore` to restore NuGet packages;
