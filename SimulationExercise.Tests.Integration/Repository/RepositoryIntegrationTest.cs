@@ -16,7 +16,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
+                .AddJsonFile("appsettings.test.json").Build();
 
             _tableName = "BasisDataTest";
             _connectionString = config.GetConnectionString("Test");
