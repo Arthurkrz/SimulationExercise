@@ -16,7 +16,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
+                .AddJsonFile("appsettings.test.json").Build();
 
             _testTableName = "BasisDataTest";
             _mainTableName = "BasisData";
@@ -48,7 +48,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             {
                 mainConnection.Open();
 
-                testTableExistanceResult = mainConnection.ExecuteScalar<int>
+                mainTableExistanceResult = mainConnection.ExecuteScalar<int>
                     ($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
                      $"WHERE TABLE_NAME = '{_mainTableName}'");
             }
