@@ -5,21 +5,23 @@ using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Tests.Integration.Repository
 {
-    public class RepositoryIntegrationTest : IClassFixture<RepositoryTestFixture>
+    public class RepositoryIntegrationTest
     {
         private readonly string _tableName;
         private readonly string _connectionString;
         private IContextFactory _contextFactory;
+        private RepositoryInitializer _repositoryInitializer;
 
         public RepositoryIntegrationTest()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettingstest.json").Build();
+                .AddJsonFile("appsettings.json").Build();
 
             _tableName = "BasisDataTest";
             _connectionString = config.GetConnectionString("Test");
             _contextFactory = new DapperContextFactory(_connectionString);
+            _repositoryInitializer = new RepositoryInitializer();
         }
 
         [Fact]
@@ -27,6 +29,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = -1;
@@ -49,6 +52,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = 0;
@@ -76,6 +80,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -98,6 +103,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
 
@@ -124,6 +130,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             using (IContext context = _contextFactory.Create())
@@ -144,6 +151,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             var expectedUpdatedBasis = new Basis(0, "NewBasisCode", "NewBasisDescription");
@@ -170,6 +178,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -187,6 +196,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
             using (IContext context = _contextFactory.Create())
@@ -218,6 +228,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
 
             IContext context = _contextFactory.Create();
             var basis = new Basis(-1, "BasisCode", "BasisDescription");
@@ -236,7 +247,8 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             using (var cleanupContext = _contextFactory.Create())
             {
-                cleanupContext.Execute($"DELETE FROM {_tableName}");
+                cleanupContext.Execute($"IF OBJECT_ID('{_tableName}', 'U') " +
+                                       $"IS NOT NULL DROP TABLE {_tableName}");
                 cleanupContext.Commit();
             }
         }
