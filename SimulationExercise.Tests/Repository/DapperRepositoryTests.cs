@@ -2,17 +2,18 @@
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Tests.Integration.Repository;
 
-namespace SimulationExercise.Tests.Integration.Repository
+namespace SimulationExercise.Tests.Repository
 {
-    public class DapperRepositoryIntegrationTest
+    public class DapperRepositoryTests
     {
         private readonly string _tableName;
         private readonly string _connectionString;
         private IContextFactory _contextFactory;
         private RepositoryInitializer _repositoryInitializer;
 
-        public DapperRepositoryIntegrationTest()
+        public DapperRepositoryTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

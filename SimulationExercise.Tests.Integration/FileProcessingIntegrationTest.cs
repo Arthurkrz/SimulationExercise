@@ -7,7 +7,7 @@ using SimulationExercise.IOC;
 using SimulationExercise.Services;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 
-namespace SimulationExercise.Tests.Integration.Services
+namespace SimulationExercise.Tests.Integration
 {
     public class FileProcessingIntegrationTest
     {

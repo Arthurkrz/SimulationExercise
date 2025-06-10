@@ -2,7 +2,7 @@
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factory;
 
-namespace SimulationExercise.Tests
+namespace SimulationExercise.Tests.Service
 {
     public class ProvinceDataListFactoryTests
     {

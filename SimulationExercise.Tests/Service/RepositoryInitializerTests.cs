@@ -1,8 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using SimulationExercise.Tests.Integration.Repository;
 
-namespace SimulationExercise.Tests.Integration.Repository
+namespace SimulationExercise.Tests.Service
 {
     public class RepositoryInitializerTests
     {

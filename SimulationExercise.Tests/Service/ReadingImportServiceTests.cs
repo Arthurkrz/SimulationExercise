@@ -1,12 +1,10 @@
 using FluentAssertions;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Services;
-using System;
 using System.Text;
 
-namespace SimulationExercise.Tests
+namespace SimulationExercise.Tests.Service
 {
     public class ReadingImportServiceTests
     {

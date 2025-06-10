@@ -66,6 +66,6 @@ namespace SimulationExercise.Architecture
             }
 
             _isDisposed = true;
-        } 
+        }
     }
 }
