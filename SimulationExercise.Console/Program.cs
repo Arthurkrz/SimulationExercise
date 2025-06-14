@@ -28,5 +28,5 @@ using var serviceProvider = services.BuildServiceProvider();
 var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingService>();
 
 fileProcessingService.ProcessFile(
-    @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\IN",
-    @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\OUT");
+    Path.Combine(Path.GetTempPath(), "INTest"),
+    Path.Combine(Path.GetTempPath(), "OUTTest"));

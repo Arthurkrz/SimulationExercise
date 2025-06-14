@@ -13,16 +13,16 @@ namespace SimulationExercise.Tests.Repository
         private readonly IInputFileRepository _sut;
         private readonly string _tableNameInputFile;
         private readonly string _tableNameInputFileMessage;
+        private readonly string _connectionString;
 
-        public RepositoryIntegrationTest(IContextFactory contextFactory, IInputFileRepository inputFileRepository)
+        public RepositoryIntegrationTest()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.test.json").Build();
 
-            _contextFactory = contextFactory ?? throw new 
-                ArgumentNullException(nameof(contextFactory));
-
+            _connectionString = config.GetConnectionString("Test");
+            _contextFactory = new DapperContextFactory(_connectionString);
             _sut = new InputFileRepository();
             _tableNameInputFile = "InputFile";
             _tableNameInputFileMessage = "InputFileMessage";

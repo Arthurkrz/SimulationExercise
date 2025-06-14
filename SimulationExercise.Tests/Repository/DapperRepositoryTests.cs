@@ -11,18 +11,18 @@ namespace SimulationExercise.Tests.Repository
         private readonly string _tableName;
         private readonly string _connectionString;
         private IContextFactory _contextFactory;
-        private RepositoryInitializer _repositoryInitializer;
+        private DapperRepositoryInitializer _repositoryInitializer;
 
         public DapperRepositoryTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.test.json").Build();
+                .AddJsonFile("appsettings.basistest.json").Build();
 
             _tableName = "BasisDataTest";
             _connectionString = config.GetConnectionString("Test");
             _contextFactory = new DapperContextFactory(_connectionString);
-            _repositoryInitializer = new RepositoryInitializer();
+            _repositoryInitializer = new DapperRepositoryInitializer();
         }
 
         [Fact]
