@@ -11,12 +11,12 @@ namespace SimulationExercise.Tests.Repository
         private readonly string _tableName;
         private readonly string _connectionString;
         private IContextFactory _contextFactory;
-        private DapperRepositoryInitializer _repositoryInitializer;
+        private IRepositoryInitializer _repositoryInitializer;
 
         public DapperRepositoryTests()
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(GetJsonDirectoryPath())
                 .AddJsonFile("appsettings.basistest.json").Build();
 
             _tableName = "BasisDataTest";
@@ -242,6 +242,15 @@ namespace SimulationExercise.Tests.Repository
             // Assert
             Assert.Throws<InvalidOperationException>(() => 
             context.Query<Basis>($"SELECT * FROM {_tableName}"));
+        }
+
+        private static string GetJsonDirectoryPath()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.basistest.json").Any())
+                directoryInfo = directoryInfo.Parent;
+
+            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
         }
 
         private void TestDataCleanup()

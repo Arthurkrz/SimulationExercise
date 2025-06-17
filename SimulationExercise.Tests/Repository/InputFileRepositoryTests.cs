@@ -4,6 +4,7 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
+using SimulationExercise.Services;
 
 namespace SimulationExercise.Tests.Repository
 {
@@ -11,6 +12,7 @@ namespace SimulationExercise.Tests.Repository
     {
         private readonly IContextFactory _contextFactory;
         private readonly IInputFileRepository _sut;
+        private readonly IRepositoryInitializer _repositoryInitializer;
         private readonly string _tableNameInputFile;
         private readonly string _tableNameInputFileMessage;
         private readonly string _connectionString;
@@ -18,14 +20,15 @@ namespace SimulationExercise.Tests.Repository
         public RepositoryIntegrationTest()
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(GetJsonDirectoryPath())
                 .AddJsonFile("appsettings.test.json").Build();
 
             _connectionString = config.GetConnectionString("Test");
             _contextFactory = new DapperContextFactory(_connectionString);
             _sut = new InputFileRepository();
-            _tableNameInputFile = "InputFile";
-            _tableNameInputFileMessage = "InputFileMessage";
+            _repositoryInitializer = new RepositoryInitializer();
+            _tableNameInputFile = "InputFileTest";
+            _tableNameInputFileMessage = "InputFileMessageTest";
         }
 
         [Fact]
@@ -33,6 +36,7 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
 
             var currentTime = new DateTime(2025, 05, 12);
             const string currentUser = "currentUser1";
@@ -47,7 +51,6 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act
                 _sut.Insert(dto, context);
-                context.Commit();
             }
 
             // Assert
@@ -55,7 +58,7 @@ namespace SimulationExercise.Tests.Repository
             {
                 IList<dynamic> items = context.Query<dynamic>
                     ("SELECT Name, Extension, Bytes, StatusId, " +
-                     "CreationTime, LastUpdate, LastUpdateUser " +
+                     "CreationTime, LastUpdateTime, LastUpdateUser " +
                     $"FROM {_tableNameInputFile}");
 
                 var retrievedItem = items[0];
@@ -75,9 +78,10 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
-            int inputFileId = 2;
+            long inputFileId = 1;
             InputFileUpdateDTO expectedReturn = new InputFileUpdateDTO(
                 inputFileId, Status.Success, new List<string> { "UpdatedMessage" });
 
@@ -85,21 +89,19 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act
                 _sut.Update(expectedReturn, context);
-                context.Commit();
             }
 
             // Assert
             using (IContext context = _contextFactory.Create())
             {
-                IList<InputFileUpdateDTO> results = context.Query<InputFileUpdateDTO>
-                    ($"SELECT Message FROM {_tableNameInputFileMessage} " +
-                     $"WHERE InputFileId = @inputFileId;");
+                IList<(int InputFileId, string Message)> result = context.Query<(int InputFileId, string Message)>
+                    ($"SELECT InputFileId, Message FROM {_tableNameInputFileMessage} " +
+                      "WHERE InputFileId = @inputFileId;", new { inputFileId });
 
-                Assert.Single(results);
+                Assert.Single(result);
 
-                Assert.Equal(inputFileId, results.First().InputFileId);
-                Assert.Equal(expectedReturn.Status, results.First().Status);
-                Assert.Equal(expectedReturn.Messages, results.First().Messages);
+                Assert.Equal(inputFileId, result.First().InputFileId);
+                Assert.Equal(expectedReturn.Messages.First(), result.First().Message);
             }
         }
 
@@ -108,6 +110,7 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
+            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
@@ -122,11 +125,11 @@ namespace SimulationExercise.Tests.Repository
         {
             using (var cleanupContext = _contextFactory.Create())
             {
-                cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFile}', 'U') " +
-                                       $"IS NOT NULL DROP TABLE {_tableNameInputFile}");
-
                 cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') " +
                                        $"IS NOT NULL DROP TABLE {_tableNameInputFileMessage}");
+
+                cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFile}', 'U') " +
+                                       $"IS NOT NULL DROP TABLE {_tableNameInputFile}");
 
                 cleanupContext.Commit();
             }
@@ -143,19 +146,19 @@ namespace SimulationExercise.Tests.Repository
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
                     context.Execute($"INSERT INTO {_tableNameInputFile}" +
-                        "(Name, Bytes, Extension, StatusId, CreationTime, " +
-                        "LastUpdateTime, LastUpdateUser) " +
-                        "VALUES(@name, @bytes, @extension, @creationTime, " +
-                        "@lastUpdateTime, @lastUpdateUser, @statusId)", 
+                        "(Name, Bytes, Extension, CreationTime, " +
+                        "LastUpdateTime, LastUpdateUser, StatusId) " +
+                        "VALUES(@Name, @Bytes, @Extension, @creationTime, " +
+                        "@lastUpdateTime, @lastUpdateUser, @StatusId)", 
                         new 
                         { 
-                            name = $"InputFileName{objectNumber}", 
-                            bytes = new byte[] { 1, 2, 3 }, 
-                            extension = $"InputFileExtension{objectNumber}", 
-                            statusId = objectStatus, 
+                            Name = $"InputFileName{objectNumber}", 
+                            Bytes = new byte[] { 1, 2, 3 }, 
+                            Extension = $"Ext{objectNumber}", 
                             creationTime, 
                             lastUpdateTime, 
-                            lastUpdateUser
+                            lastUpdateUser,
+                            StatusId = objectStatus
                         });
 
                     context.Execute($"INSERT INTO {_tableNameInputFileMessage}" +
@@ -173,6 +176,15 @@ namespace SimulationExercise.Tests.Repository
 
                 context.Commit();
             }
+        }
+
+        private static string GetJsonDirectoryPath()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.test.json").Any())
+                directoryInfo = directoryInfo.Parent;
+
+            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
         }
     }
 }

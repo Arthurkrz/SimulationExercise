@@ -1,10 +1,11 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Tests.Integration.Repository
 {
-    public class DapperRepositoryInitializer
+    public class DapperRepositoryInitializer : IRepositoryInitializer
     {
         private readonly string _testTableName;
         private readonly string _mainTableName;
@@ -14,7 +15,7 @@ namespace SimulationExercise.Tests.Integration.Repository
         public DapperRepositoryInitializer() 
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(GetJsonDirectoryPath())
                 .AddJsonFile("appsettings.basistest.json").Build();
 
             _testTableName = "BasisDataTest";
@@ -54,6 +55,15 @@ namespace SimulationExercise.Tests.Integration.Repository
 
                 mainConnection.Execute(mainTableCreationQuery);
             }
+        }
+
+        private static string GetJsonDirectoryPath()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.basistest.json").Any())
+                directoryInfo = directoryInfo.Parent;
+
+            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
         }
     }
 }

@@ -16,7 +16,7 @@ namespace SimulationExercise.Tests.Service
         public DapperRepositoryInitializerTests()
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(GetJsonDirectoryPath())
                 .AddJsonFile("appsettings.basistest.json").Build();
 
             _testTableName = "BasisDataTest";
@@ -57,6 +57,15 @@ namespace SimulationExercise.Tests.Service
             // Assert
             Assert.Equal(1, testTableExistanceResult);
             Assert.Equal(1, mainTableExistanceResult);
+        }
+
+        private static string GetJsonDirectoryPath()
+        {
+            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.basistest.json").Any())
+                directoryInfo = directoryInfo.Parent;
+
+            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
         }
     }
 }
