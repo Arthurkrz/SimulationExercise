@@ -15,10 +15,12 @@ namespace SimulationExercise.Architecture
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            string sql = $"INSERT INTO {_mainTableName}" +
-                "(Name, Bytes, Extension, CreationTime, " +
-                "LastUpdateTime, LastUpdateUser, StatusId) VALUES (@Name, @Bytes, @Extension, " +
-                "@CreationTime, @LastUpdateTime, @LastUpdateUser, @Status)";
+            string sql = $@"INSERT INTO {_mainTableName}
+                            (Name, Bytes, Extension, CreationTime,
+                            LastUpdateTime, LastUpdateUser, StatusId) 
+                                VALUES (@Name, @Bytes, @Extension,
+                                @CreationTime, @LastUpdateTime, 
+                                @LastUpdateUser, @Status);";
 
             context.Execute(sql, new
             {
@@ -44,10 +46,10 @@ namespace SimulationExercise.Architecture
             {
                 foreach (var message in dto.Messages)
                 {
-                    string sql = $"INSERT INTO {_messageTableName}(InputFileId, " +
-                                  "CreationDate, LastUpdateDate, LastUpdateUser, Message) " +
-                                  "VALUES (@InputFileId, @CreationDate, @LastUpdateDate, " +
-                                  "@LastUpdateUser, @Messages)";
+                    string sql = $@"INSERT INTO {_messageTableName}(InputFileId, 
+                                    CreationDate, LastUpdateDate, LastUpdateUser, Message)
+                                        VALUES (@InputFileId, @CreationDate, @LastUpdateDate,
+                                        @LastUpdateUser, @Messages);";
 
                     context.Execute(sql, new { dto.InputFileId, 
                                                 CreationDate = SystemTime.Now(), 
@@ -65,9 +67,11 @@ namespace SimulationExercise.Architecture
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             int statusId = (int)status;
-            var sql = $"SELECT * FROM {_mainTableName} WHERE StatusId = @statusId ORDER BY CreationTime DESC";
-
-            return context.Query<InputFileGetDTO>(sql, new { statusId });
+            var sql = $@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
+                            FROM {_mainTableName} WHERE StatusId = @statusId 
+                                ORDER BY CreationTime DESC";
+            var result = context.Query<InputFileGetDTO>(sql, new { statusId });
+            return result;
         }
     }
 }

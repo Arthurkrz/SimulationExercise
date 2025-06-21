@@ -3,61 +3,80 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Services;
 
 namespace SimulationExercise.Tests.Architecture
 {
     public class RepositoryInitializerTests
     {
-        private readonly string _tableNameInputFile = "InputFile";
-        private readonly string _tableNameInputFileMessage = "InputFileMessage";
-        private readonly IContextFactory _contextFactory;
+        private IContextFactory _contextFactory;
         private readonly IRepositoryInitializer _sut;
-        private readonly string _connectionString;
+        private readonly string _connectionStringMain;
+        private readonly string _connectionStringBasis;
 
         public RepositoryInitializerTests()
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(GetJsonDirectoryPath())
-                .AddJsonFile("appsettings.test.json").Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _connectionString = config.GetConnectionString("DefaultDatabase");
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _connectionStringMain = config.GetConnectionString("DefaultDatabase");
+            _connectionStringBasis = config.GetConnectionString("BasisDatabase");
             _sut = new RepositoryInitializer();
         }
 
         [Fact]
-        public void Initialize_CreatesTables_WhenDoesntExist()
+        public void SimulationDatabaseInitializer_CreatesTables_WhenDoesntExist()
         {
             // Arrange
+            string tableNameInputFile = "InputFile";
+            string tableNameInputFileMessage = "InputFileMessage";
+
+            _contextFactory = new DapperContextFactory(_connectionStringMain);
+
             using (IContext context = _contextFactory.Create())
             {
                 // Act
                 _sut.Initialize(context);
             }
 
-            using (var assertConnection = new SqlConnection(_connectionString))
+            using (var assertConnection = new SqlConnection(_connectionStringMain))
             {
                 assertConnection.Open();
 
                 // Assert
                 Assert.Equal(1, assertConnection.ExecuteScalar<int>
-                    ("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
-                    $"WHERE TABLE_NAME = '{_tableNameInputFile}'"));
+                    ($@"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
+                            WHERE TABLE_NAME = '{tableNameInputFile}'"));
 
                 Assert.Equal(1, assertConnection.ExecuteScalar<int>
-                    ("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES " +
-                    $"WHERE TABLE_NAME = '{_tableNameInputFileMessage}'"));
+                    ($@"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
+                            WHERE TABLE_NAME = '{tableNameInputFileMessage}'"));
             }
         }
 
-        private static string GetJsonDirectoryPath()
+        [Fact]
+        public void BasisInitializer_CreatesTables_WhenDoesntExist()
         {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.test.json").Any())
-                directoryInfo = directoryInfo.Parent;
+            // Arrange
+            string tableName = "BasisData";
 
-            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
+            _contextFactory = new DapperContextFactory(_connectionStringBasis);
+
+            using (IContext context = _contextFactory.Create())
+            {
+                // Act
+                _sut.Initialize(context);
+            }
+
+            using (var assertConnection = new SqlConnection(_connectionStringBasis))
+            {
+                assertConnection.Open();
+
+                // Assert
+                Assert.Equal(1, assertConnection.ExecuteScalar<int>
+                    ($@"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
+                            WHERE TABLE_NAME = '{tableName}'"));
+            }
         }
     }
 }

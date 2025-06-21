@@ -8,7 +8,7 @@ using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Tests.Repository
 {
-    public class RepositoryIntegrationTest
+    public class InputFileRepositoryTests
     {
         private readonly IContextFactory _contextFactory;
         private readonly IInputFileRepository _sut;
@@ -17,11 +17,11 @@ namespace SimulationExercise.Tests.Repository
         private readonly string _tableNameInputFileMessage = "InputFileMessage";
         private readonly string _connectionString;
 
-        public RepositoryIntegrationTest()
+        public InputFileRepositoryTests()
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(GetJsonDirectoryPath())
-                .AddJsonFile("appsettings.test.json").Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -57,9 +57,9 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 IList<dynamic> items = context.Query<dynamic>
-                    ("SELECT Name, Extension, Bytes, StatusId, " +
-                     "CreationTime, LastUpdateTime, LastUpdateUser " +
-                    $"FROM {_tableNameInputFile}");
+                    ($@"SELECT Name, Extension, Bytes, StatusId, 
+                        CreationTime, LastUpdateTime, LastUpdateUser 
+                            FROM {_tableNameInputFile}");
 
                 var retrievedItem = items[0];
                 Assert.Equal(1, items.Count);
@@ -96,15 +96,13 @@ namespace SimulationExercise.Tests.Repository
             // Assert
             using (IContext assertContext = _contextFactory.Create())
             {
-                IList<InputFileGetDTO> result = assertContext.Query<InputFileGetDTO>
-                    ("SELECT InputFileId, Name, Extension, Bytes, StatusId AS Status " +
-                    $"FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId;", 
+                var result = assertContext.Query<InputFileGetDTO>
+                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
+                            FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId",
                     new { expectedReturn.InputFileId });
 
                 Assert.Single(result);
-
-                Assert.Equal(Status.Success, result.First().Status);
-                Assert.Equal(1, result.First().InputFileId);
+                result.First().Should().BeEquivalentTo(expectedReturn);
             }
         }
 
@@ -131,20 +129,29 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                IList<InputFileGetDTO> result = assertContext.Query<InputFileGetDTO>
-                    ("SELECT InputFileId, Name, Extension, Bytes, StatusId AS Status" +
-                    $"FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId;", 
+                var result = assertContext.Query<InputFileGetDTO>
+                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
+                            FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId", 
                     new { expectedReturn.InputFileId });
 
-                IList<InputFileUpdateDTO> messageResult = assertContext.Query<InputFileUpdateDTO>
-                    ($"SELECT InputFileId, Message FROM {_tableNameInputFileMessage} " +
-                      "WHERE InputFileId = @InputFileId;", new { expectedReturn.InputFileId });
+                IList<dynamic> messageResult = assertContext.Query<dynamic>
+                    ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
+                            FROM INPUTFILE F 
+                            INNER JOIN INPUTFILEMESSAGE M
+                            ON F.INPUTFILEID = M.INPUTFILEID
+                            WHERE F.INPUTFILEID = @INPUTFILEID", 
+                    new { expectedReturn.InputFileId });
 
                 Assert.Single(result);
                 Assert.Single(messageResult);
 
+                var message = messageResult.First();
+                Status status = (Status)(int)message.STATUS;
+
                 result.First().Should().BeEquivalentTo(expectedReturn);
-                messageResult.First().Should().BeEquivalentTo(updateDTO);
+                Assert.Equal((long)message.INPUTFILEID, updateDTO.InputFileId);
+                Assert.Equal(Status.Error, status);
+                Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
         }
 
@@ -167,15 +174,15 @@ namespace SimulationExercise.Tests.Repository
         {
             using (var cleanupContext = _contextFactory.Create())
             {
-                cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') " +
-                       $"IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage}");
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') 
+                                          IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage}");
 
-                cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFile}', 'U') " +
-                       $"IS NOT NULL DELETE FROM {_tableNameInputFile}");
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
+                                          IS NOT NULL DELETE FROM {_tableNameInputFile}");
 
-                cleanupContext.Execute($"IF OBJECT_ID('{_tableNameInputFile}', 'U') " +
-                       $"IS NOT NULL DBCC CHECKIDENT ('{_tableNameInputFile}', RESEED, 0)");
-
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
+                                          IS NOT NULL DBCC CHECKIDENT ('{_tableNameInputFile}', 
+                                          RESEED, 0)");
                 cleanupContext.Commit();
             }
         }
@@ -190,11 +197,12 @@ namespace SimulationExercise.Tests.Repository
             {
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute($"INSERT INTO {_tableNameInputFile}" +
-                        "(Name, Bytes, Extension, CreationTime, " +
-                        "LastUpdateTime, LastUpdateUser, StatusId) " +
-                        "VALUES(@Name, @Bytes, @Extension, @creationTime, " +
-                        "@lastUpdateTime, @lastUpdateUser, @StatusId)",
+                    context.Execute
+                        ($@"INSERT INTO {_tableNameInputFile} 
+                            (Name, Bytes, Extension, CreationTime,
+                            LastUpdateTime, LastUpdateUser, StatusId) 
+                            VALUES(@Name, @Bytes, @Extension, @creationTime, 
+                            @lastUpdateTime, @lastUpdateUser, @StatusId)",
                         new
                         {
                             Name = $"InputFileName{objectNumber}",
@@ -209,15 +217,6 @@ namespace SimulationExercise.Tests.Repository
 
                 context.Commit();
             }
-        }
-
-        private static string GetJsonDirectoryPath()
-        {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (directoryInfo != null && !directoryInfo.GetFiles("appsettings.test.json").Any())
-                directoryInfo = directoryInfo.Parent;
-
-            return directoryInfo?.FullName ?? throw new FileNotFoundException("Configuration file not found.");
         }
     }
 }
