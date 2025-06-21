@@ -28,5 +28,5 @@ using var serviceProvider = services.BuildServiceProvider();
 var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingService>();
 
 fileProcessingService.ProcessFile(
-    Path.Combine(Path.GetTempPath(), "INTest"),
-    Path.Combine(Path.GetTempPath(), "OUTTest"));
+    Path.Combine(Path.GetTempPath(), "IN"),
+    Path.Combine(Path.GetTempPath(), "OUT"));

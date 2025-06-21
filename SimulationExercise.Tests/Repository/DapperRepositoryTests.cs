@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Tests.Integration.Repository;
 
 namespace SimulationExercise.Tests.Repository
 {
@@ -19,10 +18,12 @@ namespace SimulationExercise.Tests.Repository
                 .SetBasePath(GetJsonDirectoryPath())
                 .AddJsonFile("appsettings.basistest.json").Build();
 
-            _tableName = "BasisDataTest";
-            _connectionString = config.GetConnectionString("Test");
+            _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
+
             _repositoryInitializer = new DapperRepositoryInitializer();
+            _repositoryInitializer.Initialize(_contextFactory.Create());
+            _tableName = "BasisData";
         }
 
         [Fact]
@@ -30,7 +31,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = -1;
@@ -53,7 +53,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = 0;
@@ -81,7 +80,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -104,7 +102,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
 
@@ -131,7 +128,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             using (IContext context = _contextFactory.Create())
@@ -152,7 +148,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             var expectedUpdatedBasis = new Basis(0, "NewBasisCode", "NewBasisDescription");
@@ -179,7 +174,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -197,7 +191,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
             using (IContext context = _contextFactory.Create())
@@ -229,7 +222,6 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             IContext context = _contextFactory.Create();
             var basis = new Basis(-1, "BasisCode", "BasisDescription");
@@ -258,7 +250,7 @@ namespace SimulationExercise.Tests.Repository
             using (var cleanupContext = _contextFactory.Create())
             {
                 cleanupContext.Execute($"IF OBJECT_ID('{_tableName}', 'U') " +
-                                       $"IS NOT NULL DROP TABLE {_tableName}");
+                                       $"IS NOT NULL TRUNCATE TABLE {_tableName}");
                 cleanupContext.Commit();
             }
         }

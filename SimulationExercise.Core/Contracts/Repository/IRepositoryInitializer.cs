@@ -2,6 +2,6 @@
 {
     public interface IRepositoryInitializer
     {
-        void Initialize();
+        void Initialize(IContext context);
     }
 }
