@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
+using SimulationExercise.Architecture.Repository;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;

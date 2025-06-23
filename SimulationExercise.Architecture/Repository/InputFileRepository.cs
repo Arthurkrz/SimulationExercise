@@ -3,7 +3,7 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
-namespace SimulationExercise.Architecture
+namespace SimulationExercise.Architecture.Repository
 {
     public class InputFileRepository : IInputFileRepository
     {
