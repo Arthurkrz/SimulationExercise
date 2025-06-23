@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Architecture.csproj" />
     <ProjectReference Include="..\SimulationExercise.Core\SimulationExercise.Core.csproj" />
     <ProjectReference Include="..\SimulationExercise.IOC\SimulationExercise.IOC.csproj" />
     <ProjectReference Include="..\SimulationExercise.Services\SimulationExercise.Services.csproj" />
@@ -29,6 +30,12 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -3,25 +3,27 @@ using Microsoft.Extensions.Configuration;
 using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Repository;
 
-namespace SimulationExercise.Tests.Integration.Repository
+namespace SimulationExercise.Tests.Repository
 {
-    public class RepositoryIntegrationTest
+    public class BasisRepositoryTests
     {
         private readonly string _tableName;
         private readonly string _connectionString;
         private IContextFactory _contextFactory;
-        private RepositoryInitializer _repositoryInitializer;
+        private IRepositoryInitializer _repositoryInitializer;
 
-        public RepositoryIntegrationTest()
+        public BasisRepositoryTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.test.json").Build();
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _tableName = "BasisDataTest";
-            _connectionString = config.GetConnectionString("Test");
+            _connectionString = config.GetConnectionString("BasisDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
+
             _repositoryInitializer = new RepositoryInitializer();
+            _repositoryInitializer.Initialize(_contextFactory.Create());
+            _tableName = "BasisData";
         }
 
         [Fact]
@@ -29,7 +31,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = -1;
@@ -39,8 +40,8 @@ namespace SimulationExercise.Tests.Integration.Repository
             {
                 // Act
                 var result = context.Query
-                    ("SELECT BASISID, BASISDESCRIPTION, LEN(BASISDESCRIPTION) AS DescriptionLength " +
-                    $"FROM {_tableName} WHERE BasisId = @basisId", new { basisId });
+                    ($@"SELECT BASISID, BASISDESCRIPTION, LEN(BASISDESCRIPTION) AS DescriptionLength 
+                            FROM {_tableName} WHERE BasisId = @basisId", new { basisId });
 
                 // Assert
                 Assert.Equal(typeof(List<dynamic>), result.GetType());
@@ -52,7 +53,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             const long basisId = 0;
@@ -62,9 +62,8 @@ namespace SimulationExercise.Tests.Integration.Repository
             {
                 // Act
                 IList<Basis> basisList = context.Query<Basis>
-                    ("SELECT BASISID, BASISCODE, BASISDESCRIPTION " +
-                       $"FROM {_tableName} " +
-                        "WHERE BasisId = @basisId", new { basisId });
+                    ($@"SELECT BASISID, BASISCODE, BASISDESCRIPTION 
+                            FROM {_tableName} WHERE BasisId = @basisId", new { basisId });
                 var retrievedBasis = basisList[0];
 
                 // Assert
@@ -80,7 +79,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -103,7 +101,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
 
@@ -111,16 +108,18 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-                context.Execute($"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+                context.Execute($@"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) 
+                                    VALUES(@basisId, @basisCode, @basisDescription)", basis);
             }
 
             // Assert
             using (IContext context = _contextFactory.Create())
             {
                 var result = context.Query<Basis>
-                    ($"SELECT * FROM {_tableName} WHERE " +
-                      "BasisId = @basisId", new { basisId });
+                    ($@"SELECT * FROM {_tableName} 
+                            WHERE BasisId = @basisId", 
+                    new { basisId });
+
                 Assert.Empty(result);
             }
         }
@@ -130,16 +129,19 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute($"DELETE FROM {_tableName} WHERE BASISID = @basisId", new { basisId = -1 });
+                context.Execute($@"DELETE FROM {_tableName} 
+                                    WHERE BASISID = @basisId", 
+                                new { basisId = -1 });
 
                 var result = context.Query<Basis>
-                    ($"SELECT * FROM {_tableName} WHERE BasisId = @basisId", new { basisId = -1 });
+                    ($@"SELECT * FROM {_tableName} 
+                            WHERE BasisId = @basisId", 
+                    new { basisId = -1 });
 
                 // Assert
                 Assert.Empty(result);
@@ -151,7 +153,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(1);
 
             var expectedUpdatedBasis = new Basis(0, "NewBasisCode", "NewBasisDescription");
@@ -159,14 +160,16 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                context.Execute($"UPDATE {_tableName} SET BASISCODE = @newBasisCode, " +
-                                 "BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @newBasisId", 
+                context.Execute($@"UPDATE {_tableName} SET BASISCODE = @newBasisCode, 
+                                   BASISDESCRIPTION = @newBasisDescription WHERE BASISID = @newBasisId", 
                                 new { newBasisId = expectedUpdatedBasis.BasisId, 
                                       newBasisCode = expectedUpdatedBasis.BasisCode, 
                                       newBasisDescription = expectedUpdatedBasis.BasisDescription });
 
                 var result = context.Query<Basis>
-                    ($"SELECT * FROM {_tableName} WHERE BasisId = @basisId", new { basisId = 0 }).First();
+                    ($@"SELECT * FROM {_tableName} 
+                            WHERE BasisId = @basisId", 
+                    new { basisId = 0 }).First();
 
                 // Assert
                 result.Should().BeEquivalentTo(expectedUpdatedBasis);
@@ -178,7 +181,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
             MultipleObjectInsertion(3);
 
             using (IContext context = _contextFactory.Create())
@@ -196,14 +198,13 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             const long basisId = -1;
             using (IContext context = _contextFactory.Create())
             {
                 var basis = new Basis(basisId, "BasisCode", "BasisDescription");
-                context.Execute($"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                                 "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+                context.Execute($@"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) 
+                                    VALUES(@basisId, @basisCode, @basisDescription)", basis);
 
                 // Act
                 context.Commit();
@@ -213,13 +214,16 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 var result = context.Query<Basis>
-                    ($"SELECT * FROM {_tableName} WHERE " +
-                      "BasisId = @basisId", new { basisId });
+                    ($@"SELECT * FROM {_tableName} WHERE
+                            BasisId = @basisId", 
+                    new { basisId });
                 
                 Assert.NotEmpty(result);
 
                 // Teardown
-                context.Execute($"DELETE FROM {_tableName} WHERE BASISID = @basisId", new { basisId });
+                context.Execute($@"DELETE FROM {_tableName} 
+                                    WHERE BASISID = @basisId", 
+                                new { basisId });
             }
         }
 
@@ -228,13 +232,12 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             // Arrange
             TestDataCleanup();
-            _repositoryInitializer.Initialize();
 
             IContext context = _contextFactory.Create();
             var basis = new Basis(-1, "BasisCode", "BasisDescription");
 
-            context.Execute($"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                             "VALUES(@basisId, @basisCode, @basisDescription)", basis);
+            context.Execute($@"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) 
+                                VALUES(@basisId, @basisCode, @basisDescription)", basis);
             // Act
             context.Dispose();
 
@@ -247,8 +250,9 @@ namespace SimulationExercise.Tests.Integration.Repository
         {
             using (var cleanupContext = _contextFactory.Create())
             {
-                cleanupContext.Execute($"IF OBJECT_ID('{_tableName}', 'U') " +
-                                       $"IS NOT NULL DROP TABLE {_tableName}");
+                cleanupContext.Execute
+                    ($@"IF OBJECT_ID('{_tableName}', 'U') IS NOT NULL 
+                            TRUNCATE TABLE {_tableName}");
                 cleanupContext.Commit();
             }
         }
@@ -259,10 +263,11 @@ namespace SimulationExercise.Tests.Integration.Repository
             {
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute($"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION) " +
-                            "VALUES(@basisId, @basisCode, @basisDescription)", new Basis(objectNumber, 
-                                                                                $"BasisCode{objectNumber}", 
-                                                                                $"BasisDescription{objectNumber}"));
+                    context.Execute($@"INSERT INTO {_tableName}(BASISID, BASISCODE, BASISDESCRIPTION)
+                                        VALUES(@basisId, @basisCode, @basisDescription)", 
+                                    new Basis(objectNumber, 
+                                              $"BasisCode{objectNumber}",
+                                              $"BasisDescription{objectNumber}"));
                 }
 
                 context.Commit();

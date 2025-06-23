@@ -5,7 +5,7 @@ using SimulationExercise.Core.Validators;
 using SimulationExercise.Services.Factory;
 using SimulationExercise.Tests.ObjectGeneration;
 
-namespace SimulationExercise.Tests
+namespace SimulationExercise.Tests.Service
 {
     public class ConsistentReadingFactoryTets
     {

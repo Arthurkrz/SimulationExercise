@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SimulationExercise.Core.Contracts.Repository
+﻿namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IContext : IDisposable
     {
+        string GetConnectionString();
         IReadOnlyList<dynamic> Query(string sql, object param);
         IList<T> Query<T>(string sql, object param);
         IList<T> Query<T>(string sql);

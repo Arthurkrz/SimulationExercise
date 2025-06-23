@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using SimulationExercise.Architecture;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.IOC;
 using SimulationExercise.Services;
@@ -13,6 +15,17 @@ Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                                    restrictedToMinimumLevel: LogEventLevel.Error,
                                                    outputTemplate: "{Level:u3}: {Message:lj}{NewLine}"))
                                       .CreateLogger();
+
+var config = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+var connectionString = config.GetConnectionString("DefaultDatabase");
+var contextFactory = new DapperContextFactory(connectionString);
+
+RepositoryInitializer repositoryInitializer = new RepositoryInitializer();
+
+repositoryInitializer.Initialize(contextFactory.Create());
 
 ServiceCollection services = new ServiceCollection();
 DependencyInjection.InjectServices(services);
@@ -28,5 +41,5 @@ using var serviceProvider = services.BuildServiceProvider();
 var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingService>();
 
 fileProcessingService.ProcessFile(
-    @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\IN",
-    @"C:\Users\PC\Documents\TechClass\SimulationExercise\SimulationExercise\OUT");
+    Path.Combine(Path.GetTempPath(), "IN"),
+    Path.Combine(Path.GetTempPath(), "OUT"));

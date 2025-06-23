@@ -25,6 +25,7 @@ namespace SimulationExercise.Architecture
         public SqlConnection Connection { get; }
         public SqlTransaction Transaction { get; }
 
+        public string GetConnectionString() => this.Connection.ConnectionString;
         public IReadOnlyList<dynamic> Query(string sql, object param) =>
                         Connection.Query(sql, param, Transaction).ToList();
         public IList<T> Query<T>(string sql, object param) =>
@@ -66,6 +67,6 @@ namespace SimulationExercise.Architecture
             }
 
             _isDisposed = true;
-        } 
+        }
     }
 }
