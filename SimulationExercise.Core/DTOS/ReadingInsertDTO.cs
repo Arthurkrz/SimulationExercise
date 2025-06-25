@@ -1,14 +1,18 @@
-﻿namespace SimulationExercise.Core.DTOS
+﻿using SimulationExercise.Core.Enum;
+
+namespace SimulationExercise.Core.DTOS
 {
     public class ReadingInsertDTO
     {
-        public ReadingInsertDTO(byte[] bytes, string extension)
+        public ReadingInsertDTO(long inputFileId, byte[] bytes, Status status)
         {
+            InputFileId = inputFileId;
             Bytes = bytes;
-            Extension = extension;
+            Status = status;
         }
 
+        public long InputFileId { get; }
         public byte[] Bytes { get; }
-        public string Extension { get; }
+        public Status Status { get; }
     }
 }
