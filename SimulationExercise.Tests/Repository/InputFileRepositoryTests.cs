@@ -54,16 +54,16 @@ namespace SimulationExercise.Tests.Repository
                 _sut.Insert(dto, context);
             }
 
-            // Assert
-            using (IContext context = _contextFactory.Create())
+            using (IContext assertContext = _contextFactory.Create())
             {
-                IList<dynamic> items = context.Query<dynamic>
-                    ($@"SELECT Name, Extension, Bytes, StatusId, 
-                        CreationTime, LastUpdateTime, LastUpdateUser 
-                            FROM {_tableNameInputFile}");
+                // Assert
+                IList<dynamic> items = assertContext.Query<dynamic>
+                    ($@"SELECT NAME, EXTENSION, BYTES, STATUSID, 
+                        CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER 
+                            FROM {_tableNameInputFile};");
 
+                Assert.Single(items);
                 var retrievedItem = items[0];
-                Assert.Equal(1, items.Count);
                 Assert.Equal(dto.Name, retrievedItem.Name);
                 Assert.Equal(dto.Extension, retrievedItem.Extension);
                 Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.Bytes));
@@ -83,7 +83,7 @@ namespace SimulationExercise.Tests.Repository
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
-                    "Ext0", Status.Success);
+                 "Ext0", Status.Success);
 
             InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
                 (1, Status.Success, new List<string>());
@@ -94,12 +94,12 @@ namespace SimulationExercise.Tests.Repository
                 _sut.Update(updateDTO, context);
             }
 
-            // Assert
             using (IContext assertContext = _contextFactory.Create())
             {
+                // Assert
                 var result = assertContext.Query<InputFileGetDTO>
                     ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId",
+                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;",
                     new { expectedReturn.InputFileId });
 
                 Assert.Single(result);
@@ -116,7 +116,7 @@ namespace SimulationExercise.Tests.Repository
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
-                    "Ext0", Status.Error);
+                 "Ext0", Status.Error);
 
             InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
                 (1, Status.Error, new List<string> { "Error0" });
@@ -132,7 +132,7 @@ namespace SimulationExercise.Tests.Repository
                 // Assert
                 var result = assertContext.Query<InputFileGetDTO>
                     ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE InputFileId = @InputFileId", 
+                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;", 
                     new { expectedReturn.InputFileId });
 
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
@@ -140,7 +140,7 @@ namespace SimulationExercise.Tests.Repository
                             FROM INPUTFILE F 
                             INNER JOIN INPUTFILEMESSAGE M
                             ON F.INPUTFILEID = M.INPUTFILEID
-                            WHERE F.INPUTFILEID = @INPUTFILEID", 
+                            WHERE F.INPUTFILEID = @INPUTFILEID;", 
                     new { expectedReturn.InputFileId });
 
                 Assert.Single(result);
@@ -176,14 +176,14 @@ namespace SimulationExercise.Tests.Repository
             using (var cleanupContext = _contextFactory.Create())
             {
                 cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') 
-                                          IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage}");
+                                          IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage};");
 
                 cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
-                                          IS NOT NULL DELETE FROM {_tableNameInputFile}");
+                                          IS NOT NULL DELETE FROM {_tableNameInputFile};");
 
                 cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
                                           IS NOT NULL DBCC CHECKIDENT ('{_tableNameInputFile}', 
-                                          RESEED, 0)");
+                                          RESEED, 0);");
                 cleanupContext.Commit();
             }
         }
@@ -200,10 +200,10 @@ namespace SimulationExercise.Tests.Repository
                 {
                     context.Execute
                         ($@"INSERT INTO {_tableNameInputFile} 
-                            (Name, Bytes, Extension, CreationTime,
-                            LastUpdateTime, LastUpdateUser, StatusId) 
-                            VALUES(@Name, @Bytes, @Extension, @creationTime, 
-                            @lastUpdateTime, @lastUpdateUser, @StatusId)",
+                            (NAME, BYTES, EXTENSION, CREATIONTIME,
+                            LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
+                                VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
+                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
                         new
                         {
                             Name = $"InputFileName{objectNumber}",
