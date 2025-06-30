@@ -1,8 +1,12 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
+﻿using Microsoft.Extensions.Logging;
+using SimulationExercise.Core.Common;
+using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
+using System.Text;
+using System.Text.Json;
 
 namespace SimulationExercise.Services
 {
@@ -12,80 +16,70 @@ namespace SimulationExercise.Services
         private readonly IInputFileRepository _inputFileRepository;
         private readonly IReadingRepository _readingRepository;
         private readonly IReadingImportService _readingImportService;
+        private readonly IConsistentReadingService _consistentReadingService;
+        private readonly ILogger<ReadingService> _logger;
 
-        public ReadingService(IContextFactory contextFactory, IInputFileRepository inputFileRepository, IReadingImportService readingImportService, IReadingRepository readingRepository)
+        public ReadingService(IContextFactory contextFactory,
+                              IInputFileRepository inputFileRepository,
+                              IReadingImportService readingImportService,
+                              IReadingRepository readingRepository,
+                              IConsistentReadingService consistentReadingService,
+                              ILogger<ReadingService> logger)
         {
             _contextFactory = contextFactory;
             _inputFileRepository = inputFileRepository;
             _readingRepository = readingRepository;
             _readingImportService = readingImportService;
+            _consistentReadingService = consistentReadingService;
+            _logger = logger;
         }
 
-        public void ProcessInputFiles()
+        public void ProcessInputFiles(InputFileGetDTO inputFile)
         {
             using (IContext context = _contextFactory.Create())
             {
-                var inputFiles = _inputFileRepository.GetByStatus
-                                            (Status.New, context);
+                List<ReadingInsertDTO> inserts = new List<ReadingInsertDTO>();
 
-                foreach (var inputFile in inputFiles)
+                using (var stream = new MemoryStream(inputFile.Bytes))
                 {
-                    List<ReadingInsertDTO> inserts = new List<ReadingInsertDTO>();
-                    List<ReadingUpdateDTO> updates = new List<ReadingUpdateDTO>();
-                    List<string> errors = new List<string>();
+                    ImportResult importResult = _readingImportService.Import(stream);
 
-                    using (var stream = new MemoryStream(inputFile.Bytes))
+                    if (importResult.Errors.Count > 0)
                     {
-                        ImportResult importResult = _readingImportService.Import(stream);
-                 
-                        if (importResult.Success)
-                        {
-                            var readingInsertDTO = new ReadingInsertDTO(inputFile.InputFileId, inputFile.Bytes, Status.New);
-                            inserts.Add(readingInsertDTO);
-                        }
+                        var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId, 
+                                                                     Status.Error, 
+                                                                     importResult.Errors);
 
-                        foreach (var error in importResult.Errors)
-                        {
-                            var readingInsertErrorDTO = new ReadingInsertDTO(inputFile.InputFileId, inputFile.Bytes, Status.Error);
-                            
-                        }
-
-                        inserts.Add(readingInsertErrorDTO);
-                        errors.Add(impor)
+                        _inputFileRepository.Update(inputFileUpdate, context);
                     }
 
-                    var filteredInserts = FilterObjects(inserts);
+                    if (importResult.Readings.Any())
+                    {
+                        foreach (var reading in importResult.Readings)
+                        {
+                            string readingJson = JsonSerializer.Serialize(reading);
+                            byte[] readingBytes = Encoding.UTF8.GetBytes(readingJson);
+
+                            var readingInsertDTO = new ReadingInsertDTO(inputFile.InputFileId, 
+                                                                        readingBytes, 
+                                                                        Status.New);
+                            inserts.Add(readingInsertDTO);
+                            continue;
+                        }
+                    }
                 }
-            }
-        }
 
-        private void InsertAndUpdateReading(List<ReadingInsertDTO> inserts, List<ReadingUpdateDTO> updates)
-        {
-
-        }
-
-        private int GetReadingId(ReadingInsertDTO dto)
-        {
-
-        }
-
-        private List<ReadingInsertDTO> FilterObjects(List<ReadingInsertDTO> inserts)
-        {
-            using (IContext context = _contextFactory.Create())
-            {
-                var newReadings = _readingRepository.GetByStatus(Status.New, context);
-                var errorReadings = _readingRepository.GetByStatus(Status.Error, context);
-
-                foreach (var insert in inserts)
+                if (inserts.Count > 0)
                 {
-                    if (newReadings.Any(x => x.InputFileId == insert.InputFileId))
-                        inserts.Remove(insert);
+                    foreach (var insert in inserts)
+                        _readingRepository.Insert(insert, context);
 
-                    if (errorReadings.Any(x => x.InputFileId == insert.InputFileId))
-                        inserts.Remove(insert);
+                    var readings = _readingRepository.GetByStatus(Status.New, context);
+                    _consistentReadingService.ProcessReadings(readings);
                 }
 
-                return inserts;
+                _logger.LogError(LogMessages.NOREADINGIMPORTED);
+                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
             }
         }
     }

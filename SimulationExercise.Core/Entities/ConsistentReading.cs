@@ -4,9 +4,9 @@ namespace SimulationExercise.Core.Entities
 {
     public class ConsistentReading
     {
-        public ConsistentReading(long sensorId, string sensorTypeName, Unit unit,
-               int value, string province, string city, bool isHistoric, int utmNord,
-               int utmEst, string latitude, string longitude)
+        public ConsistentReading(long sensorId, string sensorTypeName, Unit unit, int value, 
+                                 string province, string city, bool isHistoric, int utmNord,
+                                 int utmEst, string latitude, string longitude)
         {
             SensorId = sensorId;
             SensorTypeName = sensorTypeName;

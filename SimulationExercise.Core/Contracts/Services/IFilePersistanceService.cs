@@ -2,8 +2,8 @@
 
 namespace SimulationExercise.Core.Contracts.Services
 {
-    public interface IReadingService
+    public interface IFilePersistanceService
     {
-        void ProcessInputFiles(InputFileGetDTO inputFile);
+        void Initialize(string inDirectoryPath);
     }
 }

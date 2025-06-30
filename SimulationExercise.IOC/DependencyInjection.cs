@@ -20,7 +20,7 @@ namespace SimulationExercise.IOC
             services.AddScoped<IProvinceDataListFactory, ProvinceDataListFactory>();
             services.AddScoped<IReadingImportService, ReadingImportService>();
             services.AddScoped<IFileProcessingService, FileProcessingService>();
-            services.AddScoped<IPipelineProcessingService, PipelineProcessingService>(); 
+            services.AddScoped<IFilePersistanceService, FilePersistanceService>(); 
         }
 
         public static void InjectRepositories(this IServiceCollection services)
