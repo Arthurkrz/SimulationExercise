@@ -5,6 +5,7 @@
         public const string INVALIDHEADER = "Invalid header values!";
         public const string EMPTYFILE = "File is empty!";
         public const string NOREADINGSFOUND = "No readings found in file!";
+        public const string NONEWOBJECTSFOUND = "No new {object}s have been found!";
 
         public const string CONTINUETONEXTFILE = "Continuing to next file (if exists)...\n";
 

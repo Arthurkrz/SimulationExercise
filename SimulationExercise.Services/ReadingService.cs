@@ -5,8 +5,6 @@ using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
-using System.Text;
-using System.Text.Json;
 
 namespace SimulationExercise.Services
 {
@@ -16,70 +14,68 @@ namespace SimulationExercise.Services
         private readonly IInputFileRepository _inputFileRepository;
         private readonly IReadingRepository _readingRepository;
         private readonly IReadingImportService _readingImportService;
-        private readonly IConsistentReadingService _consistentReadingService;
         private readonly ILogger<ReadingService> _logger;
 
         public ReadingService(IContextFactory contextFactory,
                               IInputFileRepository inputFileRepository,
                               IReadingImportService readingImportService,
                               IReadingRepository readingRepository,
-                              IConsistentReadingService consistentReadingService,
                               ILogger<ReadingService> logger)
         {
             _contextFactory = contextFactory;
             _inputFileRepository = inputFileRepository;
             _readingRepository = readingRepository;
             _readingImportService = readingImportService;
-            _consistentReadingService = consistentReadingService;
             _logger = logger;
         }
 
-        public void ProcessInputFiles(InputFileGetDTO inputFile)
+        public void ProcessInputFiles()
         {
             using (IContext context = _contextFactory.Create())
             {
-                List<ReadingInsertDTO> inserts = new List<ReadingInsertDTO>();
+                var inputFiles = _inputFileRepository.GetByStatus(Status.New, context);
 
-                using (var stream = new MemoryStream(inputFile.Bytes))
+                if (inputFiles.Count == 0)
                 {
-                    ImportResult importResult = _readingImportService.Import(stream);
+                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND);
+                    return;
+                }
 
-                    if (importResult.Errors.Count > 0)
+                IEnumerable<ReadingInsertDTO> insertDTOs = null;
+
+                foreach (var inputFile in inputFiles)
+                {
+                    using (var stream = new MemoryStream(inputFile.Bytes))
                     {
-                        var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId, 
-                                                                     Status.Error, 
-                                                                     importResult.Errors);
+                        ImportResult importResult = _readingImportService.Import(stream);
 
-                        _inputFileRepository.Update(inputFileUpdate, context);
-                    }
-
-                    if (importResult.Readings.Any())
-                    {
-                        foreach (var reading in importResult.Readings)
+                        if (!importResult.Success && importResult.Readings.Count == 0)
                         {
-                            string readingJson = JsonSerializer.Serialize(reading);
-                            byte[] readingBytes = Encoding.UTF8.GetBytes(readingJson);
-
-                            var readingInsertDTO = new ReadingInsertDTO(inputFile.InputFileId, 
-                                                                        readingBytes, 
-                                                                        Status.New);
-                            inserts.Add(readingInsertDTO);
+                            _logger.LogError(LogMessages.NOREADINGIMPORTED);
+                            _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
                             continue;
                         }
+
+                        if (importResult.Errors.Count > 0)
+                        {
+                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
+                                                                         Status.Error,
+                                                                         importResult.Errors);
+                            _inputFileRepository.Update(inputFileUpdate, context);
+                        }
+
+                        if (importResult.Readings.Any())
+                            insertDTOs = importResult.Readings.Select(r => new ReadingInsertDTO(
+                                            inputFile.InputFileId, r.SensorId, r.SensorTypeName,
+                                            r.Unit, r.StationId, r.StationName, r.Value,
+                                            r.Province, r.City, r.IsHistoric, r.StartDate,
+                                            r.StopDate, r.UtmNord, r.UtmEst, r.Latitude,
+                                            r.Longitude, Status.Success));
                     }
                 }
 
-                if (inserts.Count > 0)
-                {
-                    foreach (var insert in inserts)
-                        _readingRepository.Insert(insert, context);
-
-                    var readings = _readingRepository.GetByStatus(Status.New, context);
-                    _consistentReadingService.ProcessReadings(readings);
-                }
-
-                _logger.LogError(LogMessages.NOREADINGIMPORTED);
-                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
+                foreach (var insertDTO in insertDTOs)
+                    _readingRepository.Insert(insertDTO, context);
             }
         }
     }

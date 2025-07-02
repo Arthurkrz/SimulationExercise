@@ -8,7 +8,7 @@ namespace SimulationExercise.Core.DTOS
     {
         public ConsistentReadingExportDTO(long sensorId, string sensorTypeName, Unit unit, int value, string province, 
                                           string city, bool isHistoric, int daysOfMeasure, int utmNord, int utmEst, 
-                                          string latitude, string longitude, Status status)
+                                          string latitude, string longitude)
         {
             SensorId = sensorId;
             SensorTypeName = sensorTypeName;

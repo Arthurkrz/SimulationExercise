@@ -11,17 +11,14 @@ namespace SimulationExercise.Services
     {
         private readonly IContextFactory _contextFactory;
         private readonly IInputFileRepository _inputFileRepository;
-        private readonly IReadingService _readingService;
         private readonly ILogger<InputFileService> _logger;
 
         public InputFileService(IContextFactory contextFactory, 
                                 IInputFileRepository inputFileRepository, 
-                                IReadingService readingService,
                                 ILogger<InputFileService> logger)
         {
             _contextFactory = contextFactory;
             _inputFileRepository = inputFileRepository;
-            _readingService = readingService;
             _logger = logger;
         }
 
@@ -45,17 +42,11 @@ namespace SimulationExercise.Services
                 var inputFileInsertDTO = new InputFileInsertDTO
                     (fileName, fileBytes, fileExtension, Status.New);
 
-                IList<InputFileGetDTO> inputFiles = new List<InputFileGetDTO>();
-
                 using (IContext context = _contextFactory.Create())
                 {
                     _inputFileRepository.Insert(inputFileInsertDTO, context);
                     SendToBackup(file);
-
-                    inputFiles = _inputFileRepository.GetByStatus(Status.New, context);
-                }
-
-                _readingService.ProcessInputFiles(inputFiles.First());
+                };
             }
         }
 

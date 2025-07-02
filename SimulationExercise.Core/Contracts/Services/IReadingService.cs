@@ -4,6 +4,6 @@ namespace SimulationExercise.Core.Contracts.Services
 {
     public interface IReadingService
     {
-        void ProcessInputFiles(InputFileGetDTO inputFile);
+        void ProcessInputFiles();
     }
 }
