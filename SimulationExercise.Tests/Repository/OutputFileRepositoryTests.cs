@@ -9,20 +9,26 @@ using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Tests.Repository
 {
-    public class OutputFieRepositoryTests
+    public class OutputFileRepositoryTests
     {
         private readonly IContextFactory _contextFactory;
         private readonly IOutputFileRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
+        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly ITestRepositoryObjectInsertion<OutputFileInsertDTO> _testRepositoryObjectInsertion;
+
         private readonly string _tableNameOutputFile = "OutputFile";
         private readonly string _tableNameOutputFileMessage = "OutputFileMessage";
         private readonly string _connectionString;
 
-        public OutputFieRepositoryTests()
+        public OutputFileRepositoryTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+            _testRepositoryCleanup = new TestRepositoryCleanup();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<OutputFileInsertDTO>();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -37,10 +43,10 @@ namespace SimulationExercise.Tests.Repository
         public void Insert_SuccesfullyInserts_WhenCommited()
         {
             // Arrange
-            TestDataCleanup();
+            _testRepositoryCleanup.Cleanup();
 
             var currentTime = new DateTime(2025, 05, 12);
-            const string currentUser = "currentUser1";
+            var currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
 
@@ -58,19 +64,19 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT NAME, EXTENSION, BYTES, STATUSID 
+                    ($@"SELECT NAME, EXTENSION, BYTES, STATUSID, 
                         CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER 
                             FROM {_tableNameOutputFile};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
-                Assert.Equal(dto.Name, retrievedItem.Name);
-                Assert.Equal(dto.Extension, retrievedItem.Extension);
-                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.Bytes));
-                Assert.Equal((int)dto.Status, retrievedItem.StatusId);
-                Assert.Equal(currentTime, retrievedItem.LastUpdateTime);
-                Assert.Equal(currentTime, retrievedItem.CreationTime);
-                Assert.Equal(currentUser, retrievedItem.LastUpdateUser);
+                Assert.Equal(dto.Name, retrievedItem.NAME);
+                Assert.Equal(dto.Extension, retrievedItem.EXTENSION);
+                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.BYTES));
+                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
+                Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
+                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
+                Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
         }
 
@@ -78,11 +84,11 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithSuccessStatus()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             OutputFileGetDTO expectedReturn = new OutputFileGetDTO
-                (1, 1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
+                (1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
                  "Ext0", Status.Success);
 
             OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
@@ -98,8 +104,10 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 var result = assertContext.Query<OutputFileGetDTO>
-                    ($@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                        FROM {_tableNameOutputFile} WHERE OUTPUTFILEID = @OUTPUTFILEID;",
+                    ($@"SELECT OUTPUTFILEID, NAME, 
+                        BYTES, EXTENSION, STATUSID AS STATUS 
+                            FROM {_tableNameOutputFile} 
+                            WHERE OUTPUTFILEID = @OUTPUTFILEID;",
                     new { expectedReturn.OutputFileId });
 
                 Assert.Single(result);
@@ -111,11 +119,11 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             OutputFileGetDTO expectedReturn = new OutputFileGetDTO
-                (1, 1, "OutputFileName0", new byte[] { 1, 2, 3 },
+                (1, "OutputFileName0", new byte[] { 1, 2, 3 },
                  "Ext0", Status.Error);
 
             OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
@@ -160,63 +168,14 @@ namespace SimulationExercise.Tests.Repository
         public void GetByStatus_SuccesfullyGets()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(2, Status.Success);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
-            }
-        }
-
-        private void TestDataCleanup()
-        {
-            using (var cleanupContext = _contextFactory.Create())
-            {
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFileMessage}', 'U') 
-                                          IS NOT NULL TRUNCATE TABLE {_tableNameOutputFileMessage};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
-                                          IS NOT NULL DELETE FROM {_tableNameOutputFile};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
-                                          IS NOT NULL DBCC CHECKPOINT ('{_tableNameOutputFile}', 
-                                          RESEED, 0);");
-                cleanupContext.Commit();
-            }
-        }
-
-        private void MultipleObjectInsertion(int numberOfObjectsToBeInserted, Status objectStatus = Status.New)
-        {
-            var creationTime = SystemTime.Now();
-            var lastUpdateTime = SystemTime.Now();
-            var lastUpdateUser = SystemIdentity.CurrentName();
-
-            using (IContext context = _contextFactory.Create())
-            {
-                for (int objectNumber = 0; objectNumber <  numberOfObjectsToBeInserted; objectNumber++)
-                {
-                    context.Execute
-                        ($@"INSERT INTO {_tableNameOutputFile}
-                            (NAME, BYTES, EXTENSION, CREATIONTIME, 
-                            LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
-                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
-                        new 
-                        {
-                            Name = $"OutputFileName{objectNumber}",
-                            Bytes = new byte[] { 1, 2, 3 },
-                            Extension = $"Ext{objectNumber}",
-                            creationTime,
-                            lastUpdateTime,
-                            lastUpdateUser,
-                            StatusId = objectStatus
-                        });
-                }
-
-                context.Commit();
             }
         }
     }

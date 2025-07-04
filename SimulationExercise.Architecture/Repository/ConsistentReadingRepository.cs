@@ -16,19 +16,27 @@ namespace SimulationExercise.Architecture.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             string sql = $@"INSERT INTO {_mainTableName}
-                            (READINGID, BYTES, CREATIONTIME, LASTUPDATETIME, 
-                             LASTUPDATEUSER, STATUSID)
-                                VALUES (@ReadingId, @Bytes, @CreationTime
-                                        @LastUpdateTime, @LastUpdateUser, @Status);";
+                            (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, PROVINCE, 
+                             CITY, ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
+                             LONGITUDE, CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
+                                VALUES (@READINGID, @SENSORID, @SENSORTYPENAME, @UNIT, @VALUE, 
+                                        @PROVINCE, @CITY, @ISHISTORIC, @DAYSOFMEASURE, @UTMNORD, 
+                                        @UTMEST, @LATITUDE, @LONGITUDE, @CREATIONTIME, 
+                                        @LASTUPDATETIME, @LASTUPDATEUSER, @STATUS);";
 
             context.Execute(sql, new
             {
-                dto.ReadingId, dto.Bytes,
+                dto.ReadingId, dto.SensorId, dto.SensorTypeName, dto.Unit,
+                dto.Value, dto.Province, dto.City, dto.IsHistoric,
+                dto.DaysOfMeasure, dto.UtmNord, dto.UtmEst, 
+                dto.Latitude, dto.Longitude,
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
                 dto.Status
             });
+
+            context.Commit();
         }
 
         public void Update(ConsistentReadingUpdateDTO dto, IContext context)
@@ -36,8 +44,8 @@ namespace SimulationExercise.Architecture.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
-                                   WHERE CONSISTENTREADINGID = @ConsistentReadingId;",
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+                                   WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
                             new { dto.Status, dto.ConsistentReadingId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
@@ -47,9 +55,9 @@ namespace SimulationExercise.Architecture.Repository
                     string sql = $@"INSERT INTO {_messageTableName}(
                                     CONSISTENTREADINGID, CREATIONDATE, 
                                     LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE) 
-                                        VALUES (@ConsistentReadingId, 
-                                                @CreationDate, @LastUpdateDate,
-                                                @LastUpdateUser, @Message);";
+                                        VALUES (@CONSISTENTREADINGID, 
+                                                @CREATIONDATE, @LASTUPDATEDATE, 
+                                                @LASTUPDATEUSER, @MESSAGE);";
 
                     context.Execute(sql, new
                     {
@@ -70,9 +78,12 @@ namespace SimulationExercise.Architecture.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             int statusId = (int)status;
-            var sql = $@"SELECT CONSISTENTREADINGID, BYTES, STATUSID AS STATUS
-                            FROM {_mainTableName} WHERE StatusId = @statusId
-                                ORDER BY CreationTime DESC";
+            var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                         SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
+                         ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
+                         LATITUDE, LONGITUDE, STATUSID AS STATUS
+                            FROM {_mainTableName} WHERE STATUSID = @STATUSID
+                                ORDER BY CREATIONTIME DESC";
 
             var result = context.Query<ConsistentReadingGetDTO>(sql, new { statusId });
             return result;

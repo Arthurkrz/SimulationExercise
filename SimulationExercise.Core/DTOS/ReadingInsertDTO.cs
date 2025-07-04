@@ -5,7 +5,7 @@ namespace SimulationExercise.Core.DTOS
 {
     public class ReadingInsertDTO
     {
-        public ReadingInsertDTO(long inputFileId, long sensorId, string? sensorTypeName, string? unit, 
+        public ReadingInsertDTO(long inputFileId, long sensorId, string? sensorTypeName, int unit, 
                                 long stationId, string? stationName, int value, string? province, string? city, 
                                 bool isHistoric, DateTime startDate, DateTime? stopDate, int utmNord, 
                                 int utmEst, string? latitude, string? longitude, Status status)
@@ -32,7 +32,7 @@ namespace SimulationExercise.Core.DTOS
         public long InputFileId { get; }
         public long SensorId { get; set; }
         public string? SensorTypeName { get; set; }
-        public string? Unit { get; set; }
+        public int Unit { get; set; }
         public long StationId { get; set; }
         public string? StationName { get; set; }
         public int Value { get; set; }

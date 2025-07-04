@@ -14,18 +14,21 @@ namespace SimulationExercise.Services
         private readonly IInputFileRepository _inputFileRepository;
         private readonly IReadingRepository _readingRepository;
         private readonly IReadingImportService _readingImportService;
+        private readonly IReadingInsertDTOFactory _readingInsertDTOFactory;
         private readonly ILogger<ReadingService> _logger;
 
         public ReadingService(IContextFactory contextFactory,
                               IInputFileRepository inputFileRepository,
                               IReadingImportService readingImportService,
                               IReadingRepository readingRepository,
+                              IReadingInsertDTOFactory readingInsertDTOFactory,
                               ILogger<ReadingService> logger)
         {
             _contextFactory = contextFactory;
             _inputFileRepository = inputFileRepository;
             _readingRepository = readingRepository;
             _readingImportService = readingImportService;
+            _readingInsertDTOFactory = readingInsertDTOFactory;
             _logger = logger;
         }
 
@@ -37,7 +40,7 @@ namespace SimulationExercise.Services
 
                 if (inputFiles.Count == 0)
                 {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND);
+                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Input File");
                     return;
                 }
 
@@ -65,12 +68,8 @@ namespace SimulationExercise.Services
                         }
 
                         if (importResult.Readings.Any())
-                            insertDTOs = importResult.Readings.Select(r => new ReadingInsertDTO(
-                                            inputFile.InputFileId, r.SensorId, r.SensorTypeName,
-                                            r.Unit, r.StationId, r.StationName, r.Value,
-                                            r.Province, r.City, r.IsHistoric, r.StartDate,
-                                            r.StopDate, r.UtmNord, r.UtmEst, r.Latitude,
-                                            r.Longitude, Status.Success));
+                            insertDTOs = _readingInsertDTOFactory.CreateReadingInsertDTOList
+                                (importResult.Readings, inputFile.InputFileId);
                     }
                 }
 

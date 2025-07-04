@@ -39,7 +39,7 @@ namespace SimulationExercise.Architecture.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_messageTableName} SET STATUSID = @Status 
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
                                    WHERE OUTPUTFILEID = @OutputFileId;",
                             new { dto.Status, dto.OutputFileId });
 

@@ -14,6 +14,9 @@ namespace SimulationExercise.Tests.Repository
         private readonly IContextFactory _contextFactory;
         private readonly IReadingRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
+        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly ITestRepositoryObjectInsertion<ReadingInsertDTO> _testRepositoryObjectInsertion;
+
         private readonly string _tableNameReading = "Reading";
         private readonly string _tableNameReadingMessage = "ReadingMessage";
         private readonly string _connectionString;
@@ -23,6 +26,9 @@ namespace SimulationExercise.Tests.Repository
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+            _testRepositoryCleanup = new TestRepositoryCleanup();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ReadingInsertDTO>();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -37,15 +43,18 @@ namespace SimulationExercise.Tests.Repository
         public void Insert_SuccesfullyInserts_WhenCommited()
         {
             // Arrange
-            TestDataCleanup();
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             var currentTime = new DateTime(2025, 05, 12);
-            const string currentUser = "currentUser1";
+            var currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
-
-            var dto = new ReadingInsertDTO(1, new byte[] { 1, 2, 3 },
-                                           Status.New);
+            
+            var dto = new ReadingInsertDTO(1, 1, "SensorTypeName", 
+                2, 1, "StationName", 1, "Province", "City", 
+                true, DateTime.Now.Date, DateTime.Now.Date, 1, 1, 
+                "Latitude", "Longitude", Status.New);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -57,13 +66,29 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT INPUTFILEID, BYTES, STATUSID 
+                    ($@"SELECT INPUTFILEID, SENSORID, SENSORTYPENAME,
+                        UNIT, STATIONID, STATIONNAME, VALUE, PROVINCE, 
+                        CITY, ISHISTORIC, STARTDATE, STOPDATE, UTMNORD, 
+                        UTMEST, LATITUDE, LONGITUDE, LASTUPDATETIME, 
+                        CREATIONTIME, LASTUPDATEUSER, STATUSID
                             FROM {_tableNameReading};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
+
                 Assert.Equal(dto.InputFileId, retrievedItem.InputFileId);
-                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.Bytes));
+                Assert.Equal(dto.SensorId, retrievedItem.SensorId);
+                Assert.Equal(dto.SensorTypeName, retrievedItem.SensorTypeName);
+                Assert.Equal(dto.Unit, retrievedItem.Unit);
+                Assert.Equal(dto.StationId, retrievedItem.StationId);
+                Assert.Equal(dto.StationName, retrievedItem.StationName);
+                Assert.Equal(dto.IsHistoric, retrievedItem.IsHistoric);
+                Assert.Equal(dto.StartDate, retrievedItem.StartDate);
+                Assert.Equal(dto.StopDate, retrievedItem.StopDate);
+                Assert.Equal(dto.UtmNord, retrievedItem.UtmNord);
+                Assert.Equal(dto.UtmEst, retrievedItem.UtmEst);
+                Assert.Equal(dto.Latitude, retrievedItem.Latitude);
+                Assert.Equal(dto.Longitude, retrievedItem.Longitude);
                 Assert.Equal((int)dto.Status, retrievedItem.StatusId);
                 Assert.Equal(currentTime, retrievedItem.LastUpdateTime);
                 Assert.Equal(currentTime, retrievedItem.CreationTime);
@@ -75,11 +100,14 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithSuccessStatus()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             ReadingGetDTO expectedReturn = new ReadingGetDTO
-                (1, 1, new byte[] { 1, 2, 3 }, Status.Success);
+                (1, 1, 1, "SensorTypeName", "mg/m³", 1, 
+                 "StationName", 1, "Province", "City", 
+                 true, DateTime.Now.Date, DateTime.Now.Date, 1, 1, 
+                 "Latitude", "Longitude", Status.Success);
 
             ReadingUpdateDTO updateDTO = new ReadingUpdateDTO
                 (1, Status.Success, new List<string>());
@@ -93,8 +121,11 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.Query<ConsistentReadingGetDTO>
-                    ($@"SELECT READINGID, INPUTFILEID, BYTES, 
+                var result = assertContext.Query<ReadingGetDTO>
+                    ($@"SELECT READINGID, INPUTFILEID, SENSORID, 
+                        SENSORTYPENAME, UNIT, STATIONID, STATIONNAME, 
+                        VALUE, PROVINCE, CITY, ISHISTORIC, STARTDATE, 
+                        STOPDATE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, 
                         STATUSID AS STATUS FROM {_tableNameReading} 
                             WHERE READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });
@@ -108,11 +139,14 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             ReadingGetDTO expectedReturn = new ReadingGetDTO
-                (1, 1, new byte[] { 1, 2, 3 }, Status.Success);
+                (1, 1, 1, "SensorTypeName", "mg/m³", 1,
+                 "StationName", 1, "Province", "City",
+                 true, DateTime.Now.Date, DateTime.Now.Date, 1, 1,
+                 "Latitude", "Longitude", Status.Success);
 
             ReadingUpdateDTO updateDTO = new ReadingUpdateDTO
                 (1, Status.Success, new List<string> { "Error0" });
@@ -127,8 +161,11 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 var result = assertContext.Query<ReadingGetDTO>
-                    ($@"SELECT READINGID, INPUTFILEID, BYTES, 
-                        STATUSID AS STATUS FROM {_tableNameReading}
+                    ($@"SELECT READINGID, INPUTFILEID, SENSORID, 
+                        SENSORTYPENAME, UNIT, STATIONID, STATIONNAME, 
+                        VALUE, PROVINCE, CITY, ISHISTORIC, STARTDATE, 
+                        STOPDATE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, 
+                        STATUSID AS STATUS FROM {_tableNameReading} 
                             WHERE READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });
 
@@ -147,6 +184,7 @@ namespace SimulationExercise.Tests.Repository
                 Status status = (Status)(int)message.STATUS;
 
                 result.First().Should().BeEquivalentTo(expectedReturn);
+
                 Assert.Equal((long)message.READINGID, updateDTO.ReadingId);
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
@@ -157,62 +195,14 @@ namespace SimulationExercise.Tests.Repository
         public void GetByStatus_SuccesfullyGets()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(2, Status.Success);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
-            }
-        }
-
-        private void TestDataCleanup()
-        {
-            using (var cleanupContext = _contextFactory.Create())
-            {
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReadingMessage}', 'U') 
-                                          IS NOT NULL TRUNCATE TABLE {_tableNameReadingMessage};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReading}', 'U')
-                                          IS NOT NULL DELETE FROM {_tableNameReading};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReading}', 'U') 
-                                          IS NOT NULL DBCC CHECKPOINT ('{_tableNameReading}', 
-                                          RESEED, 0);");
-                cleanupContext.Commit();
-            }
-        }
-
-        private void MultipleObjectInsertion(int numberOfObjectsToBeInserted, Status objectStatus = Status.New)
-        {
-            var creationTime = SystemTime.Now();
-            var lastUpdateTime = SystemTime.Now();
-            var lastUpdateUser = SystemIdentity.CurrentName();
-
-            using (IContext context = _contextFactory.Create())
-            {
-                for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
-                {
-                    context.Execute
-                        ($@"INSERT INTO {_tableNameReading}
-                            (INPUTFILEID, BYTES, CREATIONDATE, 
-                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES(@INPUTFILEID, @BYTES, @CREATIONTIME,
-                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
-                        new
-                        {
-                            InputFileId = objectNumber + 1,
-                            Bytes = new byte[] { 1, 2, 3 },
-                            creationTime,
-                            lastUpdateTime,
-                            lastUpdateUser,
-                            StatusId = objectStatus
-                        });
-                }
-
-                context.Commit();
             }
         }
     }

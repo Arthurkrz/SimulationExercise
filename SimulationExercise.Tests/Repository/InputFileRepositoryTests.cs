@@ -14,6 +14,9 @@ namespace SimulationExercise.Tests.Repository
         private readonly IContextFactory _contextFactory;
         private readonly IInputFileRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
+        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly ITestRepositoryObjectInsertion<InputFileInsertDTO> _testRepositoryObjectInsertion;
+
         private readonly string _tableNameInputFile = "InputFile";
         private readonly string _tableNameInputFileMessage = "InputFileMessage";
         private readonly string _connectionString;
@@ -23,6 +26,9 @@ namespace SimulationExercise.Tests.Repository
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+            _testRepositoryCleanup = new TestRepositoryCleanup();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<InputFileInsertDTO>();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -37,14 +43,14 @@ namespace SimulationExercise.Tests.Repository
         public void Insert_SuccesfullyInserts_WhenCommited()
         {
             // Arrange
-            TestDataCleanup();
+            _testRepositoryCleanup.Cleanup();
 
             var currentTime = new DateTime(2025, 05, 12);
             const string currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
 
-            var dto = new InputFileInsertDTO("filename1", 
+            var dto = new InputFileInsertDTO("InputFileName1", 
                                              new byte[] { 1, 2, 3 },
                                              "ext", Status.New);
 
@@ -64,13 +70,13 @@ namespace SimulationExercise.Tests.Repository
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
-                Assert.Equal(dto.Name, retrievedItem.Name);
-                Assert.Equal(dto.Extension, retrievedItem.Extension);
-                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.Bytes));
-                Assert.Equal((int)dto.Status, retrievedItem.StatusId);
-                Assert.Equal(currentTime, retrievedItem.LastUpdateTime);
-                Assert.Equal(currentTime, retrievedItem.CreationTime);
-                Assert.Equal(currentUser, retrievedItem.LastUpdateUser);
+                Assert.Equal(dto.Name, retrievedItem.NAME);
+                Assert.Equal(dto.Extension, retrievedItem.EXTENSION);
+                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.BYTES));
+                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
+                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
+                Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
+                Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
         }
 
@@ -78,8 +84,8 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithSuccessStatus()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
@@ -111,8 +117,8 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
@@ -160,63 +166,14 @@ namespace SimulationExercise.Tests.Repository
         public void GetByStatus_SuccesfullyGets()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(2, Status.Success);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
-            }
-        }
-
-        private void TestDataCleanup()
-        {
-            using (var cleanupContext = _contextFactory.Create())
-            {
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') 
-                                          IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
-                                          IS NOT NULL DELETE FROM {_tableNameInputFile};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
-                                          IS NOT NULL DBCC CHECKIDENT ('{_tableNameInputFile}', 
-                                          RESEED, 0);");
-                cleanupContext.Commit();
-            }
-        }
-
-        private void MultipleObjectInsertion(int numberOfObjectsToBeInserted, Status objectStatus = Status.New)
-        {
-            var creationTime = SystemTime.Now();
-            var lastUpdateTime = SystemTime.Now();
-            var lastUpdateUser = SystemIdentity.CurrentName();
-
-            using (IContext context = _contextFactory.Create())
-            {
-                for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
-                {
-                    context.Execute
-                        ($@"INSERT INTO {_tableNameInputFile} 
-                            (NAME, BYTES, EXTENSION, CREATIONTIME,
-                            LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
-                                VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
-                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
-                        new
-                        {
-                            Name = $"InputFileName{objectNumber}",
-                            Bytes = new byte[] { 1, 2, 3 },
-                            Extension = $"Ext{objectNumber}",
-                            creationTime,
-                            lastUpdateTime,
-                            lastUpdateUser,
-                            StatusId = objectStatus
-                        });
-                }
-
-                context.Commit();
             }
         }
     }

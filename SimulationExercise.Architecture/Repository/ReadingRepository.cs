@@ -16,18 +16,26 @@ namespace SimulationExercise.Architecture.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             string sql = $@"INSERT INTO {_mainTableName}
-                            (INPUTFILEID, BYTES, CREATIONTIME, 
+                            (INPUTFILEID, SENSORID, SENSORTYPENAME, UNIT, STATIONID, 
+                            STATIONNAME, VALUE, PROVINCE, CITY, ISHISTORIC, STARTDATE, 
+                            STOPDATE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, CREATIONTIME, 
                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES (@InputFileId, @Bytes, @CreationTime, 
-                                        @LastUpdateTime, @LastUpdateUser, @StatusId)";
+                                VALUES (@INPUTFILEID, @SENSORID, @SENSORTYPENAME, @UNIT, 
+                                        @STATIONID, @STATIONNAME, @VALUE, @PROVINCE, @CITY, 
+                                        @ISHISTORIC, @STARTDATE, @STOPDATE, @UTMNORD, @UTMEST, 
+                                        @LATITUDE, @LONGITUDE, @CREATIONTIME, @LASTUPDATETIME, 
+                                        @LASTUPDATEUSER, @STATUSID)";
 
             context.Execute(sql, new 
             { 
-                dto.InputFileId, dto.Bytes,
+                dto.InputFileId, dto.SensorId, dto.SensorTypeName, dto.Unit, 
+                dto.StationId, dto.StationName, dto.Value, dto.Province, 
+                dto.City, dto.IsHistoric, dto.StartDate, dto.StopDate, 
+                dto.UtmNord, dto.UtmEst, dto.Latitude, dto.Longitude,
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
-                dto.Status 
+                StatusId = dto.Status 
             });
 
             context.Commit();
@@ -38,8 +46,8 @@ namespace SimulationExercise.Architecture.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @StatusId 
-                               WHERE ReadingId = @ReadingId;",
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUSID 
+                               WHERE READINGID = @READINGID;",
                             new { dto.Status, dto.ReadingId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
@@ -48,8 +56,8 @@ namespace SimulationExercise.Architecture.Repository
                 {
                     string sql = $@"INSERT INTO {_messageTableName} 
                                     (READINGID, CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER) 
-                                        VALUES (@ReadingId, @CreationDate, @LastUpdateDate, 
-                                                @LastUpdateUser, @message);";
+                                        VALUES (@READINGID, @CREATIONDATE, @LASTUPDATEDATE, 
+                                                @LASTUPDATEUSER, @MESSAGE);";
 
                     context.Execute(sql, new 
                     { 
@@ -71,8 +79,8 @@ namespace SimulationExercise.Architecture.Repository
 
             int statusId = (int)status;
             var sql = $@"SELECT READINGID, BYTES, STATUSID AS STATUS 
-                            FROM {_mainTableName} WHERE STATUSID = @statusId
-                                ORDER BY CreationTime DESC";
+                            FROM {_mainTableName} WHERE STATUSID = @STATUSID
+                                ORDER BY CREATIONTIME DESC";
 
             var result = context.Query<ReadingGetDTO>(sql, new { statusId });
             return result;

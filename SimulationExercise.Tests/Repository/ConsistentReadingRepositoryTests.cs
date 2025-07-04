@@ -14,6 +14,9 @@ namespace SimulationExercise.Tests.Repository
         private readonly IContextFactory _contextFactory;
         private readonly IConsistentReadingRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
+        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly ITestRepositoryObjectInsertion<ConsistentReadingInsertDTO> _testRepositoryObjectInsertion;
+
         private readonly string _tableNameConsistentReading = "ConsistentReading";
         private readonly string _tableNameConsistentReadingMessage = "ConsistentReadingMessage";
         private readonly string _connectionString;
@@ -23,6 +26,9 @@ namespace SimulationExercise.Tests.Repository
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+            _testRepositoryCleanup = new TestRepositoryCleanup();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ConsistentReadingInsertDTO>();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -37,15 +43,17 @@ namespace SimulationExercise.Tests.Repository
         public void Insert_SuccesfullyInserts_WhenCommited()
         {
             // Arrange
-            TestDataCleanup();
+            _testRepositoryCleanup.Cleanup();
 
             var currentTime = new DateTime(2025, 05, 12);
-            const string currentUser = "currentUser1";
+            var currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
 
-            var dto = new ConsistentReadingInsertDTO(1, new byte[] { 1, 2, 3 }, 
-                                                     Status.New);
+            var dto = new ConsistentReadingInsertDTO(1, 1, 
+                "SensorTypeName", Unit.mg_m3, 1, "Province", 
+                "City", true, 1, 1, 1, "Latitude", 
+                "Longitude", Status.New);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -57,17 +65,31 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT READINGID, BYTES, STATUSID 
-                            FROM {_tableNameConsistentReading};");
+                    ($@"SELECT READINGID, SENSORID, SENSORTYPENAME, 
+                        UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
+                        DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
+                        LONGITUDE, LASTUPDATETIME, CREATIONTIME, 
+                        LASTUPDATEUSER, STATUSID FROM {_tableNameConsistentReading};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
-                Assert.Equal(dto.ReadingId, retrievedItem.ReadingId);
-                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.Bytes));
-                Assert.Equal((int)dto.Status, retrievedItem.StatusId);
-                Assert.Equal(currentTime, retrievedItem.LastUpdateTime);
-                Assert.Equal(currentTime, retrievedItem.CreationTime);
-                Assert.Equal(currentUser, retrievedItem.LastUpdateUser);
+                Assert.Equal(dto.ReadingId, retrievedItem.READINGID);
+                Assert.Equal(dto.SensorId, retrievedItem.SENSORID);
+                Assert.Equal(dto.SensorTypeName, retrievedItem.SENSORTYPENAME);
+                Assert.Equal((int)dto.Unit, retrievedItem.UNIT);
+                Assert.Equal(dto.Value, retrievedItem.VALUE);
+                Assert.Equal(dto.Province, retrievedItem.PROVINCE);
+                Assert.Equal(dto.City, retrievedItem.CITY);
+                Assert.Equal(dto.IsHistoric, retrievedItem.ISHISTORIC);
+                Assert.Equal(dto.DaysOfMeasure, retrievedItem.DAYSOFMEASURE);
+                Assert.Equal(dto.UtmNord, retrievedItem.UTMNORD);
+                Assert.Equal(dto.UtmEst, retrievedItem.UTMEST);
+                Assert.Equal(dto.Latitude, retrievedItem.LATITUDE);
+                Assert.Equal(dto.Longitude, retrievedItem.LONGITUDE);
+                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
+                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
+                Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
+                Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
         }
 
@@ -75,11 +97,12 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithSuccessStatus()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
-                (1, 1, new byte[] { 1, 2, 3 }, Status.Success);
+                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province",
+                "City", true, 1, 1, 1, "Latitude", "Longitude", Status.Success);
 
             ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
                 (1, Status.Success, new List<string>());
@@ -94,7 +117,9 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 var result = assertContext.Query<ConsistentReadingGetDTO>
-                    ($@"SELECT CONSISTENTREADINGID, READINGID, BYTES, 
+                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
+                        DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, 
                         STATUSID AS STATUS FROM {_tableNameConsistentReading} 
                             WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
                     new { expectedReturn.ConsistentReadingId });
@@ -108,11 +133,12 @@ namespace SimulationExercise.Tests.Repository
         public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(1);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
             ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
-                (1, 1, new byte[] { 1, 2, 3 }, Status.Success);
+                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", 
+                "City", true, 1, 1, 1, "Latitude", "Longitude", Status.Success);
 
             ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
                 (1, Status.Success, new List<string> { "Error0" });
@@ -127,8 +153,11 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 var result = assertContext.Query<ConsistentReadingGetDTO>
-                    ($@"SELECT CONSISTENTREADINGID, READINGID, BYTES, 
-                        STATUSID AS STATUS FROM {_tableNameConsistentReading}
+                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
+                        ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
+                        LATITUDE, LONGITUDE, STATUSID AS STATUS 
+                        FROM {_tableNameConsistentReading}
                             WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
                     new { expectedReturn.ConsistentReadingId });
 
@@ -157,62 +186,14 @@ namespace SimulationExercise.Tests.Repository
         public void GetByStatus_SuccesfullyGets()
         {
             // Arrange
-            TestDataCleanup();
-            MultipleObjectInsertion(2, Status.Success);
+            _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
-            }
-        }
-
-        private void TestDataCleanup()
-        {
-            using (var cleanupContext = _contextFactory.Create())
-            {
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReadingMessage}', 'U')
-                                          IS NOT NULL TRUNCATE TABLE {_tableNameConsistentReadingMessage};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
-                                          IS NOT NULL DELETE FROM {_tableNameConsistentReading};");
-
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
-                                          IS NOT NULL DBCC CHECKPOINT ('{_tableNameConsistentReading}', 
-                                          RESEED, 0);");
-                cleanupContext.Commit();
-            }
-        }
-
-        private void MultipleObjectInsertion(int numberOfObjectsToBeInserted, Status objectStatus = Status.New)
-        {
-            var creationTime = SystemTime.Now();
-            var lastUpdateTime = SystemTime.Now();
-            var lastUpdateUser = SystemIdentity.CurrentName();
-
-            using (IContext context = _contextFactory.Create())
-            {
-                for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
-                {
-                    context.Execute
-                        ($@"INSERT INTO {_tableNameConsistentReading}
-                            (READINGID, BYTES, CREATIONTIME, 
-                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES(@READINGID, @BYTES, @CREATIONTIME, 
-                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
-                        new
-                        {
-                            ReadingId = objectNumber + 1,
-                            Bytes = new byte[] { 1, 2, 3 },
-                            creationTime,
-                            lastUpdateTime,
-                            lastUpdateUser,
-                            StatusId = objectStatus
-                        });
-                }
-
-                context.Commit();
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using SimulationExercise.Core.Common;
+﻿using Microsoft.Extensions.Logging;
+using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -15,13 +16,15 @@ namespace SimulationExercise.Services
         private readonly IReadingRepository _readingRepository;
         private readonly IConsistentReadingRepository _consistentReadingRepository;
         private readonly IOutputFileService _outputFileService;
+        private ILogger<ConsistentReadingService> _logger;
 
         public ConsistentReadingService(IConsistentReadingFactory consistentReadingFactory,
                                         IConsistentReadingInsertDTOFactory consistentReadingInsertDTOFactory,
                                         IContextFactory contextFactory,
                                         IReadingRepository readingRepository, 
                                         IConsistentReadingRepository consistentReadingRepository, 
-                                        IOutputFileService outputFileService)
+                                        IOutputFileService outputFileService, 
+                                        ILogger<ConsistentReadingService> logger)
         {
             _consistentReadingFactory = consistentReadingFactory;
             _consistentReadingInsertDTOFactory = consistentReadingInsertDTOFactory;
@@ -29,6 +32,7 @@ namespace SimulationExercise.Services
             _readingRepository = readingRepository;
             _consistentReadingRepository = consistentReadingRepository;
             _outputFileService = outputFileService;
+            _logger = logger;
         }
 
         public void ProcessReadings()
@@ -39,7 +43,7 @@ namespace SimulationExercise.Services
 
                 if (readingDTOs.Count == 0)
                 {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND);
+                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Reading");
                     return;
                 }
 
@@ -75,6 +79,9 @@ namespace SimulationExercise.Services
                     _readingRepository.Update(updateDTO, context);
                     continue;
                 }
+
+                if (insertDTOs.Count > 0) foreach (var insertDTO in insertDTOs)
+                    _consistentReadingRepository.Insert(insertDTO, context);
             }
         }
     }

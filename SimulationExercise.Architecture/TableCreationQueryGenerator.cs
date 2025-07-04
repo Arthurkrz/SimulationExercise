@@ -33,10 +33,24 @@
                         CREATE TABLE Reading(
                         ReadingId BIGINT IDENTITY(1,1) PRIMARY KEY,
                         InputFileId BIGINT NOT NULL REFERENCES dbo.InputFile(InputFileId),
-                        Bytes VARBINARY(MAX) NOT NULL,
-                        CreationTime DATETIME NOT NULL,
-                        LastUpdateTime DATETIME NOT NULL,
-                        LastUpdateUser NVARCHAR(100) NOT NULL,
+                        SensorId INT NOT NULL, 
+                        SensorTypeName NVARCHAR(100) NOT NULL,
+                        Unit INT NOT NULL,
+                        StationId INT NOT NULL, 
+                        StationName NVARCHAR(100) NOT NULL, 
+                        Value BIGINT NOT NULL,
+                        Province NVARCHAR(100) NOT NULL,
+                        City NVARCHAR(100) NOT NULL,
+                        IsHistoric BIT NOT NULL, 
+                        StartDate DATETIME NOT NULL, 
+                        StopDate DATETIME, 
+                        UtmNord INT NOT NULL, 
+                        UtmEst INT NOT NULL, 
+                        Latitude NVARCHAR(100) NOT NULL, 
+                        Longitude NVARCHAR(100) NOT NULL, 
+                        CreationTime DATETIME NOT NULL, 
+                        LastUpdateTime DATETIME NOT NULL, 
+                        LastUpdateUser NVARCHAR(100) NOT NULL, 
                         StatusId INT NOT NULL);";
 
             string readingMessageSQL =
@@ -50,14 +64,25 @@
                         Message NVARCHAR(MAX) NOT NULL);";
 
             string consistentReadingSQL =
-                @"IF OBJECT_ID('ConsistentReading', 'U') IS NULL
+                @"IF OBJECT_ID('ConsistentReading', 'U') IS NULL 
                         CREATE TABLE ConsistentReading(
-                        ConsistentReadingId BIGINT IDENTITY(1,1) PRIMARY KEY,
-                        ReadingId BIGINT NOT NULL REFERENCES dbo.Reading(ReadingId),
-                        Bytes VARBINARY(MAX) NOT NULL,
-                        CreationTime DATETIME NOT NULL,
-                        LastUpdateTime DATETIME NOT NULL,
-                        LastUpdateUser NVARCHAR(100) NOT NULL,
+                        ConsistentReadingId BIGINT IDENTITY(1,1) PRIMARY KEY, 
+                        ReadingId BIGINT NOT NULL REFERENCES dbo.Reading(ReadingId), 
+                        SensorId INT NOT NULL, 
+                        SensorTypeName NVARCHAR(100) NOT NULL, 
+                        Unit INT NOT NULL, 
+                        Value INT NOT NULL, 
+                        Province NVARCHAR(100) NOT NULL, 
+                        City NVARCHAR(100) NOT NULL, 
+                        IsHistoric BIT NOT NULL, 
+                        DaysOfMeasure INT NOT NULL, 
+                        UtmNord INT NOT NULL, 
+                        UtmEst INT NOT NULL, 
+                        Latitude NVARCHAR(100) NOT NULL, 
+                        Longitude NVARCHAR(100) NOT NULL, 
+                        CreationTime DATETIME NOT NULL, 
+                        LastUpdateTime DATETIME NOT NULL, 
+                        LastUpdateUser NVARCHAR(100) NOT NULL, 
                         StatusId INT NOT NULL);";
 
             string consistentReadingMessageSQL =
@@ -74,8 +99,9 @@
                 @"IF OBJECT_ID('OutputFile', 'U') IS NULL
                         CREATE TABLE OutputFile(
                         OutputFileId BIGINT IDENTITY(1,1) PRIMARY KEY,
-                        ConsistentReadingId BIGINT NOT NULL REFERENCES dbo.ConsistentReading(ConsistentReadingId),
+                        Name NVARCHAR(100) NOT NULL,
                         Bytes VARBINARY(MAX) NOT NULL,
+                        Extension VARCHAR(10) NOT NULL,
                         CreationTime DATETIME NOT NULL,
                         LastUpdateTime DATETIME NOT NULL,
                         LastUpdateUser NVARCHAR(100) NOT NULL,

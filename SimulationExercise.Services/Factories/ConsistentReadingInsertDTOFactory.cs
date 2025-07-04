@@ -11,8 +11,9 @@ namespace SimulationExercise.Services.Factories
         {
             return new ConsistentReadingInsertDTO(readingId, cr.SensorId, cr.SensorTypeName,
                                                   cr.Unit, cr.Value, cr.Province, cr.City,
-                                                  cr.IsHistoric, cr.UtmNord, cr.UtmEst,
-                                                  cr.Latitude, cr.Longitude, Status.Success);
+                                                  cr.IsHistoric, cr.DaysOfMeasure, 
+                                                  cr.UtmNord, cr.UtmEst, cr.Latitude, 
+                                                  cr.Longitude, Status.Success);
         }
     }
 }

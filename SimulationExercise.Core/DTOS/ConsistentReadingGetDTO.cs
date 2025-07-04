@@ -5,8 +5,9 @@ namespace SimulationExercise.Core.DTOS
     public class ConsistentReadingGetDTO
     {
         public ConsistentReadingGetDTO(long consistentReadingId, long readingId, long sensorId, string sensorTypeName, 
-                                       Unit unit, int value, string province, string city, bool isHistoric, int utmNord,
-                                       int utmEst, string latitude, string longitude, Status status)
+                                       Unit unit, int value, string province, string city, bool isHistoric, 
+                                       int daysOfMeasure, int utmNord, int utmEst, string latitude, 
+                                       string longitude, Status status)
         {
             ConsistentReadingId = consistentReadingId;
             ReadingId = readingId;
@@ -17,6 +18,7 @@ namespace SimulationExercise.Core.DTOS
             Province = province;
             City = city;
             IsHistoric = isHistoric;
+            DaysOfMeasure = daysOfMeasure;
             UtmNord = utmNord;
             UtmEst = utmEst;
             Latitude = latitude;

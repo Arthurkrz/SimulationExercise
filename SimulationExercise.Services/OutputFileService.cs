@@ -1,4 +1,5 @@
 ﻿using FileHelpers;
+using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
@@ -7,7 +8,6 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using System.Text;
-using System.Text.Json;
 
 namespace SimulationExercise.Services
 {
@@ -15,11 +15,15 @@ namespace SimulationExercise.Services
     {
         private IContextFactory _contextFactory;
         private IConsistentReadingRepository _consistentReadingRepository;
+        private ILogger<OutputFileService> _logger;
 
-        public OutputFileService(IContextFactory contextFactory, IConsistentReadingRepository consistentReadingRepository)
+        public OutputFileService(IContextFactory contextFactory,
+                                 IConsistentReadingRepository consistentReadingRepository,
+                                 ILogger<OutputFileService> logger)
         {
             _contextFactory = contextFactory;
             _consistentReadingRepository = consistentReadingRepository;
+            _logger = logger;
         }
 
         public void ProcessConsistentReadings()
@@ -30,7 +34,7 @@ namespace SimulationExercise.Services
 
                 if (consistentReadingDTOs.Count == 0)
                 {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND);
+                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
                     return;
                 }
 
