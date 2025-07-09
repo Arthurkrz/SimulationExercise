@@ -37,8 +37,6 @@ namespace SimulationExercise.Architecture.Repository
                 LastUpdateUser = SystemIdentity.CurrentName(),
                 StatusId = dto.Status 
             });
-
-            context.Commit();
         }
 
         public void Update(ReadingUpdateDTO dto, IContext context)
@@ -69,8 +67,6 @@ namespace SimulationExercise.Architecture.Repository
                     });
                 }
             }
-
-            context.Commit();
         }
 
         public IList<ReadingGetDTO> GetByStatus(Status status, IContext context)

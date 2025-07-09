@@ -15,7 +15,7 @@
 
         public const string OBJECTCREATIONSUCCESS = "{count} {object} created successfully!";
 
-        public const string NOREADINGIMPORTED = "No readings have been imported!";
+        public const string NOREADINGIMPORTED = "No readings have been imported from file {0}!";
         public const string NOOBJECTCREATED = "No {object}s have been created!";
         public const string NOCSVFILESFOUND = "No CSV files found in the 'IN' directory!";
         public const string ERRORSFOUND = "Errors found! ({errorGroupNumber})";

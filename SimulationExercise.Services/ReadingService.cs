@@ -51,16 +51,14 @@ namespace SimulationExercise.Services
                     using (var stream = new MemoryStream(inputFile.Bytes))
                     {
                         ImportResult importResult = _readingImportService.Import(stream);
-
-                        if (!importResult.Success && importResult.Readings.Count == 0)
+                        if (importResult.Errors.Count > 0 && !importResult.Success)
                         {
-                            _logger.LogError(LogMessages.NOREADINGIMPORTED);
-                            _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                            continue;
-                        }
+                            if (importResult.Readings.Count == 0)
+                            {
+                                _logger.LogError(LogMessages.NOREADINGIMPORTED, inputFile.Name);
+                                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
+                            }
 
-                        if (importResult.Errors.Count > 0)
-                        {
                             var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
                                                                          Status.Error,
                                                                          importResult.Errors);

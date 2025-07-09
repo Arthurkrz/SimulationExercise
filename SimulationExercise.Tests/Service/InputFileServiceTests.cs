@@ -4,7 +4,7 @@ using Moq;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.Enum;
+using SimulationExercise.Core.DTOS;
 using SimulationExercise.Services;
 using SimulationExercise.Tests.Repository;
 using System.Text;
@@ -21,7 +21,6 @@ namespace SimulationExercise.Tests.Service
 
         private readonly string _basePath;
         private readonly string _inDirectoryPath;
-        private readonly string _backupDirectoryPath;
 
         public InputFileServiceTests()
         {
@@ -45,7 +44,6 @@ namespace SimulationExercise.Tests.Service
 
             _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
             _inDirectoryPath = Path.Combine(_basePath, "IN");
-            _backupDirectoryPath = Path.Combine(_basePath, "BACKUP");
         }
 
         [Fact]
@@ -60,8 +58,18 @@ namespace SimulationExercise.Tests.Service
             _sut.ProcessFiles(_inDirectoryPath);
 
             // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Never);
 
-
+            _inputFileRepositoryMock.Verify(x => x.Insert(
+                It.IsAny<InputFileInsertDTO>(), It.IsAny<IContext>()), 
+                Times.Exactly(2));
         }
 
         [Fact]

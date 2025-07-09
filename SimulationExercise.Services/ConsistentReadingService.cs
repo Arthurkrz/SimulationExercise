@@ -34,51 +34,66 @@ namespace SimulationExercise.Services
 
         public void ProcessReadings()
         {
-            using (IContext context = _contextFactory.Create())
+            IList<ConsistentReadingInsertDTO> insertDTOs = null;
+            IList<ReadingGetDTO> readingDTOs = new List<ReadingGetDTO>();  
+            using (IContext searchContext = _contextFactory.Create())
             {
-                var readingDTOs = _readingRepository.GetByStatus(Status.New, context);
+                readingDTOs = _readingRepository.GetByStatus(Status.New, searchContext);
+            }
 
-                if (readingDTOs.Count == 0)
+            if (readingDTOs.Count == 0)
+            {
+                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Reading");
+                return;
+            }
+
+            foreach (var readingDTO in readingDTOs)
+            {
+                var reading = new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
+                                            readingDTO.Unit, readingDTO.StationId,
+                                            readingDTO.StationName, readingDTO.Value,
+                                            readingDTO.Province, readingDTO.City,
+                                            readingDTO.IsHistoric, readingDTO.StartDate,
+                                            readingDTO.StopDate, readingDTO.UtmNord,
+                                            readingDTO.UtmEst, readingDTO.Latitude,
+                                            readingDTO.Longitude);
+
+                var creationResult = _consistentReadingFactory
+                    .CreateConsistentReading(reading);
+
+                using (IContext context = _contextFactory.Create())
                 {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Reading");
-                    return;
-                }
-
-                List<ConsistentReadingInsertDTO> insertDTOs = null;
-
-                foreach (var readingDTO in readingDTOs)
-                {
-                    var reading = new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
-                                              readingDTO.Unit, readingDTO.StationId,
-                                              readingDTO.StationName, readingDTO.Value,
-                                              readingDTO.Province, readingDTO.City,
-                                              readingDTO.IsHistoric, readingDTO.StartDate,
-                                              readingDTO.StopDate, readingDTO.UtmNord,
-                                              readingDTO.UtmEst, readingDTO.Latitude,
-                                              readingDTO.Longitude);
-
-                    var creationResult = _consistentReadingFactory
-                        .CreateConsistentReading(reading);
-
                     if (creationResult.Success)
                     {
                         var insertDTO = _consistentReadingInsertDTOFactory.
-                            CreateConsistentReadingInsertDTO(creationResult.Value, 
-                                                             readingDTO.ReadingId);
+                            CreateConsistentReadingInsertDTO(creationResult.Value,
+                                                                readingDTO.ReadingId);
                         insertDTOs.Add(insertDTO);
+
+                        var successUpdateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
+                                                        Status.Success, new List<string>());
+                        _readingRepository.Update(successUpdateDTO, context);
+                        context.Commit();
+
                         continue;
                     }
-                    
+
                     var updateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                                         Status.Error,
-                                                         creationResult.Errors);
+                                        Status.Error,
+                                        creationResult.Errors);
 
                     _readingRepository.Update(updateDTO, context);
-                    continue;
-                }
 
+                    context.Commit();
+                }
+            }
+
+            using (IContext insertContext = _contextFactory.Create())
+            {
                 if (insertDTOs.Count > 0) foreach (var insertDTO in insertDTOs)
-                    _consistentReadingRepository.Insert(insertDTO, context);
+                        _consistentReadingRepository.Insert(insertDTO, insertContext);
+
+                insertContext.Commit();
             }
         }
     }
