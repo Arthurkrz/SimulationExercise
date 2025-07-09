@@ -5,6 +5,6 @@ namespace SimulationExercise.Core.Contracts.Services
 {
     public interface IConsistentReadingInsertDTOFactory
     {
-        ConsistentReadingInsertDTO CreateConsistentReadingInsertDTOs(ConsistentReading cr, long readingId);
+        ConsistentReadingInsertDTO CreateConsistentReadingInsertDTO(ConsistentReading cr, long readingId);
     }
 }

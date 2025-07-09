@@ -15,7 +15,6 @@ namespace SimulationExercise.Services
         private readonly IContextFactory _contextFactory;
         private readonly IReadingRepository _readingRepository;
         private readonly IConsistentReadingRepository _consistentReadingRepository;
-        private readonly IOutputFileService _outputFileService;
         private ILogger<ConsistentReadingService> _logger;
 
         public ConsistentReadingService(IConsistentReadingFactory consistentReadingFactory,
@@ -23,7 +22,6 @@ namespace SimulationExercise.Services
                                         IContextFactory contextFactory,
                                         IReadingRepository readingRepository, 
                                         IConsistentReadingRepository consistentReadingRepository, 
-                                        IOutputFileService outputFileService, 
                                         ILogger<ConsistentReadingService> logger)
         {
             _consistentReadingFactory = consistentReadingFactory;
@@ -31,7 +29,6 @@ namespace SimulationExercise.Services
             _contextFactory = contextFactory;
             _readingRepository = readingRepository;
             _consistentReadingRepository = consistentReadingRepository;
-            _outputFileService = outputFileService;
             _logger = logger;
         }
 
@@ -66,15 +63,15 @@ namespace SimulationExercise.Services
                     if (creationResult.Success)
                     {
                         var insertDTO = _consistentReadingInsertDTOFactory.
-                            CreateConsistentReadingInsertDTOs(creationResult.Value, 
-                                                              readingDTO.ReadingId);
+                            CreateConsistentReadingInsertDTO(creationResult.Value, 
+                                                             readingDTO.ReadingId);
                         insertDTOs.Add(insertDTO);
                         continue;
                     }
                     
                     var updateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                                            Status.Error,
-                                                            creationResult.Errors);
+                                                         Status.Error,
+                                                         creationResult.Errors);
 
                     _readingRepository.Update(updateDTO, context);
                     continue;

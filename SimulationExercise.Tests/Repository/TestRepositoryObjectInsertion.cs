@@ -50,6 +50,18 @@ namespace SimulationExercise.Tests.Repository
                 OutputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
         }
 
+        public void InsertMethodTestSetup()
+        {
+            if (objectType == typeof(ReadingInsertDTO))
+                InputFileRepositoryInsert(1, Status.New);
+
+            if (objectType == typeof(ConsistentReadingInsertDTO))
+            {
+                InputFileRepositoryInsert(1, Status.New);
+                ReadingRepositoryInsert(1, Status.New);                
+            }
+        }
+
         private void InputFileRepositoryInsert(int numberOfObjectsToBeInserted, Status status)
         {
             using (IContext context = _contextFactory.Create())
@@ -110,8 +122,8 @@ namespace SimulationExercise.Tests.Repository
                         {
                             InputFileId = objectNumber + 1,
                             SensorId = objectNumber + 1,
-                            SensorTypeName = objectNumber + 1,
-                            Unit = 2,
+                            SensorTypeName = "SensorTypeName",
+                            Unit = "mg/m³",
                             StationId = objectNumber + 1,
                             StationName = "StationName",
                             Value = objectNumber + 1,

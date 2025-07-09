@@ -23,7 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Architecture.csproj" />
     <ProjectReference Include="..\SimulationExercise.Core\SimulationExercise.Core.csproj" />
-    <ProjectReference Include="..\SimulationExercise\SimulationExercise.Console.csproj" />
+    <ProjectReference Include="..\SimulationExercise.Console\SimulationExercise.Console.csproj" />
   </ItemGroup>
 
   <ItemGroup>

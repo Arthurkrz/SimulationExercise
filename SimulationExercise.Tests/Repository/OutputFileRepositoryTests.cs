@@ -78,6 +78,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -113,6 +116,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -162,6 +168,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -177,6 +186,9 @@ namespace SimulationExercise.Tests.Repository
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
     }
 }

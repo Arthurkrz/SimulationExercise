@@ -78,6 +78,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -85,7 +88,7 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            _testRepositoryObjectInsertion.InsertObjects(1, Status.Success);
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
@@ -111,6 +114,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -160,6 +166,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -175,6 +184,9 @@ namespace SimulationExercise.Tests.Repository
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
     }
 }

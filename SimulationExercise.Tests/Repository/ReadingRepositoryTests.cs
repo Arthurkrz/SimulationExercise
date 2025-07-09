@@ -44,7 +44,7 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            _testRepositoryObjectInsertion.InsertMethodTestSetup();
 
             var currentTime = new DateTime(2025, 05, 12);
             var currentUser = "currentUser1";
@@ -52,7 +52,7 @@ namespace SimulationExercise.Tests.Repository
             SystemIdentity.CurrentName = () => currentUser;
             
             var dto = new ReadingInsertDTO(1, 1, "SensorTypeName", 
-                2, 1, "StationName", 1, "Province", "City", 
+                "mg/m³", 1, "StationName", 1, "Province", "City", 
                 true, DateTime.Now.Date, DateTime.Now.Date, 1, 1, 
                 "Latitude", "Longitude", Status.New);
 
@@ -66,34 +66,37 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT INPUTFILEID, SENSORID, SENSORTYPENAME,
+                    ($@"SELECT INPUTFILEID, SENSORID, SENSORTYPENAME, 
                         UNIT, STATIONID, STATIONNAME, VALUE, PROVINCE, 
                         CITY, ISHISTORIC, STARTDATE, STOPDATE, UTMNORD, 
                         UTMEST, LATITUDE, LONGITUDE, LASTUPDATETIME, 
-                        CREATIONTIME, LASTUPDATEUSER, STATUSID
+                        CREATIONTIME, LASTUPDATEUSER, STATUSID 
                             FROM {_tableNameReading};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
 
-                Assert.Equal(dto.InputFileId, retrievedItem.InputFileId);
-                Assert.Equal(dto.SensorId, retrievedItem.SensorId);
-                Assert.Equal(dto.SensorTypeName, retrievedItem.SensorTypeName);
-                Assert.Equal(dto.Unit, retrievedItem.Unit);
-                Assert.Equal(dto.StationId, retrievedItem.StationId);
-                Assert.Equal(dto.StationName, retrievedItem.StationName);
-                Assert.Equal(dto.IsHistoric, retrievedItem.IsHistoric);
-                Assert.Equal(dto.StartDate, retrievedItem.StartDate);
-                Assert.Equal(dto.StopDate, retrievedItem.StopDate);
-                Assert.Equal(dto.UtmNord, retrievedItem.UtmNord);
-                Assert.Equal(dto.UtmEst, retrievedItem.UtmEst);
-                Assert.Equal(dto.Latitude, retrievedItem.Latitude);
-                Assert.Equal(dto.Longitude, retrievedItem.Longitude);
-                Assert.Equal((int)dto.Status, retrievedItem.StatusId);
-                Assert.Equal(currentTime, retrievedItem.LastUpdateTime);
-                Assert.Equal(currentTime, retrievedItem.CreationTime);
-                Assert.Equal(currentUser, retrievedItem.LastUpdateUser);
+                Assert.Equal(dto.InputFileId, retrievedItem.INPUTFILEID);
+                Assert.Equal(dto.SensorId, retrievedItem.SENSORID);
+                Assert.Equal(dto.SensorTypeName, retrievedItem.SENSORTYPENAME);
+                Assert.Equal(dto.Unit, retrievedItem.UNIT);
+                Assert.Equal(dto.StationId, retrievedItem.STATIONID);
+                Assert.Equal(dto.StationName, retrievedItem.STATIONNAME);
+                Assert.Equal(dto.IsHistoric, retrievedItem.ISHISTORIC);
+                Assert.Equal(dto.StartDate, retrievedItem.STARTDATE);
+                Assert.Equal(dto.StopDate, retrievedItem.STOPDATE);
+                Assert.Equal(dto.UtmNord, retrievedItem.UTMNORD);
+                Assert.Equal(dto.UtmEst, retrievedItem.UTMEST);
+                Assert.Equal(dto.Latitude, retrievedItem.LATITUDE);
+                Assert.Equal(dto.Longitude, retrievedItem.LONGITUDE);
+                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
+                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
+                Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
+                Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -133,6 +136,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -146,10 +152,10 @@ namespace SimulationExercise.Tests.Repository
                 (1, 1, 1, "SensorTypeName", "mg/m³", 1,
                  "StationName", 1, "Province", "City",
                  true, DateTime.Now.Date, DateTime.Now.Date, 1, 1,
-                 "Latitude", "Longitude", Status.Success);
+                 "Latitude", "Longitude", Status.Error);
 
             ReadingUpdateDTO updateDTO = new ReadingUpdateDTO
-                (1, Status.Success, new List<string> { "Error0" });
+                (1, Status.Error, new List<string> { "Error0" });
 
             using (IContext context = _contextFactory.Create())
             {
@@ -189,6 +195,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -204,6 +213,9 @@ namespace SimulationExercise.Tests.Repository
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
     }
 }

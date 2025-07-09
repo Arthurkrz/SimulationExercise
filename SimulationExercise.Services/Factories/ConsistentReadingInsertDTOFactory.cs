@@ -7,7 +7,7 @@ namespace SimulationExercise.Services.Factories
 {
     public class ConsistentReadingInsertDTOFactory : IConsistentReadingInsertDTOFactory
     {
-        public ConsistentReadingInsertDTO CreateConsistentReadingInsertDTOs(ConsistentReading cr, long readingId)
+        public ConsistentReadingInsertDTO CreateConsistentReadingInsertDTO(ConsistentReading cr, long readingId)
         {
             return new ConsistentReadingInsertDTO(readingId, cr.SensorId, cr.SensorTypeName,
                                                   cr.Unit, cr.Value, cr.Province, cr.City,

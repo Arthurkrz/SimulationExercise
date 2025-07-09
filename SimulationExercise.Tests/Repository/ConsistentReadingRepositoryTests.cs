@@ -44,6 +44,7 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertMethodTestSetup();
 
             var currentTime = new DateTime(2025, 05, 12);
             var currentUser = "currentUser1";
@@ -91,6 +92,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -127,6 +131,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -138,10 +145,10 @@ namespace SimulationExercise.Tests.Repository
 
             ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
                 (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", 
-                "City", true, 1, 1, 1, "Latitude", "Longitude", Status.Success);
+                "City", true, 1, 1, 1, "Latitude", "Longitude", Status.Error);
 
             ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
-                (1, Status.Success, new List<string> { "Error0" });
+                (1, Status.Error, new List<string> { "Error0" });
 
             using (IContext context = _contextFactory.Create())
             {
@@ -180,6 +187,9 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
 
         [Fact]
@@ -195,6 +205,9 @@ namespace SimulationExercise.Tests.Repository
                 var results = _sut.GetByStatus(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
+
+            // Teardown
+            _testRepositoryCleanup.Cleanup();
         }
     }
 }

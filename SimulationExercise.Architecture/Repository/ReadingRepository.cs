@@ -48,14 +48,14 @@ namespace SimulationExercise.Architecture.Repository
 
             context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUSID 
                                WHERE READINGID = @READINGID;",
-                            new { dto.Status, dto.ReadingId });
+                            new { StatusId = dto.Status, ReadingId = dto.ReadingId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
             {
                 foreach (var message in dto.Messages)
                 {
                     string sql = $@"INSERT INTO {_messageTableName} 
-                                    (READINGID, CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER) 
+                                    (READINGID, CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE) 
                                         VALUES (@READINGID, @CREATIONDATE, @LASTUPDATEDATE, 
                                                 @LASTUPDATEUSER, @MESSAGE);";
 
@@ -78,11 +78,14 @@ namespace SimulationExercise.Architecture.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             int statusId = (int)status;
-            var sql = $@"SELECT READINGID, BYTES, STATUSID AS STATUS 
+            var sql = $@"SELECT READINGID, INPUTFILEID, SENSORID, SENSORTYPENAME, 
+                         UNIT, STATIONID, STATIONNAME, VALUE, PROVINCE, CITY, 
+                         ISHISTORIC, STARTDATE, STOPDATE, UTMNORD, UTMEST, 
+                         LATITUDE, LONGITUDE, STATUSID AS STATUS 
                             FROM {_mainTableName} WHERE STATUSID = @STATUSID
                                 ORDER BY CREATIONTIME DESC";
 
-            var result = context.Query<ReadingGetDTO>(sql, new { statusId });
+            var result = context.Query<ReadingGetDTO>(sql, new { StatusId = statusId });
             return result;
         }
     }
