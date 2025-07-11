@@ -36,6 +36,7 @@ namespace SimulationExercise.Services
         {
             using (IContext context = _contextFactory.Create())
             {
+                IEnumerable<ReadingInsertDTO> insertDTOs = null;
                 var inputFiles = _inputFileRepository.GetByStatus(Status.New, context);
 
                 if (inputFiles.Count == 0)
@@ -44,35 +45,46 @@ namespace SimulationExercise.Services
                     return;
                 }
 
-                IEnumerable<ReadingInsertDTO> insertDTOs = null;
-
                 foreach (var inputFile in inputFiles)
                 {
                     using (var stream = new MemoryStream(inputFile.Bytes))
                     {
                         ImportResult importResult = _readingImportService.Import(stream);
-                        if (importResult.Errors.Count > 0 && !importResult.Success)
-                        {
-                            if (importResult.Readings.Count == 0)
-                            {
-                                _logger.LogError(LogMessages.NOREADINGIMPORTED, inputFile.Name);
-                                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                            }
-
-                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
-                                                                         Status.Error,
-                                                                         importResult.Errors);
-                            _inputFileRepository.Update(inputFileUpdate, context);
-                        }
 
                         if (importResult.Readings.Any())
                             insertDTOs = _readingInsertDTOFactory.CreateReadingInsertDTOList
                                 (importResult.Readings, inputFile.InputFileId);
+
+                        if (importResult.Errors.Count > 0)
+                        {
+                            foreach (var error in importResult.Errors)
+                                _logger.LogError(error);
+                            
+                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
+                                                                         Status.Error,
+                                                                         importResult.Errors);
+
+                            try { _inputFileRepository.Update(inputFileUpdate, context); }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
+                                                 "Input File", ex.Message);
+
+                                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
+                            }
+                        }
                     }
                 }
 
                 foreach (var insertDTO in insertDTOs)
-                    _readingRepository.Insert(insertDTO, context);
+                {
+                    try { _readingRepository.Insert(insertDTO, context); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(LogMessages.ERRORWHENINSERTINGOBJECT, 
+                                         "Reading", ex.Message);
+                    }
+                }
             }
         }
     }

@@ -1,10 +1,12 @@
-﻿using Castle.Core.Logging;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
+using SimulationExercise.Tests.Repository;
 
 namespace SimulationExercise.Tests.Service
 {
@@ -17,6 +19,7 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IReadingRepository> _readingRepositoryMock;
         private readonly Mock<IConsistentReadingRepository> _consistentReadingRepositoryMock;
         private readonly Mock<ILogger<ConsistentReadingService>> _loggerMock;
+        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
 
         public ConsistentReadingServiceTests()
         {
@@ -26,6 +29,7 @@ namespace SimulationExercise.Tests.Service
             _readingRepositoryMock = new Mock<IReadingRepository>();
             _consistentReadingRepositoryMock = new Mock<IConsistentReadingRepository>();
             _loggerMock = new Mock<ILogger<ConsistentReadingService>>();
+            _testRepositoryCleanup = new TestRepositoryCleanup();
 
             var serviceCollection = new ServiceCollection();
 
@@ -50,11 +54,65 @@ namespace SimulationExercise.Tests.Service
         [Fact]
         public void ProcessReadings_ShouldProcessReadings()
         {
+            // Arrange
+            _testRepositoryCleanup.Cleanup();
 
+            _readingRepositoryMock.Setup(x => x.GetByStatus(
+                It.IsAny<Status>(), It.IsAny<IContext>()))
+                .Returns(new List<ReadingGetDTO>());
+
+            // Act
+            _sut.ProcessReadings();
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Never);
+
+            _readingRepositoryMock.Verify(x => x.Update(
+                It.IsAny<ReadingUpdateDTO>(), It.IsAny<IContext>()), 
+                Times.Once);
+
+            _readingRepositoryMock.Verify(x => x.Insert(
+                It.IsAny<ReadingInsertDTO>(), It.IsAny<IContext>()), 
+                Times.Once);
         }
 
         [Fact]
         public void ProcessReadings_ShouldLogError_WhenNoNewObjectsFound()
+        {
+            // Arrange
+            _readingRepositoryMock.Setup(x => x.GetByStatus(
+                It.IsAny<Status>(), It.IsAny<IContext>()))
+                .Returns(new List<ReadingGetDTO>());
+
+            // Act & Assert
+            _sut.ProcessReadings();
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("No new Readings have been found!")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public void ProcessReadings_ShouldLogError_WhenFailToInsertReading()
+        {
+
+        }
+
+        [Fact]
+        public void ProcessReadings_ShouldLogError_WhenFailToUpdateReading()
         {
 
         }

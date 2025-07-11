@@ -57,15 +57,11 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldProcessInputFiles()
         {
             // Arrange
-            var updateValidationSQL = @"";
-
             _testRepositoryCleanup.Cleanup();
 
-            using (var setupContext = _contextFactoryMock.Object.Create())
-            {
-                _inputFileRepositoryMock.Setup(x => x.GetByStatus(Status.New, setupContext))
-                                        .Returns(new List<InputFileGetDTO>());
-            }
+            _inputFileRepositoryMock.Setup(x => x.GetByStatus(
+                It.IsAny<Status>(), It.IsAny<IContext>()))
+                .Returns(new List<InputFileGetDTO>());
 
             // Act
             _sut.ProcessInputFiles();
@@ -93,11 +89,9 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldLogError_IfNoNewObjectsFound()
         {
             // Arrange
-            using (var setupContext = _contextFactoryMock.Object.Create())
-            {
-                _inputFileRepositoryMock.Setup(x => x.GetByStatus(Status.New, setupContext))
-                                        .Returns(new List<InputFileGetDTO>());
-            }
+            _inputFileRepositoryMock.Setup(x => x.GetByStatus(
+                It.IsAny<Status>(), It.IsAny<IContext>()))
+                .Returns(new List<InputFileGetDTO>());
 
             // Act & Assert
             _sut.ProcessInputFiles();
@@ -134,6 +128,18 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
+        }
+
+        [Fact]
+        public void ProcessInputFiles_ShouldLogError_WhenFailToInsert()
+        {
+
+        }
+
+        [Fact]
+        public void ProcessInputFiles_ShouldLogError_WhenFailToÚpdate()
+        {
+
         }
     }
 }

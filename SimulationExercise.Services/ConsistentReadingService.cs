@@ -63,26 +63,37 @@ namespace SimulationExercise.Services
 
                 using (IContext context = _contextFactory.Create())
                 {
-                    if (creationResult.Success)
+                    if (!creationResult.Success)
                     {
-                        var insertDTO = _consistentReadingInsertDTOFactory.
-                            CreateConsistentReadingInsertDTO(creationResult.Value,
-                                                                readingDTO.ReadingId);
-                        insertDTOs.Add(insertDTO);
+                        var updateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
+                                                             Status.Error,
+                                                             creationResult.Errors);
 
-                        var successUpdateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                                        Status.Success, new List<string>());
-                        _readingRepository.Update(successUpdateDTO, context);
+                        try { _readingRepository.Update(updateDTO, context); }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT,
+                                             "Consistent Reading", ex.Message);
+                        }
+
                         context.Commit();
-
                         continue;
                     }
 
-                    var updateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                        Status.Error,
-                                        creationResult.Errors);
+                    var insertDTO = _consistentReadingInsertDTOFactory.
+                    CreateConsistentReadingInsertDTO(creationResult.Value,
+                                                     readingDTO.ReadingId);
+                    insertDTOs.Add(insertDTO);
 
-                    _readingRepository.Update(updateDTO, context);
+                    var successUpdateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
+                                                    Status.Success, new List<string>());
+
+                    try { _readingRepository.Update(successUpdateDTO, context); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
+                                         "Consistent Reading", ex.Message);
+                    }
 
                     context.Commit();
                 }
@@ -90,8 +101,21 @@ namespace SimulationExercise.Services
 
             using (IContext insertContext = _contextFactory.Create())
             {
-                if (insertDTOs.Count > 0) foreach (var insertDTO in insertDTOs)
-                        _consistentReadingRepository.Insert(insertDTO, insertContext);
+                if (insertDTOs.Count > 0)
+                {
+                    foreach (var insertDTO in insertDTOs)
+                    {
+                        try 
+                        { 
+                            _consistentReadingRepository.Insert(insertDTO, insertContext); 
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(LogMessages.ERRORWHENINSERTINGOBJECT, 
+                                             "Consistent Reading", ex.Message);
+                        }
+                    }
+                }
 
                 insertContext.Commit();
             }

@@ -13,56 +13,98 @@ namespace SimulationExercise.Services
 {
     public class OutputFileService : IOutputFileService
     {
-        private IContextFactory _contextFactory;
-        private IConsistentReadingRepository _consistentReadingRepository;
-        private ILogger<OutputFileService> _logger;
+        private readonly IContextFactory _contextFactory;
+        private readonly IConsistentReadingRepository _consistentReadingRepository;
+        private readonly IOutputFileRepository _outputFileRepository;
+        private readonly IConsistentReadingExportDTOFactory _consistentReadingExportDTOFactory;
+        private readonly ILogger<OutputFileService> _logger;
 
         public OutputFileService(IContextFactory contextFactory,
                                  IConsistentReadingRepository consistentReadingRepository,
+                                 IOutputFileRepository outputFileRepository,
+                                 IConsistentReadingExportDTOFactory consistentReadingExportDTOFactory,
                                  ILogger<OutputFileService> logger)
         {
             _contextFactory = contextFactory;
             _consistentReadingRepository = consistentReadingRepository;
+            _outputFileRepository = outputFileRepository;
+            _consistentReadingExportDTOFactory = consistentReadingExportDTOFactory;
             _logger = logger;
         }
 
         public void ProcessConsistentReadings()
         {
-            using (IContext context = _contextFactory.Create())
+            var engine = new FileHelperEngine<OutputFileService>();
+            IList<ConsistentReadingGetDTO> crGetDTOs = null;
+            using (IContext searchContext = _contextFactory.Create())
             {
-                var consistentReadingDTOs = _consistentReadingRepository.GetByStatus(Status.New, context);
+                crGetDTOs = _consistentReadingRepository.GetByStatus(
+                    Status.New, searchContext);
+            }
 
-                if (consistentReadingDTOs.Count == 0)
-                {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
-                    return;
-                }
+            if (crGetDTOs.Count == 0)
+            {
+                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
+                return;
+            }
 
-                var engine = new FileHelperEngine<ConsistentReadingExportDTO>();
+            var records = _consistentReadingExportDTOFactory
+                .CreateExportDTOList(crGetDTOs);
 
-                foreach (var consistentReadingDTO in consistentReadingDTOs)
-                {
-                    var consistentReadingUpdate = new ConsistentReadingUpdateDTO
-                        (consistentReadingDTO.ConsistentReadingId, Status.Success, new List<string>());
-                    _consistentReadingRepository.Update(consistentReadingUpdate, context);
-                }
+            var exportFile = CreateExportFile(records);
 
-                IList<ConsistentReadingExportDTO> records = consistentReadingDTOs
-                    .Select(x => new ConsistentReadingExportDTO
-                    (x.SensorId, x.SensorTypeName, x.Unit,
-                     x.Value, x.Province, x.City, x.IsHistoric,
-                     x.DaysOfMeasure, x.UtmNord, x.UtmEst,
-                     x.Latitude, x.Longitude)).ToList();
+            var insertDTO = new OutputFileInsertDTO(
+                exportFile.Name, exportFile.Bytes, 
+                exportFile.Extension, Status.New);
 
-                string fileHeader = string.Join(",", typeof(ConsistentReading)
-                    .GetFields().Select(f => f.Name));
+            using (IContext context = _contextFactory.Create())
+            { InsertOutputFile(crGetDTOs, insertDTO, context); }
+        }
 
-                var csvFile = fileHeader + Environment.NewLine + engine.WriteString(records);
-                var csvBytes = Encoding.UTF8.GetBytes(csvFile);
-                var fileName = $"Reading{SystemTime.Now():dd_MM_yyyy}";
-                var fileExtension = ".csv";
+        private OutputFileInsertDTO CreateExportFile(IList<ConsistentReadingExportDTO> records)
+        {
+            var engine = new FileHelperEngine<ConsistentReadingExportDTO>();
 
-                var outputFileInsert = new OutputFileInsertDTO(fileName, csvBytes, fileExtension, Status.Success);
+            string fileHeader = string.Join(",", typeof(ConsistentReading)
+                                      .GetFields().Select(f => f.Name));
+
+            var csvFile = fileHeader + Environment.NewLine + engine.WriteString(records);
+            var csvBytes = Encoding.UTF8.GetBytes(csvFile);
+            var fileName = $"Reading{SystemTime.Now():dd_MM_yyyy}";
+            var fileExtension = ".csv";
+
+            return new OutputFileInsertDTO(fileName, csvBytes, fileExtension, Status.Success);
+        }
+
+        private void InsertOutputFile(IList<ConsistentReadingGetDTO> crGetDTOs, OutputFileInsertDTO insertDTO, IContext context)
+        {
+            try { _outputFileRepository.Insert(insertDTO, context); }
+            catch (Exception ex)
+            {
+                _logger.LogError(LogMessages.ERRORWHENINSERTINGFILE, 
+                                 insertDTO.Name, ex.Message);
+                return;
+            }
+
+            foreach (var crGetDTO in crGetDTOs)
+                UpdateConsistentReading(crGetDTO, context);
+        }
+
+        private void UpdateConsistentReading(ConsistentReadingGetDTO getDTO, IContext context)
+        {
+            var crUpdateDTO = new ConsistentReadingUpdateDTO
+                (getDTO.ConsistentReadingId, Status.New, 
+                 new List<string>());
+
+            try 
+            { 
+                _consistentReadingRepository.Update(
+                    crUpdateDTO, context); 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
+                                 "Consistent Reading", ex.Message);
             }
         }
     }

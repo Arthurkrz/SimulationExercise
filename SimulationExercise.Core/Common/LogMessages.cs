@@ -7,6 +7,10 @@
         public const string NOREADINGSFOUND = "No readings found in file!";
         public const string NONEWOBJECTSFOUND = "No new {object}s have been found!";
 
+        public const string ERRORWHENINSERTINGFILE = "Exception thrown when inserting file {filename}: {exception}";
+        public const string ERRORWHENMOVINGTOBACKUP = "Exception thrown when moving file {filename} to backup directory: {exception}";
+        public const string ERRORWHENINSERTINGOBJECT = "Exception thrown when inserting object {objectname}: {exception}";
+        public const string ERRORWHENUPDATINGOBJECT = "Exception thrown when updating object {objectname}: {exception}";
         public const string CONTINUETONEXTFILE = "Continuing to next file (if exists)...\n";
 
         public const string EXPORTAVERAGEPROVINCEDATA = "Exporting average province data...";

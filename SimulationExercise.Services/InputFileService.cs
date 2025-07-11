@@ -44,8 +44,15 @@ namespace SimulationExercise.Services
 
                 using (IContext context = _contextFactory.Create())
                 {
-                    _inputFileRepository.Insert(inputFileInsertDTO, context);
-                    SendToBackup(file);
+                    try { _inputFileRepository.Insert(inputFileInsertDTO, context); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(LogMessages.ERRORWHENINSERTINGFILE, fileName, ex.Message);
+                        _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
+                        continue;
+                    }
+
+                    SendToBackup(file, fileName);
                 };
             }
         }
@@ -62,10 +69,15 @@ namespace SimulationExercise.Services
             return files;
         }
 
-        private void SendToBackup(string filePath)
+        private void SendToBackup(string filePath, string fileName)
         {
             string backupPath = Path.Combine(filePath, "BACKUP");
-            File.Move(filePath, backupPath);
+            try { File.Move(filePath, backupPath); }
+            catch (Exception ex) 
+            { 
+                _logger.LogError(LogMessages.ERRORWHENMOVINGTOBACKUP, 
+                                 fileName, ex.Message); 
+            }
         }
     }
 }
