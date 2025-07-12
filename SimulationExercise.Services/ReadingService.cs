@@ -34,55 +34,61 @@ namespace SimulationExercise.Services
 
         public void ProcessInputFiles()
         {
-            using (IContext context = _contextFactory.Create())
+            IList<InputFileGetDTO> inputFiles = null;
+
+            using (IContext searchContext = _contextFactory.Create())
             {
-                IEnumerable<ReadingInsertDTO> insertDTOs = null;
-                var inputFiles = _inputFileRepository.GetByStatus(Status.New, context);
+                inputFiles = _inputFileRepository.GetByStatus(Status.New, searchContext);
+            }
 
-                if (inputFiles.Count == 0)
-                {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Input File");
-                    return;
-                }
+            if (inputFiles.Count == 0)
+            {
+                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Input File");
+                return;
+            }
 
-                foreach (var inputFile in inputFiles)
+            foreach (var inputFile in inputFiles)
+            {
+                using (IContext context = _contextFactory.Create())
                 {
-                    using (var stream = new MemoryStream(inputFile.Bytes))
+                    try
                     {
-                        ImportResult importResult = _readingImportService.Import(stream);
+                        ImportResult importResult = null;
+                        using (var stream = new MemoryStream(inputFile.Bytes))
+                        { importResult = _readingImportService.Import(stream); }
 
                         if (importResult.Readings.Any())
-                            insertDTOs = _readingInsertDTOFactory.CreateReadingInsertDTOList
-                                (importResult.Readings, inputFile.InputFileId);
+                        {
+                            var insertDTOs = _readingInsertDTOFactory.CreateReadingInsertDTOList
+                                                   (importResult.Readings, inputFile.InputFileId);
+
+                            foreach (var insertDTO in insertDTOs)
+                            {
+                                _readingRepository.Insert(insertDTO, context);
+                            }
+                        }
 
                         if (importResult.Errors.Count > 0)
                         {
                             foreach (var error in importResult.Errors)
                                 _logger.LogError(error);
-                            
+
                             var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
                                                                          Status.Error,
                                                                          importResult.Errors);
 
-                            try { _inputFileRepository.Update(inputFileUpdate, context); }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
-                                                 "Input File", ex.Message);
-
-                                _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                            }
+                            _inputFileRepository.Update(inputFileUpdate, context);
                         }
-                    }
-                }
 
-                foreach (var insertDTO in insertDTOs)
-                {
-                    try { _readingRepository.Insert(insertDTO, context); }
+                        context.Commit();
+                    }
                     catch (Exception ex)
                     {
-                        _logger.LogError(LogMessages.ERRORWHENINSERTINGOBJECT, 
-                                         "Reading", ex.Message);
+                        _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
+                    }
+                    finally
+                    {
+                        context.Dispose();
                     }
                 }
             }

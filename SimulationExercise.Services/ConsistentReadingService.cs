@@ -34,8 +34,7 @@ namespace SimulationExercise.Services
 
         public void ProcessReadings()
         {
-            IList<ConsistentReadingInsertDTO> insertDTOs = null;
-            IList<ReadingGetDTO> readingDTOs = new List<ReadingGetDTO>();  
+            IList<ReadingGetDTO> readingDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
             {
                 readingDTOs = _readingRepository.GetByStatus(Status.New, searchContext);
@@ -49,75 +48,51 @@ namespace SimulationExercise.Services
 
             foreach (var readingDTO in readingDTOs)
             {
-                var reading = new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
-                                            readingDTO.Unit, readingDTO.StationId,
-                                            readingDTO.StationName, readingDTO.Value,
-                                            readingDTO.Province, readingDTO.City,
-                                            readingDTO.IsHistoric, readingDTO.StartDate,
-                                            readingDTO.StopDate, readingDTO.UtmNord,
-                                            readingDTO.UtmEst, readingDTO.Latitude,
-                                            readingDTO.Longitude);
-
-                var creationResult = _consistentReadingFactory
-                    .CreateConsistentReading(reading);
-
                 using (IContext context = _contextFactory.Create())
                 {
-                    if (!creationResult.Success)
+                    try
                     {
-                        var updateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                                             Status.Error,
-                                                             creationResult.Errors);
+                        var reading = new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
+                                                  readingDTO.Unit, readingDTO.StationId,
+                                                  readingDTO.StationName, readingDTO.Value,
+                                                  readingDTO.Province, readingDTO.City,
+                                                  readingDTO.IsHistoric, readingDTO.StartDate,
+                                                  readingDTO.StopDate, readingDTO.UtmNord,
+                                                  readingDTO.UtmEst, readingDTO.Latitude,
+                                                  readingDTO.Longitude);
 
-                        try { _readingRepository.Update(updateDTO, context); }
-                        catch (Exception ex)
+                        var creationResult = _consistentReadingFactory
+                            .CreateConsistentReading(reading);
+
+                        if (creationResult.Success)
                         {
-                            _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT,
-                                             "Consistent Reading", ex.Message);
+                            var insertDTO = _consistentReadingInsertDTOFactory.
+                            CreateConsistentReadingInsertDTO(creationResult.Value,
+                                                             readingDTO.ReadingId);
+
+                            var successDTO = new ReadingUpdateDTO(readingDTO.ReadingId, Status.Success);
+
+                            _consistentReadingRepository.Insert(insertDTO, context);
+                            _readingRepository.Update(successDTO, context);
                         }
+                        else
+                        {
+                            var updateErrorDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
+                                                                        Status.Error,
+                                                                        creationResult.Errors);
 
-                        context.Commit();
-                        continue;
+                            _readingRepository.Update(updateErrorDTO, context);
+                        }
                     }
-
-                    var insertDTO = _consistentReadingInsertDTOFactory.
-                    CreateConsistentReadingInsertDTO(creationResult.Value,
-                                                     readingDTO.ReadingId);
-                    insertDTOs.Add(insertDTO);
-
-                    var successUpdateDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
-                                                    Status.Success, new List<string>());
-
-                    try { _readingRepository.Update(successUpdateDTO, context); }
                     catch (Exception ex)
                     {
-                        _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
-                                         "Consistent Reading", ex.Message);
+                        _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
                     }
-
-                    context.Commit();
-                }
-            }
-
-            using (IContext insertContext = _contextFactory.Create())
-            {
-                if (insertDTOs.Count > 0)
-                {
-                    foreach (var insertDTO in insertDTOs)
+                    finally
                     {
-                        try 
-                        { 
-                            _consistentReadingRepository.Insert(insertDTO, insertContext); 
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(LogMessages.ERRORWHENINSERTINGOBJECT, 
-                                             "Consistent Reading", ex.Message);
-                        }
+                        context.Dispose();
                     }
                 }
-
-                insertContext.Commit();
             }
         }
     }

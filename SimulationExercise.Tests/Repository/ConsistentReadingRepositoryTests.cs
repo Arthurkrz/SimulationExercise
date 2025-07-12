@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using SimulationExercise.Architecture;
-using SimulationExercise.Architecture.Repository;
+using SimulationExercise.Infrastructure;
+using SimulationExercise.Infrastructure.Repository;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
@@ -60,6 +60,7 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act
                 _sut.Insert(dto, context);
+                context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
@@ -109,12 +110,13 @@ namespace SimulationExercise.Tests.Repository
                 "City", true, 1, 1, 1, "Latitude", "Longitude", Status.Success);
 
             ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
-                (1, Status.Success, new List<string>());
+                (1, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act
                 _sut.Update(updateDTO, context);
+                context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
@@ -154,6 +156,7 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act
                 _sut.Update(updateDTO, context);
+                context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())

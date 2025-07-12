@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SimulationExercise.Architecture;
+using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;

@@ -24,36 +24,40 @@ namespace SimulationExercise.Services
 
         public void ProcessFiles(string inDirectoryPath)
         {
-            var files = LocateFiles(inDirectoryPath);
-
-            foreach (var file in files)
+            using (IContext context = _contextFactory.Create())
             {
-                var fileName = Path.GetFileNameWithoutExtension(file);
-                var fileExtension = Path.GetExtension(file);
-                var fileBytes = File.ReadAllBytes(file);
-
-                if (fileBytes.Length == 0)
+                try
                 {
-                    _logger.LogError(LogMessages.EMPTYFILE);
-                    _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                    continue;
-                }
+                    var files = LocateFiles(inDirectoryPath);
 
-                var inputFileInsertDTO = new InputFileInsertDTO
-                    (fileName, fileBytes, fileExtension, Status.New);
-
-                using (IContext context = _contextFactory.Create())
-                {
-                    try { _inputFileRepository.Insert(inputFileInsertDTO, context); }
-                    catch (Exception ex)
+                    foreach (var file in files)
                     {
-                        _logger.LogError(LogMessages.ERRORWHENINSERTINGFILE, fileName, ex.Message);
-                        _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
-                        continue;
-                    }
+                        var fileName = Path.GetFileNameWithoutExtension(file);
+                        var fileExtension = Path.GetExtension(file);
+                        var fileBytes = File.ReadAllBytes(file);
 
-                    SendToBackup(file, fileName);
-                };
+                        if (fileBytes.Length == 0)
+                        {
+                            _logger.LogError(LogMessages.EMPTYFILE);
+                            _logger.LogInformation(LogMessages.CONTINUETONEXTFILE);
+                            continue;
+                        }
+
+                        var inputFileInsertDTO = new InputFileInsertDTO
+                            (fileName, fileBytes, fileExtension, Status.New);
+
+                        _inputFileRepository.Insert(inputFileInsertDTO, context);
+                        SendToBackup(file, fileName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
+                }
+                finally
+                {
+                    context.Dispose();
+                }
             }
         }
 
@@ -72,12 +76,7 @@ namespace SimulationExercise.Services
         private void SendToBackup(string filePath, string fileName)
         {
             string backupPath = Path.Combine(filePath, "BACKUP");
-            try { File.Move(filePath, backupPath); }
-            catch (Exception ex) 
-            { 
-                _logger.LogError(LogMessages.ERRORWHENMOVINGTOBACKUP, 
-                                 fileName, ex.Message); 
-            }
+            File.Move(filePath, backupPath);
         }
     }
 }

@@ -34,31 +34,36 @@ namespace SimulationExercise.Services
 
         public void ProcessConsistentReadings()
         {
-            var engine = new FileHelperEngine<OutputFileService>();
-            IList<ConsistentReadingGetDTO> crGetDTOs = null;
-            using (IContext searchContext = _contextFactory.Create())
-            {
-                crGetDTOs = _consistentReadingRepository.GetByStatus(
-                    Status.New, searchContext);
-            }
-
-            if (crGetDTOs.Count == 0)
-            {
-                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
-                return;
-            }
-
-            var records = _consistentReadingExportDTOFactory
-                .CreateExportDTOList(crGetDTOs);
-
-            var exportFile = CreateExportFile(records);
-
-            var insertDTO = new OutputFileInsertDTO(
-                exportFile.Name, exportFile.Bytes, 
-                exportFile.Extension, Status.New);
-
             using (IContext context = _contextFactory.Create())
-            { InsertOutputFile(crGetDTOs, insertDTO, context); }
+            {
+                try
+                {
+                    IList<ConsistentReadingGetDTO> crGetDTOs = null;
+                    crGetDTOs = _consistentReadingRepository.GetByStatus(Status.New, context);
+
+                    if (crGetDTOs.Count == 0)
+                    {
+                        _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
+                        return;
+                    }
+
+                    var records = _consistentReadingExportDTOFactory
+                                    .CreateExportDTOList(crGetDTOs);
+
+                    var exportFile = CreateExportFile(records);
+
+                    InsertOutputFile(crGetDTOs, exportFile, context);
+                    context.Commit();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
+                }
+                finally
+                {
+                    context.Dispose();
+                }
+            }
         }
 
         private OutputFileInsertDTO CreateExportFile(IList<ConsistentReadingExportDTO> records)
@@ -78,33 +83,13 @@ namespace SimulationExercise.Services
 
         private void InsertOutputFile(IList<ConsistentReadingGetDTO> crGetDTOs, OutputFileInsertDTO insertDTO, IContext context)
         {
-            try { _outputFileRepository.Insert(insertDTO, context); }
-            catch (Exception ex)
-            {
-                _logger.LogError(LogMessages.ERRORWHENINSERTINGFILE, 
-                                 insertDTO.Name, ex.Message);
-                return;
-            }
-
+            _outputFileRepository.Insert(insertDTO, context);
             foreach (var crGetDTO in crGetDTOs)
-                UpdateConsistentReading(crGetDTO, context);
-        }
-
-        private void UpdateConsistentReading(ConsistentReadingGetDTO getDTO, IContext context)
-        {
-            var crUpdateDTO = new ConsistentReadingUpdateDTO
-                (getDTO.ConsistentReadingId, Status.New, 
-                 new List<string>());
-
-            try 
-            { 
-                _consistentReadingRepository.Update(
-                    crUpdateDTO, context); 
-            }
-            catch (Exception ex)
             {
-                _logger.LogError(LogMessages.ERRORWHENUPDATINGOBJECT, 
-                                 "Consistent Reading", ex.Message);
+                var crUpdateDTO = new ConsistentReadingUpdateDTO
+                (crGetDTO.ConsistentReadingId, Status.Success);
+
+                _consistentReadingRepository.Update(crUpdateDTO, context);
             }
         }
     }

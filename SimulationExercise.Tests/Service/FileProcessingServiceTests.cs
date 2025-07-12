@@ -169,7 +169,7 @@ namespace SimulationExercise.Tests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No readings have been imported!")),
+                                                        .Contains("No readings have been imported from file {0}!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);

@@ -1,8 +1,9 @@
-﻿using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.DTOS;
 
 namespace SimulationExercise.Services.Factories
 {
-    public class ConsistentReadingExportDTOFactory
+    public class ConsistentReadingExportDTOFactory : IConsistentReadingExportDTOFactory
     {
         public IList<ConsistentReadingExportDTO> CreateExportDTOList(IList<ConsistentReadingGetDTO> crGetDTOs)
         {

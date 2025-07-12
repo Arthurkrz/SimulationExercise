@@ -3,7 +3,7 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
-namespace SimulationExercise.Architecture.Repository
+namespace SimulationExercise.Infrastructure.Repository
 {
     public class OutputFileRepository : IOutputFileRepository
     {

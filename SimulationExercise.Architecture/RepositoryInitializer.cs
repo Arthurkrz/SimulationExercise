@@ -1,6 +1,6 @@
 ﻿using SimulationExercise.Core.Contracts.Repository;
 
-namespace SimulationExercise.Architecture
+namespace SimulationExercise.Infrastructure
 {
     public class RepositoryInitializer : IRepositoryInitializer
     {

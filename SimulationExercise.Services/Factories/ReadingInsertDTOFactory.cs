@@ -12,12 +12,20 @@ namespace SimulationExercise.Services.Factories
             List<ReadingInsertDTO> readingInsertDTOs = new List<ReadingInsertDTO>();
 
             foreach (var reading in readings)
+            {
+                DateTime? stopDate = reading.StopDate;
+
+                if (reading.StopDate == null)
+                    stopDate = DateTime.Now.Date;
+
                 readingInsertDTOs.Add(new ReadingInsertDTO(
-                                        inputFileId, reading.SensorId, reading.SensorTypeName,
-                                        reading.Unit, reading.StationId, reading.StationName, 
-                                        reading.Value, reading.Province, reading.City, reading.IsHistoric, 
-                                        reading.StartDate, reading.StopDate, reading.UtmNord, 
-                                        reading.UtmEst, reading.Latitude, reading.Longitude, Status.Success));
+                    inputFileId, reading.SensorId, reading.SensorTypeName,
+                    reading.Unit, reading.StationId, reading.StationName,
+                    reading.Value, reading.Province, reading.City, 
+                    reading.IsHistoric, reading.StartDate, stopDate, 
+                    reading.UtmNord, reading.UtmEst, reading.Latitude, 
+                    reading.Longitude, Status.New));
+            }
 
             return readingInsertDTOs;
         }

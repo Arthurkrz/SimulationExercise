@@ -24,6 +24,7 @@ namespace SimulationExercise.Tests.Service
 
         public OutputFileServiceTests()
         {
+            _contextFactoryMock = new Mock<IContextFactory>();
             _consistentReadingRepositoryMock = new Mock<IConsistentReadingRepository>();
             _outputFileRepositoryMock = new Mock<IOutputFileRepository>();
             _consistentReadingExportDTOFactoryMock = new Mock<IConsistentReadingExportDTOFactory>();
@@ -34,8 +35,10 @@ namespace SimulationExercise.Tests.Service
 
             serviceCollection.AddSingleton(_contextFactoryMock.Object);
             serviceCollection.AddSingleton(_consistentReadingRepositoryMock);
+            serviceCollection.AddSingleton(_outputFileRepositoryMock.Object);
             serviceCollection.AddSingleton(_consistentReadingExportDTOFactoryMock);
             serviceCollection.AddSingleton(_loggerMock.Object);
+            serviceCollection.AddSingleton(_testRepositoryCleanup);
 
             _sut = new OutputFileService
             (

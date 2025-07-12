@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Architecture.csproj" />
+    <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Infrastructure.csproj" />
     <ProjectReference Include="..\SimulationExercise.Core\SimulationExercise.Core.csproj" />
     <ProjectReference Include="..\SimulationExercise.Services\SimulationExercise.Services.csproj" />
   </ItemGroup>
