@@ -48,11 +48,15 @@ namespace SimulationExercise.Tests.Service
                 _consistentReadingExportDTOFactoryMock.Object,
                 _loggerMock.Object
             );
+
+            var contextMock = new Mock<IContext>();
+            _contextFactoryMock.Setup(x => x.Create()).Returns(contextMock.Object);
         }
 
         [Fact]
         public void ProcessConsistentReadings_ShouldProcessConsistentReadings()
         {
+            // Arrange
             _testRepositoryCleanup.Cleanup();
 
             _consistentReadingRepositoryMock.Setup(x => x.GetByStatus(

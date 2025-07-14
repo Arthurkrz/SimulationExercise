@@ -51,6 +51,9 @@ namespace SimulationExercise.Tests.Service
                 _readingInsertDTOFactoryMock.Object,
                 _loggerMock.Object
             );
+
+            var contextMock = new Mock<IContext>();
+            _contextFactoryMock.Setup(x => x.Create()).Returns(contextMock.Object);
         }
 
         [Fact]
@@ -113,6 +116,8 @@ namespace SimulationExercise.Tests.Service
             // Arrange
             var emptyImportResult = new ImportResult(new List<Reading>(), new List<string> { "Error" });
 
+            _readingRepositoryMock.Setup(x => x.GetByStatus(It.IsAny<Status>(), It.IsAny<IContext>())).Returns(new List<ReadingGetDTO>());
+
             _readingImportServiceMock.Setup(x => x.Import(It.IsAny<Stream>()))
                                      .Returns(emptyImportResult);
 
@@ -137,7 +142,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessInputFiles_ShouldLogError_WhenFailToÚpdate()
+        public void ProcessInputFiles_ShouldLogError_WhenFailToUpdate()
         {
 
         }

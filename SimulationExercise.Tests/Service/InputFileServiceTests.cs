@@ -44,6 +44,9 @@ namespace SimulationExercise.Tests.Service
 
             _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
             _inDirectoryPath = Path.Combine(_basePath, "IN");
+
+            var contextMock = new Mock<IContext>();
+            _contextFactoryMock.Setup(x => x.Create()).Returns(contextMock.Object);
         }
 
         [Fact]

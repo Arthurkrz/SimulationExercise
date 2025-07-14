@@ -37,9 +37,7 @@ namespace SimulationExercise.Services
             IList<InputFileGetDTO> inputFiles = null;
 
             using (IContext searchContext = _contextFactory.Create())
-            {
                 inputFiles = _inputFileRepository.GetByStatus(Status.New, searchContext);
-            }
 
             if (inputFiles.Count == 0)
             {
@@ -54,8 +52,28 @@ namespace SimulationExercise.Services
                     try
                     {
                         ImportResult importResult = null;
+
                         using (var stream = new MemoryStream(inputFile.Bytes))
-                        { importResult = _readingImportService.Import(stream); }
+                            importResult = _readingImportService.Import(stream);
+
+                        if (!importResult.Success)
+                        {
+                            foreach (var error in importResult.Errors)
+                                _logger.LogError(error);
+
+                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
+                                                                         Status.Error,
+                                                                         importResult.Errors);
+
+                            _inputFileRepository.Update(inputFileUpdate, context);
+                        }
+                        else
+                        {
+                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
+                                                                         Status.Success);
+
+                            _inputFileRepository.Update(inputFileUpdate, context);
+                        }
 
                         if (importResult.Readings.Any())
                         {
@@ -66,18 +84,6 @@ namespace SimulationExercise.Services
                             {
                                 _readingRepository.Insert(insertDTO, context);
                             }
-                        }
-
-                        if (importResult.Errors.Count > 0)
-                        {
-                            foreach (var error in importResult.Errors)
-                                _logger.LogError(error);
-
-                            var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
-                                                                         Status.Error,
-                                                                         importResult.Errors);
-
-                            _inputFileRepository.Update(inputFileUpdate, context);
                         }
 
                         context.Commit();

@@ -28,8 +28,10 @@ namespace SimulationExercise.Services
             {
                 try
                 {
-                    var files = LocateFiles(inDirectoryPath);
+                    if (!Directory.Exists(inDirectoryPath))
+                        Directory.CreateDirectory(inDirectoryPath);
 
+                    var files = LocateFiles(inDirectoryPath);
                     foreach (var file in files)
                     {
                         var fileName = Path.GetFileNameWithoutExtension(file);
@@ -47,8 +49,10 @@ namespace SimulationExercise.Services
                             (fileName, fileBytes, fileExtension, Status.New);
 
                         _inputFileRepository.Insert(inputFileInsertDTO, context);
-                        SendToBackup(file, fileName);
+                        SendToBackup(file, inDirectoryPath);
                     }
+
+                    context.Commit();
                 }
                 catch (Exception ex)
                 {
@@ -63,20 +67,22 @@ namespace SimulationExercise.Services
 
         private string[] LocateFiles(string inDirectoryPath)
         {
-            if (!Directory.Exists(inDirectoryPath))
-                Directory.CreateDirectory(inDirectoryPath);
-
-            var files = Directory.GetFiles(inDirectoryPath);
+            var files = Directory.GetFiles(inDirectoryPath, "*.csv");
 
             if (files.Length == 0) throw new ArgumentNullException
                                      (LogMessages.NOCSVFILESFOUND);
             return files;
         }
 
-        private void SendToBackup(string filePath, string fileName)
+        private void SendToBackup(string file, string inDirectoryPath)
         {
-            string backupPath = Path.Combine(filePath, "BACKUP");
-            File.Move(filePath, backupPath);
+            string backupDirectory = Path.Combine(inDirectoryPath, "BACKUP");
+
+            if (!Directory.Exists(backupDirectory))
+                Directory.CreateDirectory(backupDirectory);
+
+            string destinationPath = Path.Combine(backupDirectory, Path.GetFileName(file));
+            File.Move(file, destinationPath);
         }
     }
 }

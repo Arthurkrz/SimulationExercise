@@ -49,6 +49,9 @@ namespace SimulationExercise.Tests.Service
                 _consistentReadingRepositoryMock.Object,
                 _loggerMock.Object
             );
+
+            var contextMock = new Mock<IContext>();
+            _contextFactoryMock.Setup(x => x.Create()).Returns(contextMock.Object);
         }
 
         [Fact]
