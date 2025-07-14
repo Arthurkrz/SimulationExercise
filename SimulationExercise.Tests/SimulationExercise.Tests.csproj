@@ -7,6 +7,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RunSettingsFilePath>C:\Users\PC\source\repos\SimulationExercise\SimulationExercise.Tests\bin\Debug\net8.0\fine-code-coverage\coverage-tool-output\SimulationExercise.Tests-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Architecture.csproj" />
+    <ProjectReference Include="..\SimulationExercise.Architecture\SimulationExercise.Infrastructure.csproj" />
     <ProjectReference Include="..\SimulationExercise.Core\SimulationExercise.Core.csproj" />
     <ProjectReference Include="..\SimulationExercise.IOC\SimulationExercise.IOC.csproj" />
     <ProjectReference Include="..\SimulationExercise.Services\SimulationExercise.Services.csproj" />

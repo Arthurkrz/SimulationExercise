@@ -1,13 +1,15 @@
 ﻿using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Core.Entities
+namespace SimulationExercise.Core.DTOS
 {
-    public class ConsistentReading
+    public class ConsistentReadingInsertDTO
     {
-        public ConsistentReading(long sensorId, string sensorTypeName, Unit unit, int value, 
-                                 string province, string city, bool isHistoric, int utmNord,
-                                 int utmEst, string latitude, string longitude)
+        public ConsistentReadingInsertDTO(long readingId, long sensorId, string sensorTypeName, Unit unit, 
+                                          int value, string province, string city, bool isHistoric, 
+                                          int daysOfMeasure, int utmNord, int utmEst, 
+                                          string latitude, string longitude, Status status)
         {
+            ReadingId = readingId;
             SensorId = sensorId;
             SensorTypeName = sensorTypeName;
             Unit = unit;
@@ -15,12 +17,15 @@ namespace SimulationExercise.Core.Entities
             Province = province;
             City = city;
             IsHistoric = isHistoric;
+            DaysOfMeasure = daysOfMeasure;
             UtmNord = utmNord;
             UtmEst = utmEst;
             Latitude = latitude;
             Longitude = longitude;
+            Status = status;
         }
 
+        public long ReadingId { get; }
         public long SensorId { get; set; }
         public string SensorTypeName { get; set; }
         public Unit Unit { get; set; }
@@ -33,5 +38,6 @@ namespace SimulationExercise.Core.Entities
         public int UtmEst { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
+        public Status Status { get; }
     }
 }

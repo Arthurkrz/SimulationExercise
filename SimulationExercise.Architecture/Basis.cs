@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Architecture
+﻿namespace SimulationExercise.Infrastructure
 {
     public class Basis
     {

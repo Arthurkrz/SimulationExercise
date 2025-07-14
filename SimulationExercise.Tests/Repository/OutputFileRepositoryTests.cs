@@ -9,26 +9,26 @@ using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Tests.Repository
 {
-    public class InputFileRepositoryTests
+    public class OutputFileRepositoryTests
     {
         private readonly IContextFactory _contextFactory;
-        private readonly IInputFileRepository _sut;
+        private readonly IOutputFileRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
         private readonly ITestRepositoryCleanup _testRepositoryCleanup;
-        private readonly ITestRepositoryObjectInsertion<InputFileInsertDTO> _testRepositoryObjectInsertion;
+        private readonly ITestRepositoryObjectInsertion<OutputFileInsertDTO> _testRepositoryObjectInsertion;
 
-        private readonly string _tableNameInputFile = "InputFile";
-        private readonly string _tableNameInputFileMessage = "InputFileMessage";
+        private readonly string _tableNameOutputFile = "OutputFile";
+        private readonly string _tableNameOutputFileMessage = "OutputFileMessage";
         private readonly string _connectionString;
 
-        public InputFileRepositoryTests()
+        public OutputFileRepositoryTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
             _testRepositoryCleanup = new TestRepositoryCleanup();
-            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<InputFileInsertDTO>();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<OutputFileInsertDTO>();
 
             _connectionString = config.GetConnectionString("DefaultDatabase");
             _contextFactory = new DapperContextFactory(_connectionString);
@@ -36,7 +36,7 @@ namespace SimulationExercise.Tests.Repository
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
 
-            _sut = new InputFileRepository();
+            _sut = new OutputFileRepository();
         }
 
         [Fact]
@@ -46,13 +46,13 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup.Cleanup();
 
             var currentTime = new DateTime(2025, 05, 12);
-            const string currentUser = "currentUser1";
+            var currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
 
-            var dto = new InputFileInsertDTO("InputFileName1", 
-                                             new byte[] { 1, 2, 3 },
-                                             "ext", Status.New);
+            var dto = new OutputFileInsertDTO("filename1", 
+                                              new byte[] { 1, 2, 3 }, 
+                                              "ext", Status.New);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -67,7 +67,7 @@ namespace SimulationExercise.Tests.Repository
                 IList<dynamic> items = assertContext.Query<dynamic>
                     ($@"SELECT NAME, EXTENSION, BYTES, STATUSID, 
                         CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER 
-                            FROM {_tableNameInputFile};");
+                            FROM {_tableNameOutputFile};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
@@ -75,8 +75,8 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(dto.Extension, retrievedItem.EXTENSION);
                 Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.BYTES));
                 Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
-                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
+                Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
             }
 
@@ -89,13 +89,13 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1, Status.Success);
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
-            InputFileGetDTO expectedReturn = new InputFileGetDTO
-                (1, "InputFileName0", new byte[] { 1, 2, 3 },
+            OutputFileGetDTO expectedReturn = new OutputFileGetDTO
+                (1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
                  "Ext0", Status.Success);
 
-            InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
+            OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
                 (1, Status.Success);
 
             using (IContext context = _contextFactory.Create())
@@ -108,10 +108,12 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.Query<InputFileGetDTO>
-                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;",
-                    new { expectedReturn.InputFileId });
+                var result = assertContext.Query<OutputFileGetDTO>
+                    ($@"SELECT OUTPUTFILEID, NAME, 
+                        BYTES, EXTENSION, STATUSID AS STATUS 
+                            FROM {_tableNameOutputFile} 
+                            WHERE OUTPUTFILEID = @OUTPUTFILEID;",
+                    new { expectedReturn.OutputFileId });
 
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
@@ -128,11 +130,11 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup.Cleanup();
             _testRepositoryObjectInsertion.InsertObjects(1);
 
-            InputFileGetDTO expectedReturn = new InputFileGetDTO
-                (1, "InputFileName0", new byte[] { 1, 2, 3 },
+            OutputFileGetDTO expectedReturn = new OutputFileGetDTO
+                (1, "OutputFileName0", new byte[] { 1, 2, 3 },
                  "Ext0", Status.Error);
 
-            InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
+            OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
                 (1, Status.Error, new List<string> { "Error0" });
 
             using (IContext context = _contextFactory.Create())
@@ -145,18 +147,18 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.Query<InputFileGetDTO>
-                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;", 
-                    new { expectedReturn.InputFileId });
+                var result = assertContext.Query<OutputFileGetDTO>
+                    ($@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
+                        FROM {_tableNameOutputFile} WHERE OUTPUTFILEID = @OUTPUTFILEID;",
+                    new { expectedReturn.OutputFileId });
 
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
-                    ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
-                            FROM INPUTFILE F 
-                            INNER JOIN INPUTFILEMESSAGE M
-                            ON F.INPUTFILEID = M.INPUTFILEID
-                            WHERE F.INPUTFILEID = @INPUTFILEID;", 
-                    new { expectedReturn.InputFileId });
+                    ($@"SELECT M.OUTPUTFILEID, O.STATUSID AS STATUS, M.MESSAGE 
+                            FROM OUTPUTFILE O 
+                            INNER JOIN OUTPUTFILEMESSAGE M 
+                            ON O.OUTPUTFILEID = M.OUTPUTFILEID 
+                            WHERE O.OUTPUTFILEID = @OUTPUTFILEID;",
+                    new { expectedReturn.OutputFileId });
 
                 Assert.Single(result);
                 Assert.Single(messageResult);
@@ -165,7 +167,7 @@ namespace SimulationExercise.Tests.Repository
                 Status status = (Status)(int)message.STATUS;
 
                 result.First().Should().BeEquivalentTo(expectedReturn);
-                Assert.Equal((long)message.INPUTFILEID, updateDTO.InputFileId);
+                Assert.Equal((long)message.OUTPUTFILEID, updateDTO.OutputFileId);
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }

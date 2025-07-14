@@ -19,6 +19,7 @@ namespace SimulationExercise.Tests
         private readonly Mock<IProvinceDataListFactory> _provinceDataListFactoryMock;
         private readonly Mock<IAverageProvinceDataFactory> _averageProvinceDataFactoryMock;
         private readonly Mock<IAverageProvinceDataExportService> _averageProvinceDataExportServiceMock;
+
         private readonly string _basePath;
         private readonly string _inDirectoryPath;
         private readonly string _outDirectoryPath;
@@ -33,7 +34,6 @@ namespace SimulationExercise.Tests
             _averageProvinceDataFactoryMock = new Mock<IAverageProvinceDataFactory>();
             _averageProvinceDataExportServiceMock = new Mock<IAverageProvinceDataExportService>();
 
-
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddSingleton(_loggerMock.Object);
@@ -44,7 +44,8 @@ namespace SimulationExercise.Tests
             serviceCollection.AddSingleton(_averageProvinceDataFactoryMock.Object);
             serviceCollection.AddSingleton(_averageProvinceDataExportServiceMock.Object);
 
-            _sut = new FileProcessingService(
+            _sut = new FileProcessingService
+            (
                 _readingImportServiceMock.Object,
                 _consistentReadingFactoryMock.Object,
                 _provinceDataListFactoryMock.Object,
@@ -134,7 +135,7 @@ namespace SimulationExercise.Tests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No CSV files found in the 'IN' directory.")),
+                                                        .Contains("No CSV files found in the 'IN' directory!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
@@ -168,7 +169,7 @@ namespace SimulationExercise.Tests
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No readings have been imported!")),
+                                                        .Contains("No readings have been imported from file {0}!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);

@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Tests.In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.IOC", "..\SimulationExercise.IOC\SimulationExercise.IOC.csproj", "{06303012-FAB3-490D-8AF3-DD7401AB674B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Architecture", "..\SimulationExercise.Architecture\SimulationExercise.Architecture.csproj", "{86F3E618-EC68-4A90-BDDD-BA2829856A86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulationExercise.Infrastructure", "..\SimulationExercise.Architecture\SimulationExercise.Infrastructure.csproj", "{86F3E618-EC68-4A90-BDDD-BA2829856A86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
