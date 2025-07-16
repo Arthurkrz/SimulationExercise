@@ -76,7 +76,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessFiles_ShouldReturnError_WhenEmptyFile()
+        public void ProcessFiles_ShouldLogError_WhenEmptyFile()
         {
             // Arrange
             DirectoryCleanup();
@@ -107,26 +107,63 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void LocateFiles_ShouldReturnException_WhenNoFilesFound()
+        public void ProcessFiles_ShouldLogError_WhenFailToInsert()
+        {
+            // Arrange
+            DirectoryCleanup();
+            InputFileGenerator(1);
+
+            _inputFileRepositoryMock.Setup(x => x.Insert(
+                It.IsAny<InputFileInsertDTO>(), It.IsAny<IContext>()))
+                .Throws(new Exception("Insert failed"));
+
+            // Act & Assert
+            _sut.ProcessFiles(_inDirectoryPath);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("Unexpected exception was thrown: Insert failed")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public void LocateFiles_ShouldLogError_WhenNoFilesFound()
         {
             // Arrange
             DirectoryCleanup();
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => _sut.ProcessFiles(_inDirectoryPath));
-            Assert.Equal(LogMessages.NOCSVFILESFOUND, exception.Message);
+            _sut.ProcessFiles(_inDirectoryPath);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("Unexpected exception was thrown: Value cannot be null. " +
+                                                                  "(Parameter 'No CSV files found in the 'IN' directory!')")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
         }
 
         [Fact]
-        public void LocateFiles_ShouldCreateDirectory_WhenINDirectoryNotFound()
+        public void ProcessFiles_ShouldCreateDirectory_WhenINDirectoryNotFound()
         {
             // Arrange
-            if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath);
-            var createdDirectoryPath = Path.Combine(_inDirectoryPath, "IN");
+            if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath, true);
 
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => _sut.ProcessFiles(_inDirectoryPath));
-            Assert.NotEmpty(Directory.GetDirectories(createdDirectoryPath));
+            // Act
+            _sut.ProcessFiles(_inDirectoryPath);
+
+            // Assert
+            var directories = Directory.GetDirectories(_basePath);
+            Assert.True(directories.Any(x => x.Contains(_inDirectoryPath)));
         }
 
         private void DirectoryCleanup()

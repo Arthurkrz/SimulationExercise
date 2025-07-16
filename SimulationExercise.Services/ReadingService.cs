@@ -35,7 +35,6 @@ namespace SimulationExercise.Services
         public void ProcessInputFiles()
         {
             IList<InputFileGetDTO> inputFiles = null;
-
             using (IContext searchContext = _contextFactory.Create())
                 inputFiles = _inputFileRepository.GetByStatus(Status.New, searchContext);
 
@@ -81,9 +80,7 @@ namespace SimulationExercise.Services
                                                    (importResult.Readings, inputFile.InputFileId);
 
                             foreach (var insertDTO in insertDTOs)
-                            {
                                 _readingRepository.Insert(insertDTO, context);
-                            }
                         }
 
                         context.Commit();

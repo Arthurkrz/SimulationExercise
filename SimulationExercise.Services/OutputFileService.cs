@@ -52,7 +52,15 @@ namespace SimulationExercise.Services
 
                     var exportFile = CreateExportFile(records);
 
-                    InsertOutputFile(crGetDTOs, exportFile, context);
+                    _outputFileRepository.Insert(exportFile, context);
+                    foreach (var crGetDTO in crGetDTOs)
+                    {
+                        var crUpdateDTO = new ConsistentReadingUpdateDTO
+                        (crGetDTO.ConsistentReadingId, Status.Success);
+
+                        _consistentReadingRepository.Update(crUpdateDTO, context);
+                    }
+
                     context.Commit();
                 }
                 catch (Exception ex)
@@ -79,18 +87,6 @@ namespace SimulationExercise.Services
             var fileExtension = ".csv";
 
             return new OutputFileInsertDTO(fileName, csvBytes, fileExtension, Status.Success);
-        }
-
-        private void InsertOutputFile(IList<ConsistentReadingGetDTO> crGetDTOs, OutputFileInsertDTO insertDTO, IContext context)
-        {
-            _outputFileRepository.Insert(insertDTO, context);
-            foreach (var crGetDTO in crGetDTOs)
-            {
-                var crUpdateDTO = new ConsistentReadingUpdateDTO
-                (crGetDTO.ConsistentReadingId, Status.Success);
-
-                _consistentReadingRepository.Update(crUpdateDTO, context);
-            }
         }
     }
 }
