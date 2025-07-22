@@ -6,7 +6,7 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Repository;
+using SimulationExercise.Tests.Utilities;
 using System.Text;
 
 namespace SimulationExercise.Tests.Service
@@ -17,7 +17,7 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IContextFactory> _contextFactoryMock;
         private readonly Mock<IInputFileRepository> _inputFileRepositoryMock;
         private readonly Mock<ILogger<InputFileService>> _loggerMock;
-        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         private readonly string _basePath;
         private readonly string _inDirectoryPath;

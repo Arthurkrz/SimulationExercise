@@ -7,7 +7,7 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Repository;
+using SimulationExercise.Tests.Utilities;
 
 namespace SimulationExercise.Tests.Service
 {
@@ -20,7 +20,7 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IReadingRepository> _readingRepositoryMock;
         private readonly Mock<IConsistentReadingRepository> _consistentReadingRepositoryMock;
         private readonly Mock<ILogger<ConsistentReadingService>> _loggerMock;
-        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         public ConsistentReadingServiceTests()
         {

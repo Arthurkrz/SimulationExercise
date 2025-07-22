@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Infrastructure;
 
-namespace SimulationExercise.Tests.Repository
+namespace SimulationExercise.Tests.Integration.Utilities
 {
-    public class TestRepositoryCleanup : ITestRepositoryCleanup
+    public class IntegrationTestRepositoryCleanup
     {
         private readonly string _connectionString;
         private readonly IContextFactory _contextFactory;
 
-        public TestRepositoryCleanup()
+        public IntegrationTestRepositoryCleanup()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

@@ -7,6 +7,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RunSettingsFilePath>C:\Users\Arthur K\source\repos\SimulationExercise\SimulationExercise.Tests.Integration\bin\Release\net8.0\fine-code-coverage\coverage-tool-output\SimulationExercise.Tests.Integration-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.test.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

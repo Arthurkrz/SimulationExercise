@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Repository;
+using SimulationExercise.Tests.Utilities;
 using System.Text;
 
 namespace SimulationExercise.Tests.Service
@@ -23,7 +22,7 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IReadingInsertDTOFactory> _readingInsertDTOFactoryMock;
         private readonly Mock<IContext> _contextMock;
         private readonly Mock<ILogger<ReadingService>> _loggerMock;
-        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
+        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         public ReadingServiceTests()
         {

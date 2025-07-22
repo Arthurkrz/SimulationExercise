@@ -7,6 +7,8 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Validators;
 using SimulationExercise.Services;
 using SimulationExercise.Services.Factory;
+using SimulationExercise.Infrastructure;
+using SimulationExercise.Services.Factories;
 
 namespace SimulationExercise.IOC
 {
@@ -18,9 +20,17 @@ namespace SimulationExercise.IOC
             services.AddScoped<IAverageProvinceDataExportService, AverageProvinceDataExportService>();
             services.AddScoped<IAverageProvinceDataFactory, AverageProvinceDataFactory>();
             services.AddScoped<IProvinceDataListFactory, ProvinceDataListFactory>();
+            services.AddScoped<IContextFactory, DapperContextFactory>();
             services.AddScoped<IReadingImportService, ReadingImportService>();
+            services.AddScoped<IReadingInsertDTOFactory, ReadingInsertDTOFactory>();
+            services.AddScoped<IConsistentReadingInsertDTOFactory, ConsistentReadingInsertDTOFactory>();
+            services.AddScoped<IConsistentReadingExportDTOFactory, ConsistentReadingExportDTOFactory>();
             services.AddScoped<IFileProcessingService, FileProcessingService>();
-            services.AddScoped<IFilePersistanceService, FilePersistanceService>(); 
+            services.AddScoped<IFilePersistanceService, FilePersistanceService>();
+            services.AddScoped<IInputFileService, InputFileService>();
+            services.AddScoped<IReadingService, ReadingService>();
+            services.AddScoped<IConsistentReadingService, ConsistentReadingService>();
+            services.AddScoped<IOutputFileService, OutputFileService>();
         }
 
         public static void InjectRepositories(this IServiceCollection services)

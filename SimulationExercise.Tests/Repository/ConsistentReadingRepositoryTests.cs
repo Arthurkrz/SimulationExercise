@@ -6,6 +6,7 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
+using SimulationExercise.Tests.Utilities;
 
 namespace SimulationExercise.Tests.Repository
 {
@@ -14,8 +15,8 @@ namespace SimulationExercise.Tests.Repository
         private readonly IContextFactory _contextFactory;
         private readonly IConsistentReadingRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
-        private readonly ITestRepositoryCleanup _testRepositoryCleanup;
-        private readonly ITestRepositoryObjectInsertion<ConsistentReadingInsertDTO> _testRepositoryObjectInsertion;
+        private readonly TestRepositoryCleanup _testRepositoryCleanup;
+        private readonly TestRepositoryObjectInsertion<ConsistentReadingInsertDTO> _testRepositoryObjectInsertion;
 
         private readonly string _tableNameConsistentReading = "ConsistentReading";
         private readonly string _tableNameConsistentReadingMessage = "ConsistentReadingMessage";
