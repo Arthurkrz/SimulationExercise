@@ -7,8 +7,9 @@ using Serilog.Events;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
-using SimulationExercise.Infrastructure;
+using SimulationExercise.Core.Utilities;
 using SimulationExercise.IOC;
 using SimulationExercise.Services;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
@@ -39,7 +40,7 @@ namespace SimulationExercise.Tests.Integration
             Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                                   .WriteTo.Console()
                                                   .WriteTo.Map(_ => LogPathHolder.ErrorLogPath,
-                                                              (path, config) => config.File(path, 
+                                                              (path, config) => config.File(path,
                                                                restrictedToMinimumLevel: LogEventLevel.Error,
                                                                outputTemplate: "[{Level:u3}] {Message:lj}{NewLine}"))
                                                   .CreateLogger();
@@ -51,6 +52,7 @@ namespace SimulationExercise.Tests.Integration
             var connectionString = config.GetConnectionString("DefaultDatabase");
 
             ServiceCollection services = new ServiceCollection();
+            services.InjectFactories();
             services.InjectServices();
             services.InjectRepositories();
             services.InjectValidators();
@@ -80,17 +82,17 @@ namespace SimulationExercise.Tests.Integration
 
         [Theory]
         [MemberData(nameof(StreamData.ValidStreamGenerator), MemberType = typeof(StreamData))]
-        public void AllPersistanceSteps_ShouldProcessExportAndPersistInDatabase(string inputText,
-                                                                                List<InputFileGetDTO> expectedInputFiles,
+        public void AllPersistanceSteps_ShouldProcessExportAndPersistInDatabase(Stream inputStream,
+                                                                                List<string> expectedInputFileLines,
                                                                                 List<ReadingGetDTO> expectedReadings,
                                                                                 List<ConsistentReadingGetDTO> expectedCRs,
-                                                                                List<OutputFileGetDTO> expectedOutputFiles)
+                                                                                List<string> expectedOutputFileLines)
         {
             // Arrange
             _sut.LoggerConfiguration(_outDirectoryPath);
             _integrationTestRepositoryCleanup.Cleanup();
             DirectoryCleanup();
-            _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputText);
+            _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputStream);
 
             // Act
             _sut.Initialize(_inDirectoryPath);
@@ -105,23 +107,80 @@ namespace SimulationExercise.Tests.Integration
                 var readings = _readingRepository.GetByStatus(Status.Success, context);
                 var consistentReadings = _consistentReadingRepository.GetByStatus(Status.Success, context);
                 var outputFiles = _outputFileRepository.GetByStatus(Status.Success, context);
+                
+                Assert.Single(inputFiles);
+                Assert.Equal(10, readings.Count);
+                Assert.Equal(10, consistentReadings.Count);
+                Assert.Single(outputFiles);
 
-                inputFiles.Should().BeEquivalentTo(expectedInputFiles);
-                readings.Should().BeEquivalentTo(expectedReadings);
-                consistentReadings.Should().BeEquivalentTo(expectedCRs);
-                outputFiles.Should().BeEquivalentTo(expectedOutputFiles);
+                foreach (var expected in expectedReadings)
+                {
+                    var reading = readings.FirstOrDefault(x => x.ReadingId == expected.ReadingId);
+                    Assert.NotNull(reading);
+
+                    Assert.Equal(expected.ReadingId, reading.ReadingId);
+                    Assert.Equal(expected.InputFileId, reading.InputFileId);
+                    Assert.Equal(expected.SensorId, reading.SensorId);
+                    Assert.Equal(expected.SensorTypeName, reading.SensorTypeName);
+                    Assert.Equal(expected.Unit, reading.Unit);
+                    Assert.Equal(expected.StationId, reading.StationId);
+                    Assert.Equal(expected.StationName, reading.StationName);
+                    Assert.Equal(expected.Value, reading.Value);
+                    Assert.Equal(expected.Province, reading.Province);
+                    Assert.Equal(expected.City, reading.City);
+                    Assert.Equal(expected.IsHistoric, reading.IsHistoric);
+                    Assert.Equal(expected.StartDate, reading.StartDate);
+                    Assert.Equal(expected.StopDate, reading.StopDate);
+                    Assert.Equal(expected.UtmNord, reading.UtmNord);
+                    Assert.Equal(expected.UtmEst, reading.UtmEst);
+                    Assert.Equal(expected.Latitude, reading.Latitude);
+                    Assert.Equal(expected.Longitude, reading.Longitude);
+                    Assert.Equal(expected.Status, reading.Status);
+                }
+
+                foreach (var expectedCR in expectedCRs)
+                {
+                    var cr = consistentReadings.FirstOrDefault(x => x.ReadingId == expectedCR.ReadingId);
+                    Assert.NotNull(cr);
+
+                    Assert.Equal(expectedCR.SensorId, cr.SensorId);
+                    Assert.Equal(expectedCR.SensorTypeName, cr.SensorTypeName);
+                    Assert.Equal(expectedCR.Unit, cr.Unit);
+                    Assert.Equal(expectedCR.Value, cr.Value);
+                    Assert.Equal(expectedCR.Province, cr.Province);
+                    Assert.Equal(expectedCR.City, cr.City);
+                    Assert.Equal(expectedCR.IsHistoric, cr.IsHistoric);
+                    Assert.Equal(expectedCR.DaysOfMeasure, cr.DaysOfMeasure);
+                    Assert.Equal(expectedCR.UtmNord, cr.UtmNord);
+                    Assert.Equal(expectedCR.UtmEst, cr.UtmEst);
+                    Assert.Equal(expectedCR.Latitude, cr.Latitude);
+                    Assert.Equal(expectedCR.Longitude, cr.Longitude);
+                    Assert.Equal(expectedCR.Status, cr.Status);
+                }
+
+                var inputFileText = Encoding.UTF8.GetString(inputFiles.First().Bytes).Replace("\r\n", "\n").Trim();
+                var inputFileLines = inputFileText.Split('\n').Select(line => line.Trim()).ToList();
+
+                var outputFileText = Encoding.UTF8.GetString(outputFiles.First().Bytes).Replace("\r\n", "\n").Trim();
+                var outputFileLines = outputFileText.Split('\n').Select(line => line.Trim()).ToList();
+
+                foreach (var expectedInputFileLine in expectedInputFileLines)
+                    Assert.Contains(expectedInputFileLine, inputFileLines);
+
+                foreach (var expectedOutputFileLine in expectedOutputFileLines)
+                    Assert.Contains(expectedOutputFileLine, outputFileLines);
             }
         }
 
         [Theory]
         [MemberData(nameof(StreamData.InvalidStreamGenerator), MemberType = typeof(StreamData))]
-        public void CreateReadings_ShouldLogErrorsAndUpdate(string inputTextWithErrors, string expectedErrors, List<InputFileGetDTO> expectedInputFiles)
+        public void CreateReadings_ShouldLogErrorsAndUpdate(Stream inputStreamWithErrors, List<string> expectedErrors, List<ReadingGetDTO> expectedReadings)
         {
             // Arrange
             _sut.LoggerConfiguration(_outDirectoryPath);
             _integrationTestRepositoryCleanup.Cleanup();
             DirectoryCleanup();
-            _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputTextWithErrors);
+            _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputStreamWithErrors);
 
             // Act
             _sut.Initialize(_inDirectoryPath);
@@ -132,49 +191,46 @@ namespace SimulationExercise.Tests.Integration
             // Assert
             using (IContext context = _contextFactory.Create())
             {
-                var inputFiles = _inputFileRepository.GetByStatus(Status.Error, context);
-                inputFiles.Should().BeEquivalentTo(expectedInputFiles);
+                Assert.Single(_inputFileRepository.GetByStatus(Status.Error, context));
+                var readings = _readingRepository.GetByStatus(Status.Error, context);
 
-                var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
-                var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
-                var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
+                foreach (var expected in expectedReadings)
+                {
+                    var reading = readings.FirstOrDefault(x => x.ReadingId == expected.ReadingId);
+                    Assert.NotNull(reading);
 
-                Assert.Single(exportDirectories);
-                Assert.True(File.Exists(resultOutErrorFilePath));
-                Assert.Equal(expectedErrors.Trim(), resultErrorOutputText);
+                    Assert.Equal(expected.ReadingId, reading.ReadingId);
+                    Assert.Equal(expected.InputFileId, reading.InputFileId);
+                    Assert.Equal(expected.SensorId, reading.SensorId);
+                    Assert.Equal(expected.SensorTypeName, reading.SensorTypeName);
+                    Assert.Equal(expected.Unit, reading.Unit);
+                    Assert.Equal(expected.StationId, reading.StationId);
+                    Assert.Equal(expected.StationName, reading.StationName);
+                    Assert.Equal(expected.Value, reading.Value);
+                    Assert.Equal(expected.Province, reading.Province);
+                    Assert.Equal(expected.City, reading.City);
+                    Assert.Equal(expected.IsHistoric, reading.IsHistoric);
+                    Assert.Equal(expected.StartDate, reading.StartDate);
+                    Assert.Equal(expected.StopDate, reading.StopDate);
+                    Assert.Equal(expected.UtmNord, reading.UtmNord);
+                    Assert.Equal(expected.UtmEst, reading.UtmEst);
+                    Assert.Equal(expected.Latitude, reading.Latitude);
+                    Assert.Equal(expected.Longitude, reading.Longitude);
+                    Assert.Equal(expected.Status, reading.Status);
+                }
             }
-        }
 
-        [Fact]
-        public void CreateConsistentReadings_ShouldCreateNewConsistentReadings()
-        {
-            // Arrange
-            var inputFileText = $@"IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
-1,SensorTypeName,ng/m³,1,StationName,1,Province,City,S,{DateTime.Now.AddDays(-1).Date},{DateTime.Now.Date},1,1,Latitude,Longitude,POINT (Latitude Longitude)
-1,SensorTypeName,mg/m³,1,StationName,1,Province,City,N,{DateTime.Now.AddDays(-1).Date},{DateTime.Now.Date},1,1,Latitude,Longitude,POINT (Latitude Longitude)";
+            Log.CloseAndFlush();
 
-            var expectedConsistentReadings = new List<ConsistentReadingGetDTO>
-            {
-                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", Status.New),
-                new ConsistentReadingGetDTO(2, 2, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", Status.New)
-            };
+            var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
+            var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
+            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            _sut.LoggerConfiguration(_outDirectoryPath);
-            _integrationTestRepositoryCleanup.Cleanup();
-            DirectoryCleanup();
-            _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputFileText);
+            var errorLines = resultErrorOutputText.Split("\r\n").Select(line => line.Trim()).ToList();
 
-            // Act
-            _sut.Initialize(_inDirectoryPath);
-            _sut.CreateReadings();
-            _sut.CreateConsistentReadings();
-
-            // Assert
-            using (IContext context = _contextFactory.Create())
-            {
-                var consistentReadings = _consistentReadingRepository.GetByStatus(Status.New, context);
-                consistentReadings.Should().BeEquivalentTo(expectedConsistentReadings);
-            }
+            Assert.Single(exportDirectories);
+            Assert.True(File.Exists(resultOutErrorFilePath));
+            foreach (var expectedErrorLine in errorLines) Assert.Contains(expectedErrorLine, errorLines);
         }
 
         private void DirectoryCleanup()

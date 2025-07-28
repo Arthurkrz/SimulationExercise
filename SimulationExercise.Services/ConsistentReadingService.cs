@@ -16,6 +16,7 @@ namespace SimulationExercise.Services
         private readonly IReadingRepository _readingRepository;
         private readonly IConsistentReadingRepository _consistentReadingRepository;
         private ILogger<ConsistentReadingService> _logger;
+        private int _errorGroupNumber = 0;
 
         public ConsistentReadingService(IConsistentReadingFactory consistentReadingFactory,
                                         IConsistentReadingInsertDTOFactory consistentReadingInsertDTOFactory,
@@ -68,15 +69,18 @@ namespace SimulationExercise.Services
                         }
                         else
                         {
-                            foreach (var error in creationResult.Errors)
-                                _logger.LogError(error);
+                            _logger.LogError(LogMessages.ERRORSFOUND, "Reading", _errorGroupNumber);
+                            foreach (var error in creationResult.Errors) _logger.LogError(error);
 
                             var updateErrorDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
                                                                         Status.Error,
                                                                         creationResult.Errors);
 
                             _readingRepository.Update(updateErrorDTO, context);
+                            _errorGroupNumber++;
                         }
+
+                        context.Commit();
                     }
                     catch (Exception ex)
                     {

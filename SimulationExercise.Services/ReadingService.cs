@@ -16,6 +16,7 @@ namespace SimulationExercise.Services
         private readonly IReadingImportService _readingImportService;
         private readonly IReadingInsertDTOFactory _readingInsertDTOFactory;
         private readonly ILogger<ReadingService> _logger;
+        private int _errorGroupNumber = 0;
 
         public ReadingService(IContextFactory contextFactory,
                               IInputFileRepository inputFileRepository,
@@ -57,14 +58,15 @@ namespace SimulationExercise.Services
 
                         if (!importResult.Success)
                         {
-                            foreach (var error in importResult.Errors)
-                                _logger.LogError(error);
+                            _logger.LogError(LogMessages.ERRORSFOUND, "Input File", _errorGroupNumber);
+                            foreach (var error in importResult.Errors) _logger.LogError(error);
 
                             var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
                                                                          Status.Error,
                                                                          importResult.Errors);
 
                             _inputFileRepository.Update(inputFileUpdate, context);
+                            _errorGroupNumber++;
                         }
                         else
                         {

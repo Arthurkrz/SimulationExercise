@@ -2,7 +2,7 @@
 {
     public class IntegrationTestINFileCreator
     {
-        public void CreateINFiles(string inDirectoryPath, int numberOfFilesToBeCreated, string inputFileText)
+        public void CreateINFiles(string inDirectoryPath, int numberOfFilesToBeCreated, Stream inputFileStream)
         {
             if (!Directory.Exists(inDirectoryPath))
                 Directory.CreateDirectory(inDirectoryPath);
@@ -12,12 +12,9 @@
                 string importFilePath = Path.Combine(inDirectoryPath, 
                     $"INTestFile{objectNumber}.csv");
 
-                using var fileStream = new FileStream(importFilePath,
-                                                      FileMode.Create,
-                                                      FileAccess.Write);
-
-                using (var streamWriter = new StreamWriter(fileStream, leaveOpen: true))
-                    streamWriter.Write(inputFileText);
+                using var fileStream = new FileStream(importFilePath, FileMode.Create, FileAccess.Write);
+                inputFileStream.CopyTo(fileStream);
+                inputFileStream.Position = 0;
             }
         }
     }

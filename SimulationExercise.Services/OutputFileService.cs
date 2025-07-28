@@ -78,12 +78,12 @@ namespace SimulationExercise.Services
         {
             var engine = new FileHelperEngine<ConsistentReadingExportDTO>();
 
-            string fileHeader = string.Join(",", typeof(ConsistentReading)
-                                      .GetFields().Select(f => f.Name));
+            string fileHeader = string.Join(",", typeof(ConsistentReadingExportDTO)
+                                      .GetProperties().Select(p => p.Name));
 
             var csvFile = fileHeader + Environment.NewLine + engine.WriteString(records);
             var csvBytes = Encoding.UTF8.GetBytes(csvFile);
-            var fileName = $"Reading{SystemTime.Now():dd_MM_yyyy}";
+            var fileName = $"Readings{SystemTime.Now():dd_MM_yyyy}";
             var fileExtension = ".csv";
 
             return new OutputFileInsertDTO(fileName, csvBytes, fileExtension, Status.Success);
