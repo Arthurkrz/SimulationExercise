@@ -1,4 +1,5 @@
 ﻿using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Services
 {
@@ -31,5 +32,22 @@ namespace SimulationExercise.Services
 
         public void CreateOutputFiles() => 
             _outputFileService.ProcessConsistentReadings();
+
+        public void LoggerConfiguration(string baseOutPath) =>
+            LogPathHolder.ErrorLogPath = GetExportDirectoryPath(baseOutPath);
+
+        private string GetExportDirectoryPath(string baseOutPath)
+        {
+            string errorDirectoryName = SystemTime.Now()
+                .ToString("yyyyMMdd_HHmmss");
+
+            string exportDirectoryPath = Path.Combine(baseOutPath, errorDirectoryName);
+            string errorsFilePath = Path.Combine(exportDirectoryPath, "Errors.log");
+
+            if (!Directory.Exists(exportDirectoryPath))
+                Directory.CreateDirectory(exportDirectoryPath);
+
+            return errorsFilePath;
+        }
     }
 }

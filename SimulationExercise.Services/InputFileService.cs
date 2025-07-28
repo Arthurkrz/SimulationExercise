@@ -31,7 +31,10 @@ namespace SimulationExercise.Services
                     if (!Directory.Exists(inDirectoryPath))
                         Directory.CreateDirectory(inDirectoryPath);
 
-                    var files = LocateFiles(inDirectoryPath);
+                    var files = Directory.GetFiles(inDirectoryPath, "*.csv");
+                    if (files.Length == 0) 
+                        throw new ArgumentNullException(LogMessages.NOCSVFILESFOUND);
+
                     foreach (var file in files)
                     {
                         var fileName = Path.GetFileNameWithoutExtension(file);
@@ -63,15 +66,6 @@ namespace SimulationExercise.Services
                     context.Dispose();
                 }
             }
-        }
-
-        private string[] LocateFiles(string inDirectoryPath)
-        {
-            var files = Directory.GetFiles(inDirectoryPath, "*.csv");
-
-            if (files.Length == 0) throw new ArgumentNullException
-                                     (LogMessages.NOCSVFILESFOUND);
-            return files;
         }
 
         private void SendToBackup(string file, string inDirectoryPath)

@@ -7,20 +7,33 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Validators;
 using SimulationExercise.Services;
 using SimulationExercise.Services.Factory;
+using SimulationExercise.Infrastructure;
+using SimulationExercise.Services.Factories;
 
 namespace SimulationExercise.IOC
 {
     public static class DependencyInjection
     {
-        public static void InjectServices(this IServiceCollection services)
+        public static void InjectFactories(this IServiceCollection services)
         {
             services.AddScoped<IConsistentReadingFactory, ConsistentReadingFactory>();
-            services.AddScoped<IAverageProvinceDataExportService, AverageProvinceDataExportService>();
             services.AddScoped<IAverageProvinceDataFactory, AverageProvinceDataFactory>();
             services.AddScoped<IProvinceDataListFactory, ProvinceDataListFactory>();
+            services.AddScoped<IContextFactory, DapperContextFactory>();
+            services.AddScoped<IReadingInsertDTOFactory, ReadingInsertDTOFactory>();
+            services.AddScoped<IConsistentReadingInsertDTOFactory, ConsistentReadingInsertDTOFactory>();
+            services.AddScoped<IConsistentReadingExportDTOFactory, ConsistentReadingExportDTOFactory>();
+        }
+
+        public static void InjectServices(this IServiceCollection services)
+        {
             services.AddScoped<IReadingImportService, ReadingImportService>();
-            services.AddScoped<IFileProcessingService, FileProcessingService>();
-            services.AddScoped<IFilePersistanceService, FilePersistanceService>(); 
+            services.AddScoped<IAverageProvinceDataExportService, AverageProvinceDataExportService>();
+            services.AddScoped<IInputFileService, InputFileService>();
+            services.AddScoped<IReadingService, ReadingService>();
+            services.AddScoped<IConsistentReadingService, ConsistentReadingService>();
+            services.AddScoped<IOutputFileService, OutputFileService>();
+            services.AddScoped<IFilePersistanceService, FilePersistanceService>();
         }
 
         public static void InjectRepositories(this IServiceCollection services)

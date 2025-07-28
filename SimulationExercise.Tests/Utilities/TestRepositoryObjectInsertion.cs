@@ -5,9 +5,9 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
-namespace SimulationExercise.Tests.Repository
+namespace SimulationExercise.Tests.Utilities
 {
-    public class TestRepositoryObjectInsertion<T> : ITestRepositoryObjectInsertion<T>
+    public class TestRepositoryObjectInsertion<T>
     {
         private readonly string _connectionString;
         private readonly IContextFactory _contextFactory;

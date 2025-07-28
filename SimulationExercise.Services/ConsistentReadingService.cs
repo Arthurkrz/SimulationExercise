@@ -16,6 +16,7 @@ namespace SimulationExercise.Services
         private readonly IReadingRepository _readingRepository;
         private readonly IConsistentReadingRepository _consistentReadingRepository;
         private ILogger<ConsistentReadingService> _logger;
+        private int _errorGroupNumber = 0;
 
         public ConsistentReadingService(IConsistentReadingFactory consistentReadingFactory,
                                         IConsistentReadingInsertDTOFactory consistentReadingInsertDTOFactory,
@@ -36,9 +37,7 @@ namespace SimulationExercise.Services
         {
             IList<ReadingGetDTO> readingDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
-            {
                 readingDTOs = _readingRepository.GetByStatus(Status.New, searchContext);
-            }
 
             if (readingDTOs.Count == 0)
             {
@@ -52,14 +51,7 @@ namespace SimulationExercise.Services
                 {
                     try
                     {
-                        var reading = new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
-                                                  readingDTO.Unit, readingDTO.StationId,
-                                                  readingDTO.StationName, readingDTO.Value,
-                                                  readingDTO.Province, readingDTO.City,
-                                                  readingDTO.IsHistoric, readingDTO.StartDate,
-                                                  readingDTO.StopDate, readingDTO.UtmNord,
-                                                  readingDTO.UtmEst, readingDTO.Latitude,
-                                                  readingDTO.Longitude);
+                        var reading = ReadingGenerator(readingDTO);
 
                         var creationResult = _consistentReadingFactory
                             .CreateConsistentReading(reading);
@@ -77,12 +69,18 @@ namespace SimulationExercise.Services
                         }
                         else
                         {
+                            _logger.LogError(LogMessages.ERRORSFOUND, "Reading", _errorGroupNumber);
+                            foreach (var error in creationResult.Errors) _logger.LogError(error);
+
                             var updateErrorDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
                                                                         Status.Error,
                                                                         creationResult.Errors);
 
                             _readingRepository.Update(updateErrorDTO, context);
+                            _errorGroupNumber++;
                         }
+
+                        context.Commit();
                     }
                     catch (Exception ex)
                     {
@@ -94,6 +92,18 @@ namespace SimulationExercise.Services
                     }
                 }
             }
+        }
+
+        private Reading ReadingGenerator(ReadingGetDTO readingDTO)
+        {
+            return new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
+                               readingDTO.Unit, readingDTO.StationId,
+                               readingDTO.StationName, readingDTO.Value,
+                               readingDTO.Province, readingDTO.City,
+                               readingDTO.IsHistoric, readingDTO.StartDate,
+                               readingDTO.StopDate, readingDTO.UtmNord,
+                               readingDTO.UtmEst, readingDTO.Latitude,
+                               readingDTO.Longitude);
         }
     }
 }
