@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factories;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Factories
 {
     public class ConsistentReadingExportDTOFactoryTests
     {

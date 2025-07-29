@@ -27,16 +27,16 @@ namespace SimulationExercise.Core.DTOS
         }
 
         public long SensorId { get; set; }
-        public string SensorTypeName { get; set; }
+        public string? SensorTypeName { get; set; }
         public Unit Unit { get; set; }
         public int Value { get; set; }
-        public string Province { get; set; }
-        public string City { get; set; }
+        public string? Province { get; set; }
+        public string? City { get; set; }
         public bool IsHistoric { get; set; }
         public int DaysOfMeasure { get; set; }
         public int UtmNord { get; set; }
         public int UtmEst { get; set; }
-        public string Latitude { get; set; }
-        public string Longitude { get; set; }
+        public string? Latitude { get; set; }
+        public string? Longitude { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factory;
 using SimulationExercise.Tests.ObjectGeneration;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Factories
 {
     public class AverageProvinceDataFactoryTests
     {
@@ -28,7 +28,7 @@ namespace SimulationExercise.Tests.Service
             
             // Assert
             Assert.False(result.Success);
-            Assert.Contains("ProvinceData contains no readings.", result.Errors);
+            Assert.Contains("ProvinceData contains no readings.", result.Errors!);
         }
 
         [Fact]
@@ -55,11 +55,11 @@ namespace SimulationExercise.Tests.Service
 
             //Assert
             Assert.True(result.Success);
-            Assert.Equal(provinceData.Province, result.Value.Province);
-            Assert.Equal(provinceData.SensorTypeName, result.Value.SensorTypeName);
-            Assert.Equal(averageValue, result.Value.AverageValue);
-            Assert.Equal(unit, result.Value.Unit);
-            Assert.Equal(averageDaysOfMeasure, result.Value.AverageDaysOfMeasure);
+            Assert.Equal(provinceData.Province, result.Value?.Province);
+            Assert.Equal(provinceData.SensorTypeName, result.Value?.SensorTypeName);
+            Assert.Equal(averageValue, result.Value?.AverageValue);
+            Assert.Equal(unit, result.Value?.Unit);
+            Assert.Equal(averageDaysOfMeasure, result.Value?.AverageDaysOfMeasure);
         }
 
         [Theory]

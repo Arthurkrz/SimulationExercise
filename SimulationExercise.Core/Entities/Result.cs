@@ -2,16 +2,16 @@
 {
     public class Result<T>
     {
-        private readonly T _value;
+        private readonly T? _value;
 
-        private Result(T value, IList<string> errors, bool success)
+        private Result(T? value, IList<string>? errors, bool success)
         {
             _value = value;
             Errors = errors;
             Success = success;
         }
 
-        public T Value
+        public T? Value
         {
             get
             {
@@ -25,7 +25,7 @@
             }
         }
 
-        public IList<string> Errors { get; }
+        public IList<string>? Errors { get; }
 
         public bool Success { get; }
 

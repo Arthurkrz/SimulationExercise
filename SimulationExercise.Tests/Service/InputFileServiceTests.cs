@@ -163,7 +163,7 @@ namespace SimulationExercise.Tests.Service
 
             // Assert
             var directories = Directory.GetDirectories(_basePath);
-            Assert.True(directories.Any(x => x.Contains(_inDirectoryPath)));
+            Assert.Contains(directories, dir => dir.Contains(_inDirectoryPath));
         }
 
         private void DirectoryCleanup()
@@ -174,7 +174,7 @@ namespace SimulationExercise.Tests.Service
 
         private void InputFileGenerator(int numberOfInputFilesToBeInserted, bool containsWrongReadings = false)
         {
-            string inputText = null;
+            string? inputText = null;
 
             if (containsWrongReadings) inputText = @"IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
 12453,Arsenico,ng/mÂ³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)

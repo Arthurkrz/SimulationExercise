@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -35,7 +36,7 @@ namespace SimulationExercise.Services
 
         public void ProcessReadings()
         {
-            IList<ReadingGetDTO> readingDTOs = null;
+            IList<ReadingGetDTO>? readingDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
                 readingDTOs = _readingRepository.GetByStatus(Status.New, searchContext);
 
@@ -59,7 +60,7 @@ namespace SimulationExercise.Services
                         if (creationResult.Success)
                         {
                             var insertDTO = _consistentReadingInsertDTOFactory.
-                            CreateConsistentReadingInsertDTO(creationResult.Value,
+                            CreateConsistentReadingInsertDTO(creationResult.Value!,
                                                              readingDTO.ReadingId);
 
                             var successDTO = new ReadingUpdateDTO(readingDTO.ReadingId, Status.Success);
@@ -70,7 +71,7 @@ namespace SimulationExercise.Services
                         else
                         {
                             _logger.LogError(LogMessages.ERRORSFOUND, "Reading", _errorGroupNumber);
-                            foreach (var error in creationResult.Errors) _logger.LogError(error);
+                            foreach (var error in creationResult.Errors!) _logger.LogError(error);
 
                             var updateErrorDTO = new ReadingUpdateDTO(readingDTO.ReadingId,
                                                                         Status.Error,

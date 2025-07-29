@@ -2,7 +2,7 @@
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factory;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Factories
 {
     public class ProvinceDataListFactoryTests
     {
@@ -51,10 +51,10 @@ namespace SimulationExercise.Tests.Service
         public void CreateProvinceDataList_ShouldReturnEmptyList_WhenNullConsistentReadingList()
         {
             // Arrange
-            List<ConsistentReading> nullConsistentReadings;
+            List<ConsistentReading> nullConsistentReadings = new();
 
             // Act
-            var result = _sut.CreateProvinceDataList(nullConsistentReadings = null);
+            var result = _sut.CreateProvinceDataList(nullConsistentReadings);
 
             // Assert
             Assert.NotNull(result);
@@ -159,8 +159,8 @@ namespace SimulationExercise.Tests.Service
                             (x => x.Unit == Unit.ng_m3));
 
             Assert.NotNull(filteredResult);
-            Assert.Equal(1, filteredResult.ConsistentReadings.Count);
-            Assert.True(filteredResult.ConsistentReadings.All(
+            Assert.Equal(1, filteredResult.ConsistentReadings?.Count);
+            Assert.True(filteredResult.ConsistentReadings?.All(
                 x => x.Unit == Unit.ng_m3 &&
                      x.SensorTypeName == "Sensor3" &&
                      x.Province == "Province2"));

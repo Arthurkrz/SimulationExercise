@@ -31,7 +31,9 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<InputFileInsertDTO>();
 
-            _connectionString = config.GetConnectionString("DefaultDatabase");
+            _connectionString = config.GetConnectionString("Default") ?? 
+                throw new ArgumentNullException(nameof(_connectionString));
+
             _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
@@ -154,7 +156,7 @@ namespace SimulationExercise.Tests.Repository
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
                     ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
                             FROM INPUTFILE F 
-                            INNER JOIN INPUTFILEMESSAGE M
+                            INNER JOIN {_tableNameInputFileMessage} M
                             ON F.INPUTFILEID = M.INPUTFILEID
                             WHERE F.INPUTFILEID = @INPUTFILEID;", 
                     new { expectedReturn.InputFileId });

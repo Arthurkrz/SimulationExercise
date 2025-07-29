@@ -4,6 +4,6 @@ namespace SimulationExercise.Core.Utilities
 {
     public static class SystemIdentity
     {
-        public static Func<string> CurrentName = () => WindowsIdentity.GetCurrent()?.Name;
+        public static Func<string?> CurrentName = () => WindowsIdentity.GetCurrent()?.Name;
     }
 }

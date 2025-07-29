@@ -32,9 +32,9 @@ namespace SimulationExercise.Infrastructure
                         Connection.Query<T>(sql, param, Transaction).ToList();
         public IList<T> Query<T>(string sql) =>
                         Connection.Query<T>(sql, null, Transaction).ToList();
-        public T ExecuteScalar<T>(string sql, object param = null, int? commandTimeout = null) =>
+        public T ExecuteScalar<T>(string sql, object? param = null, int? commandTimeout = null) =>
             (T)Connection.ExecuteScalar(sql, param, Transaction, commandTimeout: commandTimeout);
-        public int Execute(string sql, object param = null, int? commandTimeout = null) => 
+        public int Execute(string sql, object? param = null, int? commandTimeout = null) => 
             Connection.Execute(sql, param, Transaction, commandTimeout: commandTimeout);
         public void Commit()
         {

@@ -1,6 +1,6 @@
 ﻿namespace SimulationExercise.Infrastructure
 {
-    public class TableCreationQueryGenerator
+    public class SeedDatabase
     {
         public static IList<string> GetSimulationDatabaseQueries()
         {
@@ -125,22 +125,6 @@
             tableCreationQueries.Add(consistentReadingMessageSQL);
             tableCreationQueries.Add(outputFileSQL);
             tableCreationQueries.Add(outputFileMessageSQL);
-
-            return tableCreationQueries;
-        }
-
-        public static IList<string> GetBasisQueries()
-        {
-            IList<string> tableCreationQueries = new List<string>();
-
-            string mainTableSQL =
-                $@"IF OBJECT_ID('BasisData', 'U') IS NULL 
-                        CREATE TABLE BasisData 
-                        (BASISID BIGINT PRIMARY KEY, 
-                        BASISCODE NVARCHAR(50) NOT NULL, 
-                        BASISDESCRIPTION NVARCHAR(255) NOT NULL);";
-
-            tableCreationQueries.Add(mainTableSQL);
 
             return tableCreationQueries;
         }

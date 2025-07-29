@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Infrastructure;
 using SimulationExercise.IOC;
 using SimulationExercise.Services;
 
@@ -20,7 +20,9 @@ var config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-var connectionString = config.GetConnectionString("DefaultDatabase");
+var connectionString = config.GetConnectionString("DefaultDatabase") ?? 
+    throw new ArgumentNullException("Null ConnectionString");
+
 var contextFactory = new DapperContextFactory(connectionString);
 
 RepositoryInitializer repositoryInitializer = new RepositoryInitializer();
@@ -38,8 +40,4 @@ services.AddLogging(loggingBuilder =>
 });
 
 using var serviceProvider = services.BuildServiceProvider();
-var fileProcessingService = serviceProvider.GetRequiredService<IFileProcessingService>();
-
-fileProcessingService.ProcessFile(
-    Path.Combine(Path.GetTempPath(), "IN"),
-    Path.Combine(Path.GetTempPath(), "OUT"));
+var filePersistanceService = serviceProvider.GetRequiredService<IFilePersistanceService>();

@@ -1,6 +1,7 @@
 ﻿using FileHelpers;
 using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -38,7 +39,7 @@ namespace SimulationExercise.Services
             {
                 try
                 {
-                    IList<ConsistentReadingGetDTO> crGetDTOs = null;
+                    IList<ConsistentReadingGetDTO>? crGetDTOs = null;
                     crGetDTOs = _consistentReadingRepository.GetByStatus(Status.New, context);
 
                     if (crGetDTOs.Count == 0)
