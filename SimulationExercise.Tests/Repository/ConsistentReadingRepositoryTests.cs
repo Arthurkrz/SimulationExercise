@@ -31,7 +31,9 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ConsistentReadingInsertDTO>();
 
-            _connectionString = config.GetConnectionString("DefaultDatabase");
+            _connectionString = config.GetConnectionString("Default") ?? 
+                throw new ArgumentNullException(nameof(_connectionString));
+
             _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
@@ -175,7 +177,7 @@ namespace SimulationExercise.Tests.Repository
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
                     ($@"SELECT M.CONSISTENTREADINGID, C.STATUSID AS STATUS, M.MESSAGE
                             FROM CONSISTENTREADING C
-                            INNER JOIN CONSISTENTREADINGMESSAGE M
+                            INNER JOIN {_tableNameConsistentReadingMessage} M
                             ON C.CONSISTENTREADINGID = M.CONSISTENTREADINGID
                             WHERE C.CONSISTENTREADINGID = @CONSISTENTREADINGID;",
                     new { expectedReturn.ConsistentReadingId });

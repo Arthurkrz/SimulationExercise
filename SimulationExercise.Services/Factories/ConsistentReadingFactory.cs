@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
@@ -17,6 +17,8 @@ namespace SimulationExercise.Services.Factory
 
         public Result<ConsistentReading> CreateConsistentReading(Reading reading)
         {
+            ArgumentNullException.ThrowIfNull(reading, nameof(reading));
+
             reading.Unit = reading.Unit switch
             {
                 "ng/m³" => Unit.ng_m3.ToString(),
@@ -43,10 +45,10 @@ namespace SimulationExercise.Services.Factory
 
             ConsistentReading consistentReading =
                 new ConsistentReading(reading.SensorId,
-                reading.SensorTypeName, unit, reading.Value,
-                reading.Province, reading.City, reading.IsHistoric,
-                reading.UtmNord, reading.UtmEst, reading.Latitude,
-                reading.Longitude)
+                reading.SensorTypeName!, unit, reading.Value,
+                reading.Province!, reading.City!, reading.IsHistoric,
+                reading.UtmNord, reading.UtmEst, reading.Latitude!,
+                reading.Longitude!)
                 { DaysOfMeasure = daysOfMeasure };
 
             return Result<ConsistentReading>.Ok(consistentReading);

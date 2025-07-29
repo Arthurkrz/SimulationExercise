@@ -19,10 +19,10 @@ namespace SimulationExercise.Tests.Service
         public void Import_ShouldReturnException_WhenEmptyFile()
         {
             // Arrange
-            MemoryStream stream = default;
+            MemoryStream? stream = default;
 
             // Act & Assert
-            var exception = Assert.Throws<FormatException>(() => _sut.Import(stream));
+            var exception = Assert.Throws<FormatException>(() => _sut.Import(stream!));
             Assert.Equal("Empty stream.", exception.Message);
         }
 

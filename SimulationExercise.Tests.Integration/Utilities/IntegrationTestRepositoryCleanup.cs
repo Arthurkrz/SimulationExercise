@@ -15,7 +15,9 @@ namespace SimulationExercise.Tests.Integration.Utilities
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _connectionString = config.GetConnectionString("DefaultDatabase");
+            _connectionString = config.GetConnectionString("Default") ?? 
+                throw new ArgumentNullException(nameof(_connectionString));
+
             _contextFactory = new DapperContextFactory(_connectionString);
         }
 

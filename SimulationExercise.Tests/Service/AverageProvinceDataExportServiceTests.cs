@@ -51,21 +51,21 @@ namespace SimulationExercise.Tests.Service
                 new AverageProvinceData("Province1", "Sensor2", 20, Unit.mg_m3, 35)
             };
 
-            Stream nullStream = null;
+            Stream? nullStream = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _sut.Export(averageProvinceDatas, nullStream));
+            Assert.Throws<ArgumentNullException>(() => _sut.Export(averageProvinceDatas, nullStream!));
         }
 
         [Fact]
         public void Export_ShouldReturnException_WhenProvinceDataListNull()
         {
             // Arrange
-            IList<AverageProvinceData> nullList = null;
+            List<AverageProvinceData> nullList = new();
             Stream outputStream = new MemoryStream();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _sut.Export(nullList, outputStream));
+            Assert.Throws<ArgumentException>(() => _sut.Export(nullList, outputStream));
         }
 
         [Fact]

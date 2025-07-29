@@ -1,6 +1,6 @@
 ﻿using SimulationExercise.Core.DTOS;
 
-namespace SimulationExercise.Core.Contracts.Services
+namespace SimulationExercise.Core.Contracts.Factories
 {
     public interface IConsistentReadingExportDTOFactory
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -149,9 +150,11 @@ namespace SimulationExercise.Tests.Service
             // Arrange
             _testRepositoryCleanup.Cleanup();
 
+            inputFileDTOs = new List<InputFileGetDTO>();
+
             _inputFileRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(new List<InputFileGetDTO>());
+                .Returns(inputFileDTOs);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResult);

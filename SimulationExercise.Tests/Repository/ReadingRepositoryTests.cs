@@ -31,7 +31,9 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ReadingInsertDTO>();
 
-            _connectionString = config.GetConnectionString("DefaultDatabase");
+            _connectionString = config.GetConnectionString("Default") ?? 
+                throw new ArgumentNullException(nameof(_connectionString));
+
             _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
@@ -182,7 +184,7 @@ namespace SimulationExercise.Tests.Repository
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
                     ($@"SELECT M.READINGID, R.STATUSID AS STATUS, M.MESSAGE 
                             FROM READING R 
-                            INNER JOIN READINGMESSAGE M 
+                            INNER JOIN {_tableNameReadingMessage} M 
                             ON R.READINGID = M.READINGID 
                             WHERE R.READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });

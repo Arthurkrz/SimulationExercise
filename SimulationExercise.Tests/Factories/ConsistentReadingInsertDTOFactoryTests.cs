@@ -1,10 +1,10 @@
-﻿using SimulationExercise.Core.Contracts.Services;
+﻿using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factories;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Factories
 {
     public class ConsistentReadingInsertDTOFactoryTests
     {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -35,7 +36,7 @@ namespace SimulationExercise.Services
 
         public void ProcessInputFiles()
         {
-            IList<InputFileGetDTO> inputFiles = null;
+            IList<InputFileGetDTO>? inputFiles = null;
             using (IContext searchContext = _contextFactory.Create())
                 inputFiles = _inputFileRepository.GetByStatus(Status.New, searchContext);
 
@@ -51,7 +52,7 @@ namespace SimulationExercise.Services
                 {
                     try
                     {
-                        ImportResult importResult = null;
+                        ImportResult? importResult = null;
 
                         using (var stream = new MemoryStream(inputFile.Bytes))
                             importResult = _readingImportService.Import(stream);

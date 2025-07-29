@@ -10,8 +10,7 @@ namespace SimulationExercise.Tests.Architecture
     {
         private IContextFactory _contextFactory;
         private readonly IRepositoryInitializer _sut;
-        private readonly string _connectionStringMain;
-        private readonly string _connectionStringBasis;
+        private readonly string? _connectionString;
 
         public RepositoryInitializerTests()
         {
@@ -19,8 +18,11 @@ namespace SimulationExercise.Tests.Architecture
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _connectionStringMain = config.GetConnectionString("DefaultDatabase");
-            _connectionStringBasis = config.GetConnectionString("BasisDatabase");
+            _connectionString = config.GetConnectionString("Default") ?? 
+                throw new ArgumentNullException("Null ConnectionString");
+
+            _contextFactory = new DapperContextFactory(_connectionString);
+
             _sut = new RepositoryInitializer();
         }
 
@@ -31,15 +33,13 @@ namespace SimulationExercise.Tests.Architecture
             string tableNameInputFile = "InputFile";
             string tableNameInputFileMessage = "InputFileMessage";
 
-            _contextFactory = new DapperContextFactory(_connectionStringMain);
-
             using (IContext context = _contextFactory.Create())
             {
                 // Act
                 _sut.Initialize(context);
             }
 
-            using (var assertConnection = new SqlConnection(_connectionStringMain))
+            using (var assertConnection = new SqlConnection(_connectionString))
             {
                 assertConnection.Open();
 
@@ -51,31 +51,6 @@ namespace SimulationExercise.Tests.Architecture
                 Assert.Equal(1, assertConnection.ExecuteScalar<int>
                     ($@"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
                             WHERE TABLE_NAME = '{tableNameInputFileMessage}'"));
-            }
-        }
-
-        [Fact]
-        public void BasisInitializer_CreatesTables_WhenDoesntExist()
-        {
-            // Arrange
-            string tableName = "BasisData";
-
-            _contextFactory = new DapperContextFactory(_connectionStringBasis);
-
-            using (IContext context = _contextFactory.Create())
-            {
-                // Act
-                _sut.Initialize(context);
-            }
-
-            using (var assertConnection = new SqlConnection(_connectionStringBasis))
-            {
-                assertConnection.Open();
-
-                // Assert
-                Assert.Equal(1, assertConnection.ExecuteScalar<int>
-                    ($@"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
-                            WHERE TABLE_NAME = '{tableName}'"));
             }
         }
     }

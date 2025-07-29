@@ -1,18 +1,18 @@
 ﻿using FluentValidation;
-using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Validators;
 using SimulationExercise.Services.Factory;
 using SimulationExercise.Tests.ObjectGeneration;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Factories
 {
-    public class ConsistentReadingFactoryTets
+    public class ConsistentReadingFactoryTests
     {
         private readonly IValidator<Reading> _readingValidator;
         private readonly IConsistentReadingFactory _sut;
 
-        public ConsistentReadingFactoryTets()
+        public ConsistentReadingFactoryTests()
         {
             _readingValidator = new ReadingValidator();
             _sut = new ConsistentReadingFactory(_readingValidator);
@@ -20,8 +20,7 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(ReadingData.GetValidReadings), MemberType = typeof(ReadingData))]
-        public void CreateConsistentReading_ShouldCreateObject_WhenCorrectReadings
-                                                                 (Reading reading)
+        public void CreateConsistentReading_ShouldCreateObject_WhenCorrectReadings(Reading reading)
         {
             // Act & Assert
             var result = _sut.CreateConsistentReading(reading);
@@ -34,8 +33,7 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(ReadingData.GetInvalidReadings), MemberType = typeof(ReadingData))]
-        public void CreateConsistentReading_ShouldReturnErrors_WhenWrongReadings
-                                          (Reading reading, List<string> errors)
+        public void CreateConsistentReading_ShouldReturnErrors_WhenWrongReadings(Reading reading, List<string> errors)
         {
             // Act & Assert
             var result = _sut.CreateConsistentReading(reading);

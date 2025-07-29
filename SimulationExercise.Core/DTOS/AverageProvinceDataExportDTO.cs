@@ -20,10 +20,10 @@ namespace SimulationExercise.Core.DTOS
             AverageDaysOfMeasure = averageDaysOfMeasure;
         }
 
-        public string Province { get; set; }
-        public string SensorTypeName { get; set; }
+        public string? Province { get; set; }
+        public string? SensorTypeName { get; set; }
         public double AverageValue { get; set; }
-        public string Unit { get; set; }
+        public string? Unit { get; set; }
         public int AverageDaysOfMeasure { get; set; }
     }
 }

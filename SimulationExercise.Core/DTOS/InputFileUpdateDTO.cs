@@ -4,7 +4,7 @@ namespace SimulationExercise.Core.DTOS
 {
     public class InputFileUpdateDTO
     {
-        public InputFileUpdateDTO(long inputFileId, Status status, IList<string> messages = null)
+        public InputFileUpdateDTO(long inputFileId, Status status, IList<string>? messages = null)
         {
             if (status == Status.Error && (messages == null || !messages.Any()))
                 throw new ArgumentNullException("Update as error without error message list is not allowed.");

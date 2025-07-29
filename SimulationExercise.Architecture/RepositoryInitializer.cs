@@ -7,21 +7,12 @@ namespace SimulationExercise.Infrastructure
         public void Initialize(IContext context)
         {
             var connectionString = context.GetConnectionString();
-            if (connectionString.Contains("Simulation_Database"))
-                SimulationDatabaseInitializer(context);
-            else BasisInitializer(context);
-        }
-
-        private void BasisInitializer(IContext context)
-        {
-            IList<string> queryList = TableCreationQueryGenerator.GetBasisQueries();
-            foreach (var query in queryList) context.Execute(query);
-            context.Commit();
+            SimulationDatabaseInitializer(context);
         }
 
         private void SimulationDatabaseInitializer(IContext context)
         {
-            IList<string> queryList = TableCreationQueryGenerator.GetSimulationDatabaseQueries();
+            IList<string> queryList = SeedDatabase.GetSimulationDatabaseQueries();
             foreach (var query in queryList) context.Execute(query);
             context.Commit();
         }
