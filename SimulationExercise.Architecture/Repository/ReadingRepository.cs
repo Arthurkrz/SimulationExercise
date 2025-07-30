@@ -81,8 +81,7 @@ namespace SimulationExercise.Infrastructure.Repository
                             FROM {_mainTableName} WHERE STATUSID = @STATUSID
                                 ORDER BY CREATIONTIME DESC";
 
-            var result = context.Query<ReadingGetDTO>(sql, new { StatusId = statusId });
-            return result;
+            return context.Query<ReadingGetDTO>(sql, new { StatusId = statusId });
         }
     }
 }

@@ -5,10 +5,10 @@ namespace SimulationExercise.Core.Entities
     public class AverageProvinceData
     {
         public AverageProvinceData(string province,
-                                     string sensorTypeName,
-                                     double averageValue,
-                                     Unit unit,
-                                     int averageDaysOfMeasure)
+                                   string sensorTypeName,
+                                   double averageValue,
+                                   Unit unit,
+                                   int averageDaysOfMeasure)
         {
             Province = province;
             SensorTypeName = sensorTypeName;

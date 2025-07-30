@@ -1,4 +1,5 @@
-﻿using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.CSVDTOs;
+using SimulationExercise.Core.DTOS;
 
 namespace SimulationExercise.Core.Contracts.Factories
 {

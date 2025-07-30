@@ -1,4 +1,5 @@
 ﻿using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DatabaseDTOs;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
@@ -16,15 +17,17 @@ namespace SimulationExercise.Infrastructure.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             string sql = $@"INSERT INTO {_mainTableName}
-                            (NAME, BYTES, EXTENSION, CREATIONTIME, 
-                            LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES (@Name, @Bytes, @Extension, 
-                                        @CreationTime, @LastUpdateTime, 
-                                        @LastUpdateUser, @Status);";
+                            (NAME, BYTES, EXTENSION, OBJECTTYPE, 
+                             ISAVERAGEPROVINCEDATAEXPORTED, CREATIONTIME, 
+                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
+                                 VALUES (@NAME, @BYTES, @EXTENSION, 
+                                         @CREATIONTIME, @LASTUPDATETIME, 
+                                         @LASTUPDATEUSER, @STATUS);";
 
             context.Execute(sql, new
             {
-                dto.Name, dto.Extension, dto.Bytes,
+                dto.Name, dto.Bytes, dto.Extension,
+                dto.ObjectType, dto.IsAverageProvinceDataExported, 
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
@@ -37,8 +40,8 @@ namespace SimulationExercise.Infrastructure.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
-                                   WHERE OUTPUTFILEID = @OutputFileId;",
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+                                   WHERE OUTPUTFILEID = @OUTPUTFILEID;",
                             new { dto.Status, dto.OutputFileId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
@@ -47,8 +50,8 @@ namespace SimulationExercise.Infrastructure.Repository
                 {
                     string sql = $@"INSERT INTO {_messageTableName}(OUTPUTFILEID, 
                                     CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE) 
-                                        VALUES (@OutputFileId, @CreationDate, @LastUpdateDate, 
-                                                @LastUpdateUser, @Message);";
+                                        VALUES (@OUTPUTFILEID, @CREATIONDATE, @LASTUPDATEDATE, 
+                                                @LASTUPDATEUSER, @MESSAGE);";
 
                     context.Execute(sql, new
                     {
@@ -67,12 +70,24 @@ namespace SimulationExercise.Infrastructure.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             int statusId = (int)status;
-            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_mainTableName} WHERE STATUSID = @statusId
-                                ORDER BY CreationTime DESC";
+            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, OBJECTTYPE, 
+                         ISAVERAGEPROVINCEDATAEXPORTED, STATUSID AS STATUS 
+                            FROM {_mainTableName} WHERE STATUSID = @STATUSID 
+                                ORDER BY CREATIONTIME DESC;";
 
-            var result = context.Query<OutputFileGetDTO>(sql, new { statusId });
-            return result;
+            return context.Query<OutputFileGetDTO>(sql, new { statusId });
+        }
+
+        public IList<OutputFileGetDTO> GetByIsAverageProvinceDataExported(bool isExported, IContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, OBJECTTYPE,
+                         ISAVERAGEPROVINCEDATAEXPORTED, STATUSID AS STATUS 
+                            FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED 
+                                ORDER BY CREATIONTIME DESC;";
+
+            return context.Query<OutputFileGetDTO>(sql, new { isExported });
         }
     }
 }

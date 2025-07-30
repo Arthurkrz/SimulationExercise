@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
 
-namespace SimulationExercise.Core.DTOS
+namespace SimulationExercise.Core.CSVDTOs
 {    
     [DelimitedRecord(",")]
     public class ReadingDTO

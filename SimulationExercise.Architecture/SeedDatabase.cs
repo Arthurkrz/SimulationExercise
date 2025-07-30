@@ -102,6 +102,8 @@
                         Name NVARCHAR(100) NOT NULL,
                         Bytes VARBINARY(MAX) NOT NULL,
                         Extension VARCHAR(10) NOT NULL,
+                        ObjectType NVARCHAR(50) NOT NULL,
+                        IsAverageProvinceDataExported BIT NOT NULL,
                         CreationTime DATETIME NOT NULL,
                         LastUpdateTime DATETIME NOT NULL,
                         LastUpdateUser NVARCHAR(100) NOT NULL,
@@ -117,6 +119,28 @@
                         LastUpdateUser NVARCHAR(100) NOT NULL,
                         Message NVARCHAR(MAX) NOT NULL);";
 
+            string averageProvinceDataSQL =
+                @"IF OBJECT_ID('AverageProvinceData', 'U') IS NULL 
+                        CREATE TABLE AverageProvinceData(
+                        AverageProvinceDataId BIGINT IDENTITY(1,1) PRIMARY KEY, 
+                        OutputFileId BIGINT NOT NULL REFERENCES dbo.OutputFile(OutputFileId), 
+                        Province NVARCHAR(100) NOT NULL,
+                        SensorTypeName NVARCHAR(100) NOT NULL,
+                        AverageValue FLOAT NOT NULL,
+                        Unit NVARCHAR(10) NOT NULL,
+                        AverageDaysOfMeasure INT NOT NULL,
+                        StatusId INT NOT NULL);";
+
+            string averageProvinceDataMessageSQL = 
+                @"IF OBJECT_ID('AverageProvinceDataMessage', 'U') IS NULL 
+                        CREATE TABLE AverageProvinceDataMessage(
+                        AverageProvinceDataMessageId BIGINT IDENTITY(1,1) PRIMARY KEY, 
+                        AverageProvinceDataId BIGINT NOT NULL REFERENCES dbo.AverageProvinceData(AverageProvinceDataId), 
+                        CreationDate DATETIME NOT NULL, 
+                        LastUpdateDate DATETIME NOT NULL, 
+                        LastUpdateUser NVARCHAR(100) NOT NULL, 
+                        Message NVARCHAR(MAX) NOT NULL);";
+
             tableCreationQueries.Add(inputFileSQL);
             tableCreationQueries.Add(inputFileMessageSQL);
             tableCreationQueries.Add(readingSQL);
@@ -125,6 +149,8 @@
             tableCreationQueries.Add(consistentReadingMessageSQL);
             tableCreationQueries.Add(outputFileSQL);
             tableCreationQueries.Add(outputFileMessageSQL);
+            tableCreationQueries.Add(averageProvinceDataSQL);
+            tableCreationQueries.Add(averageProvinceDataMessageSQL);
 
             return tableCreationQueries;
         }

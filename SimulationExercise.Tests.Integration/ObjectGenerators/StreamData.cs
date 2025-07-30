@@ -1,4 +1,5 @@
 ﻿using FileHelpers;
+using SimulationExercise.Core.CSVDTOs;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;

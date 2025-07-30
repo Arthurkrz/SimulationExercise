@@ -19,7 +19,6 @@ namespace SimulationExercise.IOC
         {
             services.AddScoped<IConsistentReadingFactory, ConsistentReadingFactory>();
             services.AddScoped<IAverageProvinceDataFactory, AverageProvinceDataFactory>();
-            services.AddScoped<IProvinceDataListFactory, ProvinceDataListFactory>();
             services.AddScoped<IContextFactory, DapperContextFactory>();
             services.AddScoped<IReadingInsertDTOFactory, ReadingInsertDTOFactory>();
             services.AddScoped<IConsistentReadingInsertDTOFactory, ConsistentReadingInsertDTOFactory>();

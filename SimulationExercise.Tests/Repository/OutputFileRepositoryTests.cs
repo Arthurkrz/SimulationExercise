@@ -7,6 +7,7 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using SimulationExercise.Tests.Utilities;
+using SimulationExercise.Core.DatabaseDTOs;
 
 namespace SimulationExercise.Tests.Repository
 {

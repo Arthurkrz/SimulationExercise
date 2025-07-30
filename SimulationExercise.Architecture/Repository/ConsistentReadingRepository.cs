@@ -79,10 +79,9 @@ namespace SimulationExercise.Infrastructure.Repository
                          ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
                          LATITUDE, LONGITUDE, STATUSID AS STATUS
                             FROM {_mainTableName} WHERE STATUSID = @STATUSID
-                                ORDER BY CREATIONTIME DESC";
+                                ORDER BY CREATIONTIME DESC;";
 
-            var result = context.Query<ConsistentReadingGetDTO>(sql, new { statusId });
-            return result;
+             return context.Query<ConsistentReadingGetDTO>(sql, new { statusId });
         }
     }
 }

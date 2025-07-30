@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.CSVDTOs;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factories;

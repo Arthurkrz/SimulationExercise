@@ -18,9 +18,9 @@ namespace SimulationExercise.Infrastructure.Repository
             string sql = $@"INSERT INTO {_mainTableName}
                             (NAME, BYTES, EXTENSION, CREATIONTIME,
                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
-                                VALUES (@Name, @Bytes, @Extension,
-                                        @CreationTime, @LastUpdateTime, 
-                                        @LastUpdateUser, @Status);";
+                                VALUES (@NAME, @BYTES, @EXTENSION,
+                                        @CREATIONTIME, @LASTUPDATETIME, 
+                                        @LASTUPDATEUSER, @STATUS);";
 
             context.Execute(sql, new
             {
@@ -37,8 +37,8 @@ namespace SimulationExercise.Infrastructure.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
-                                   WHERE INPUTFILEID = @InputFileId;", 
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+                                   WHERE INPUTFILEID = @INPUTFILEID;", 
                             new { dto.Status, dto.InputFileId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
@@ -47,8 +47,8 @@ namespace SimulationExercise.Infrastructure.Repository
                 {
                     string sql = $@"INSERT INTO {_messageTableName}(INPUTFILEID, 
                                     CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE)
-                                        VALUES (@InputFileId, @CreationDate, @LastUpdateDate,
-                                        @LastUpdateUser, @message);";
+                                        VALUES (@INPUTFILEID, @CREATIONDATE, @LASTUPDATEDATE,
+                                        @LASTUPDATEUSER, @MESSAGE);";
 
                     context.Execute(sql, new 
                     { 
@@ -68,11 +68,10 @@ namespace SimulationExercise.Infrastructure.Repository
 
             int statusId = (int)status;
             var sql = $@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_mainTableName} WHERE STATUSID = @statusId 
+                            FROM {_mainTableName} WHERE STATUSID = @STATUSID 
                                 ORDER BY CreationTime DESC";
 
-            var result = context.Query<InputFileGetDTO>(sql, new { statusId });
-            return result;
+            return context.Query<InputFileGetDTO>(sql, new { statusId });
         }
     }
 }

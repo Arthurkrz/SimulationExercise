@@ -11,7 +11,7 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using SimulationExercise.IOC;
-using SimulationExercise.Services;
+using SimulationExercise.Services.Utilities;
 using SimulationExercise.Tests.Integration.ObjectGenerators;
 using SimulationExercise.Tests.Integration.Utilities;
 using System.Text;

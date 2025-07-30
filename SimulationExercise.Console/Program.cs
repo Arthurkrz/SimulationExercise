@@ -6,7 +6,7 @@ using Serilog.Events;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.IOC;
-using SimulationExercise.Services;
+using SimulationExercise.Services.Utilities;
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                       .WriteTo.Console()

@@ -4,6 +4,7 @@ using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.CSVDTOs;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
