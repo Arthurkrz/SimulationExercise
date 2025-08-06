@@ -3,7 +3,7 @@
 namespace SimulationExercise.Core.CSVDTOs
 {
     [DelimitedRecord(",")]
-    public class AverageProvinceDataExportDTO
+    public class AverageProvinceDataExportDTO : ExportDTO
     {
         public AverageProvinceDataExportDTO() { }
 

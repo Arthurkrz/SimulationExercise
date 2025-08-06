@@ -1,5 +1,5 @@
-﻿using SimulationExercise.Core.DTOS;
-using SimulationExercise.Core.Enum;
+﻿using SimulationExercise.Core.DatabaseDTOs;
+using SimulationExercise.Core.DTOS;
 
 namespace SimulationExercise.Core.Contracts.Repository
 {
@@ -7,6 +7,6 @@ namespace SimulationExercise.Core.Contracts.Repository
     {
         void Insert(AverageProvinceDataInsertDTO dto, IContext context);
         void Update(AverageProvinceDataUpdateDTO dto, IContext context);
-        IList<AverageProvinceDataGetDTO> GetByStatus(Status status, IContext context);
+        IList<AverageProvinceDataGetDTO> GetByIsExported(bool isExported, IContext context);
     }
 }

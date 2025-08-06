@@ -5,31 +5,28 @@ namespace SimulationExercise.Core.DTOS
     public class AverageProvinceDataGetDTO
     {
         public AverageProvinceDataGetDTO(long averageProvinceDataId,
-                                         long outputFileId,
                                          string province,
                                          string sensorTypeName,
                                          double averageValue,
                                          Unit unit,
                                          int averageDaysOfMeasure,
-                                         Status status)
+                                         bool isExported)
         {
             AverageProvinceDataId = averageProvinceDataId;
-            OutputFileId = outputFileId;
             Province = province;
             SensorTypeName = sensorTypeName;
             AverageValue = averageValue;
             Unit = unit;
             AverageDaysOfMeasure = averageDaysOfMeasure;
-            Status = status;
+            IsExported = isExported;
         }
 
         public long AverageProvinceDataId { get; }
-        public long OutputFileId { get; }
         public string Province { get; }
         public string SensorTypeName { get; }
         public double AverageValue { get; }
         public Unit Unit { get; }
         public int AverageDaysOfMeasure { get; }
-        public Status Status { get; }
+        public bool IsExported { get; set; } = false;
     }
 }

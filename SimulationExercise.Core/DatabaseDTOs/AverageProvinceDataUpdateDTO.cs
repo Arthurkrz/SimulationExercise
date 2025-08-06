@@ -1,24 +1,14 @@
-﻿using SimulationExercise.Core.Enum;
-
-namespace SimulationExercise.Core.DTOS
+﻿namespace SimulationExercise.Core.DatabaseDTOs
 {
     public class AverageProvinceDataUpdateDTO
     {
-        public AverageProvinceDataUpdateDTO(long averageProvinceDataId, Status status, IList<string> messages)
+        public AverageProvinceDataUpdateDTO(long averageProvinceDataId, bool isExported = false)
         {
-            if (status == Status.Error && (messages == null || !messages.Any()))
-                throw new ArgumentNullException("Update as error without error message list is not allowed.");
-
-            else if (status == Status.Success && messages != null)
-                throw new ArgumentException("Update as success with error message list is not allowed.");
-
             AverageProvinceDataId = averageProvinceDataId;
-            Status = status;
-            Messages = messages ?? new List<string>();
+            IsExported = isExported;
         }
 
         public long AverageProvinceDataId { get; }
-        public Status Status { get; }
-        public IList<string> Messages { get; }
+        public bool IsExported { get; set; } = false;
     }
 }

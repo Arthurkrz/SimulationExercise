@@ -95,16 +95,14 @@ namespace SimulationExercise.Services
             }
         }
 
-        private Reading ReadingGenerator(ReadingGetDTO readingDTO)
-        {
-            return new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
-                               readingDTO.Unit, readingDTO.StationId,
-                               readingDTO.StationName, readingDTO.Value,
-                               readingDTO.Province, readingDTO.City,
-                               readingDTO.IsHistoric, readingDTO.StartDate,
-                               readingDTO.StopDate, readingDTO.UtmNord,
-                               readingDTO.UtmEst, readingDTO.Latitude,
-                               readingDTO.Longitude);
-        }
+        private Reading ReadingGenerator(ReadingGetDTO readingDTO) => 
+            new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
+                        readingDTO.Unit, readingDTO.StationId,
+                        readingDTO.StationName, readingDTO.Value,
+                        readingDTO.Province, readingDTO.City,
+                        readingDTO.IsHistoric, readingDTO.StartDate,
+                        readingDTO.StopDate, readingDTO.UtmNord,
+                        readingDTO.UtmEst, readingDTO.Latitude,
+                        readingDTO.Longitude);
     }
 }

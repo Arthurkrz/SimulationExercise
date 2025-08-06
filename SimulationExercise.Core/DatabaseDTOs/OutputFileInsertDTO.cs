@@ -1,24 +1,20 @@
-﻿using SimulationExercise.Core.Enum;
-
-namespace SimulationExercise.Core.DTOS
+﻿namespace SimulationExercise.Core.DTOS
 {
     public class OutputFileInsertDTO
     {
-        public OutputFileInsertDTO(string name, byte[] bytes, string extension, OutputObjectType objectType, bool isAPDExported, Status status)
+        public OutputFileInsertDTO(string name, byte[] bytes, string extension, Type objectType, bool isExported)
         {
             Name = name;
             Bytes = bytes;
             Extension = extension;
-            Status = status;
             ObjectType = objectType;
-            IsAverageProvinceDataExported = isAPDExported;
+            IsExported = isExported;
         }
 
         public string Name { get; }
         public byte[] Bytes { get; }
         public string Extension { get; }
-        public OutputObjectType ObjectType { get; }
-        public bool IsAverageProvinceDataExported { get; } = false;
-        public Status Status { get; }
+        public Type ObjectType { get; }
+        public bool IsExported { get; }
     }
 }

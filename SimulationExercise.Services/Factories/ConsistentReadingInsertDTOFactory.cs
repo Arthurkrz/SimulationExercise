@@ -13,7 +13,7 @@ namespace SimulationExercise.Services.Factories
                                                   cr.Unit, cr.Value, cr.Province, cr.City,
                                                   cr.IsHistoric, cr.DaysOfMeasure, 
                                                   cr.UtmNord, cr.UtmEst, cr.Latitude, 
-                                                  cr.Longitude, Status.New);
+                                                  cr.Longitude, false, Status.Success);
         }
     }
 }

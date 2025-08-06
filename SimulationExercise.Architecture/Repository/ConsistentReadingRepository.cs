@@ -42,7 +42,7 @@ namespace SimulationExercise.Infrastructure.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS, ISEXPORTED = @ISEXPORTED 
                                    WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
                             new { dto.Status, dto.ConsistentReadingId });
 
@@ -82,6 +82,20 @@ namespace SimulationExercise.Infrastructure.Repository
                                 ORDER BY CREATIONTIME DESC;";
 
              return context.Query<ConsistentReadingGetDTO>(sql, new { statusId });
+        }
+
+        public IList<ConsistentReadingGetDTO> GetByIsExported(bool isExported, IContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                         SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
+                         ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
+                         LATITUDE, LONGITUDE, STATUSID AS STATUS
+                            FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED
+                                ORDER BY CREATIONTIME DESC;";
+
+            return context.Query<ConsistentReadingGetDTO>(sql, new { isExported });
         }
     }
 }

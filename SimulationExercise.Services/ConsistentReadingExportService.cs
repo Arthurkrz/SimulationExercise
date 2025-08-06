@@ -4,30 +4,29 @@ using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DatabaseDTOs;
 using SimulationExercise.Core.DTOS;
 
 namespace SimulationExercise.Services
 {
-    public class AverageProvinceDataExportService : IAverageProvinceDataExportService
+    public class ConsistentReadingExportService : IConsistentReadingExportService
     {
         private readonly IContextFactory _contextFactory;
-        private readonly IAverageProvinceDataRepository _averageProvinceDataRepository;
-        private readonly IAverageProvinceDataExportDTOFactory _averageProvinceDataExportDTOFactory;
+        private readonly IConsistentReadingRepository _consistentReadingRepository;
+        private readonly IConsistentReadingExportDTOFactory _consistentReadingExportDTOFactory;
         private readonly IOutputFileService _outputFileService;
         private readonly IOutputFileRepository _outputFileRepository;
-        private readonly ILogger<AverageProvinceDataExportService> _logger;
+        private readonly ILogger<ConsistentReadingExportService> _logger;
 
-        public AverageProvinceDataExportService(IContextFactory contextFactory,
-                                                IAverageProvinceDataRepository averageProvinceDataRepository,
-                                                IAverageProvinceDataExportDTOFactory averageProvinceDataExportDTOFactory,
-                                                IOutputFileService outputFileService,
-                                                IOutputFileRepository outputFileRepository,
-                                                ILogger<AverageProvinceDataExportService> logger)
+        public ConsistentReadingExportService(IContextFactory contextFactory,
+                                              IConsistentReadingRepository consistentReadingRepository,
+                                              IConsistentReadingExportDTOFactory consistentReadingExportDTOFactory,
+                                              IOutputFileService outputFileService,
+                                              IOutputFileRepository outputFileRepository,
+                                              ILogger<ConsistentReadingExportService> logger)
         {
             _contextFactory = contextFactory;
-            _averageProvinceDataRepository = averageProvinceDataRepository;
-            _averageProvinceDataExportDTOFactory = averageProvinceDataExportDTOFactory;
+            _consistentReadingRepository = consistentReadingRepository;
+            _consistentReadingExportDTOFactory = consistentReadingExportDTOFactory;
             _outputFileService = outputFileService;
             _outputFileRepository = outputFileRepository;
             _logger = logger;
@@ -35,34 +34,35 @@ namespace SimulationExercise.Services
 
         public void CreateOutputFiles()
         {
-            IList<AverageProvinceDataGetDTO> apdGetDTOs;
+            IList<ConsistentReadingGetDTO> crGetDTOs;
             using (IContext searchContext = _contextFactory.Create())
-                apdGetDTOs = _averageProvinceDataRepository.GetByIsExported(false, searchContext);
+                crGetDTOs = _consistentReadingRepository.GetByIsExported(false, searchContext);
 
-            if (apdGetDTOs.Count == 0)
+            if (crGetDTOs.Count == 0)
             {
-                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Average Province Data");
+                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
                 return;
             }
 
-            try 
+            try
             {
-                var records = _averageProvinceDataExportDTOFactory.CreateExportDTOList(apdGetDTOs);
-                var result = _outputFileService.CreateOutputFiles<AverageProvinceDataExportDTO>(records);
-
+                var records = _consistentReadingExportDTOFactory.CreateExportDTOList(crGetDTOs);
+                var result = _outputFileService.CreateOutputFiles<ConsistentReadingExportDTO>(records);
+                
                 if (!result.Success)
                 {
-                    _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", 0);
+                    _logger.LogError(LogMessages.ERRORSFOUND, "Consistent Reading list", 0);
                     foreach (var error in result.Errors!) _logger.LogError(error);
                 }
 
-                foreach (var averageProvinceData in apdGetDTOs)
+                foreach (var consistentReading in crGetDTOs)
                 {
-                    var updateDTO = new AverageProvinceDataUpdateDTO(averageProvinceData.AverageProvinceDataId, true);
+                    var updateDTO = new ConsistentReadingUpdateDTO(consistentReading.ConsistentReadingId, 
+                                                                   consistentReading.Status, true);
 
                     using (IContext updateContext = _contextFactory.Create())
                     {
-                        _averageProvinceDataRepository.Update(updateDTO, updateContext);
+                        _consistentReadingRepository.Update(updateDTO, updateContext);
                         updateContext.Commit();
                     }
                 }
@@ -88,12 +88,12 @@ namespace SimulationExercise.Services
                     return;
                 }
 
-                var fileStream = new FileStream(outDirectoryPath, 
-                                                FileMode.Create, 
+                var fileStream = new FileStream(outDirectoryPath,
+                                                FileMode.Create,
                                                 FileAccess.Write);
 
                 foreach (var outputFile in outputFiles)
-                    _outputFileService.Export<AverageProvinceDataExportDTO>(outputFile, fileStream);
+                    _outputFileService.Export<ConsistentReadingExportDTO>(outputFile, fileStream);
             }
             catch (Exception ex)
             {

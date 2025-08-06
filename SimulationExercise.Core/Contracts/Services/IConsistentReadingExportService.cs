@@ -1,6 +1,6 @@
 ﻿namespace SimulationExercise.Core.Contracts.Services
 {
-    public interface IAverageProvinceDataExportService : IBaseExport
+    public interface IConsistentReadingExportService : IBaseExport
     {
         void CreateOutputFiles();
     }

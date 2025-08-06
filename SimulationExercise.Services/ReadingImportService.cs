@@ -43,9 +43,7 @@ namespace SimulationExercise.Services
             }
         }
 
-        private bool IsHistoric(string storico)
-        {
-            return storico.Equals("S", StringComparison.OrdinalIgnoreCase);
-        }
+        private bool IsHistoric(string storico) => 
+            storico.Equals("S", StringComparison.OrdinalIgnoreCase);
     }
 }

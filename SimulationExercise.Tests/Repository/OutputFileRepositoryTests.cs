@@ -69,8 +69,8 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT NAME, EXTENSION, BYTES, STATUSID, 
-                        CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER 
+                    ($@"SELECT NAME, EXTENSION, BYTES, CREATIONTIME, 
+                        LASTUPDATETIME, LASTUPDATEUSER 
                             FROM {_tableNameOutputFile};");
 
                 Assert.Single(items);
@@ -78,7 +78,6 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(dto.Name, retrievedItem.NAME);
                 Assert.Equal(dto.Extension, retrievedItem.EXTENSION);
                 Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.BYTES));
-                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
                 Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
@@ -97,7 +96,7 @@ namespace SimulationExercise.Tests.Repository
 
             OutputFileGetDTO expectedReturn = new OutputFileGetDTO
                 (1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
-                 "Ext0", Status.Success);
+                 "Ext0", );
 
             OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
                 (1, Status.Success);
@@ -114,8 +113,7 @@ namespace SimulationExercise.Tests.Repository
                 // Assert
                 var result = assertContext.Query<OutputFileGetDTO>
                     ($@"SELECT OUTPUTFILEID, NAME, 
-                        BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameOutputFile} 
+                        BYTES, EXTENSION FROM {_tableNameOutputFile} 
                             WHERE OUTPUTFILEID = @OUTPUTFILEID;",
                     new { expectedReturn.OutputFileId });
 

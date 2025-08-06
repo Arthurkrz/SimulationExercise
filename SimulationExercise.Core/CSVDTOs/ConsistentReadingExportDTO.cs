@@ -4,7 +4,7 @@ using SimulationExercise.Core.Enum;
 namespace SimulationExercise.Core.CSVDTOs
 {
     [DelimitedRecord(",")]
-    public class ConsistentReadingExportDTO
+    public class ConsistentReadingExportDTO : ExportDTO
     {
         public ConsistentReadingExportDTO() { }
 

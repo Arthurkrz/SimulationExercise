@@ -9,17 +9,24 @@ namespace SimulationExercise.Services
         private readonly IInputFileService _inputFileService;
         private readonly IReadingService _readingService;
         private readonly IConsistentReadingService _consistentReadingService;
-        private readonly IOutputFileService _outputFileService;
+        private readonly IAverageProvinceDataService _averageProvinceDataService;
+        private readonly IConsistentReadingExportService _consistentReadingExportService;
+        private readonly IAverageProvinceDataExportService _averageProvinceDataExportService;
 
         public FilePersistanceService(IInputFileService inputFileService,
                                       IReadingService readingService,
                                       IConsistentReadingService consistentReadingService,
-                                      IOutputFileService outputFileService)
+                                      IAverageProvinceDataService averageProvinceDataService,
+                                      IConsistentReadingExportService consistentReadingExportService,
+                                      IAverageProvinceDataExportService averageProvinceDataExportService)
         {
             _inputFileService = inputFileService;
             _readingService = readingService;
             _consistentReadingService = consistentReadingService;
-            _outputFileService = outputFileService;
+
+            _averageProvinceDataService = averageProvinceDataService;
+            _consistentReadingExportService = consistentReadingExportService;
+            _averageProvinceDataExportService = averageProvinceDataExportService;
         }
 
         public void Initialize(string inDirectoryPath) =>
@@ -31,18 +38,30 @@ namespace SimulationExercise.Services
         public void CreateConsistentReadings() => 
             _consistentReadingService.ProcessReadings();
 
-        public void CreateOutputFiles() => 
-            _outputFileService.ProcessConsistentReadings();
+        public void CreateAverageProvinceDatas() => 
+            _averageProvinceDataService.ProcessConsistentReadings();
+
+        public void CreateAverageProvinceDataOutputFiles() =>
+            _averageProvinceDataExportService.CreateOutputFiles();
+
+        public void CreateConsistentReadingOutputFiles() =>
+            _consistentReadingExportService.CreateOutputFiles();
+
+        public void ExportAverageProvinceData(string outDirectoryPath) => 
+            _averageProvinceDataExportService.Export(outDirectoryPath);
+
+        public void ExportConsistentReadings(string outDirectoryPath) => 
+            _consistentReadingExportService.Export(outDirectoryPath);
 
         public void LoggerConfiguration(string baseOutPath) =>
             LogPathHolder.ErrorLogPath = GetExportDirectoryPath(baseOutPath);
 
         private string GetExportDirectoryPath(string baseOutPath)
         {
-            string errorDirectoryName = SystemTime.Now()
+            string exportDirectoryName = SystemTime.Now()
                 .ToString("yyyyMMdd_HHmmss");
 
-            string exportDirectoryPath = Path.Combine(baseOutPath, errorDirectoryName);
+            string exportDirectoryPath = Path.Combine(baseOutPath, exportDirectoryName);
             string errorsFilePath = Path.Combine(exportDirectoryPath, "Errors.log");
 
             if (!Directory.Exists(exportDirectoryPath))
