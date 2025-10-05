@@ -77,16 +77,16 @@ namespace SimulationExercise.Tests.Integration.ObjectGenerators
 
                 new List<ConsistentReadingGetDTO>
                 {
-                    new ConsistentReadingGetDTO(10, 1, 12691, "Arsenico", Unit.ng_m3, 383, "VA", "Varese", false, (int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays, 5073728, 486035, "45.8169745", "8.82024911", Status.Success),
-                    new ConsistentReadingGetDTO(9, 2, 5712, "Ozono", Unit.µg_m3, 138, "MI", "Inzago", true, (int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays, 5043030, 538012, "45.53976956", "9.48689669", Status.Success),
-                    new ConsistentReadingGetDTO(8, 6, 6665, "Ossidi di Azoto", Unit.mg_m3, 369, "BS", "Cantù", false, (int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays, 5064150, 509783, "45.73083728", "9.12573936", Status.Success),
-                    new ConsistentReadingGetDTO(7, 5, 6342, "Ossidi di Azoto", Unit.mg_m3, 141, "BS", "Pero", true, (int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays, 5039595, 507028, "45.50985564", "9.08997419", Status.Success),
-                    new ConsistentReadingGetDTO(6, 4, 10043, "Arsenico", Unit.ng_m3, 215, "VA", "Ferno", false, (int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays, 5051773, 481053, "45.61924753", "8.75697656", Status.Success),
-                    new ConsistentReadingGetDTO(5, 3, 20488, "Ozono", Unit.µg_m3, 279, "MI", "Erba", false, (int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays, 5072803, 517232, "45.8085738", "9.2217792", Status.Success),
-                    new ConsistentReadingGetDTO(4, 10, 6831, "Ossidi di Azoto", Unit.mg_m3, 180, "BS", "Lonato del Garda", false, (int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays, 5035536, 615762, "45.46375819", "10.48078183", Status.Success),
-                    new ConsistentReadingGetDTO(3, 9, 10035, "Benzene", Unit.µg_m3, 74, "CO", "Cornale", false, (int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays, 4987406, 493238, "45.04008561", "8.91415717", Status.Success),
-                    new ConsistentReadingGetDTO(2, 8, 5507, "Biossido di Azoto", Unit.µg_m3, 139, "CO", "Sesto San Giovanni", false, (int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays, 5042386, 518435, "45.53476819", "9.23610903", Status.Success),
-                    new ConsistentReadingGetDTO(1, 7, 10270, "Ozono", Unit.µg_m3, 221, "MI", "Darfo Boario Terme", true, (int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays, 5080789, 591371, "45.87460256", "10.17736553", Status.Success)
+                    new ConsistentReadingGetDTO(10, 1, 12691, "Arsenico", Unit.ng_m3, 383, "VA", "Varese", false, (int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays, 5073728, 486035, "45.8169745", "8.82024911", true, Status.Success),
+                    new ConsistentReadingGetDTO(9, 2, 5712, "Ozono", Unit.µg_m3, 138, "MI", "Inzago", true, (int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays, 5043030, 538012, "45.53976956", "9.48689669", true, Status.Success),
+                    new ConsistentReadingGetDTO(8, 6, 6665, "Ossidi di Azoto", Unit.mg_m3, 369, "BS", "Cantù", false, (int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays, 5064150, 509783, "45.73083728", "9.12573936", true, Status.Success),
+                    new ConsistentReadingGetDTO(7, 5, 6342, "Ossidi di Azoto", Unit.mg_m3, 141, "BS", "Pero", true, (int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays, 5039595, 507028, "45.50985564", "9.08997419", true, Status.Success),
+                    new ConsistentReadingGetDTO(6, 4, 10043, "Arsenico", Unit.ng_m3, 215, "VA", "Ferno", false, (int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays, 5051773, 481053, "45.61924753", "8.75697656", true, Status.Success),
+                    new ConsistentReadingGetDTO(5, 3, 20488, "Ozono", Unit.µg_m3, 279, "MI", "Erba", false, (int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays, 5072803, 517232, "45.8085738", "9.2217792", true, Status.Success),
+                    new ConsistentReadingGetDTO(4, 10, 6831, "Ossidi di Azoto", Unit.mg_m3, 180, "BS", "Lonato del Garda", false, (int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays, 5035536, 615762, "45.46375819", "10.48078183", true, Status.Success),
+                    new ConsistentReadingGetDTO(3, 9, 10035, "Benzene", Unit.µg_m3, 74, "CO", "Cornale", false, (int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays, 4987406, 493238, "45.04008561", "8.91415717", true, Status.Success),
+                    new ConsistentReadingGetDTO(2, 8, 5507, "Biossido di Azoto", Unit.µg_m3, 139, "CO", "Sesto San Giovanni", false, (int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays, 5042386, 518435, "45.53476819", "9.23610903", true, Status.Success),
+                    new ConsistentReadingGetDTO(1, 7, 10270, "Ozono", Unit.µg_m3, 221, "MI", "Darfo Boario Terme", true, (int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays, 5080789, 591371, "45.87460256", "10.17736553", true, Status.Success)
                 },
 
                 new List<string>
@@ -106,7 +106,7 @@ namespace SimulationExercise.Tests.Integration.ObjectGenerators
             };
         }
 
-        public static IEnumerable<object[]> InvalidStreamGenerator()
+        public static IEnumerable<object[]> InvalidConsistentReadingStreamGenerator()
         {
             string inputWithErrorsText = $@"IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
 12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)

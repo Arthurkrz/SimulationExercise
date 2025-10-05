@@ -8,7 +8,6 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Utilities;
 
 namespace SimulationExercise.Tests.Service
 {
@@ -21,7 +20,6 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IReadingRepository> _readingRepositoryMock;
         private readonly Mock<IConsistentReadingRepository> _consistentReadingRepositoryMock;
         private readonly Mock<ILogger<ConsistentReadingService>> _loggerMock;
-        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         public ConsistentReadingServiceTests()
         {
@@ -31,7 +29,6 @@ namespace SimulationExercise.Tests.Service
             _readingRepositoryMock = new Mock<IReadingRepository>();
             _consistentReadingRepositoryMock = new Mock<IConsistentReadingRepository>();
             _loggerMock = new Mock<ILogger<ConsistentReadingService>>();
-            _testRepositoryCleanup = new TestRepositoryCleanup();
 
             var serviceCollection = new ServiceCollection();
 
@@ -61,8 +58,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldProcessReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _readingRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
@@ -101,8 +96,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogErrors_WhenInvalidReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _readingRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
@@ -259,8 +252,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenNoNewObjectsFound()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _readingRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(new List<ReadingGetDTO>());
@@ -284,8 +275,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenFailToInsert(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _readingRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
@@ -320,8 +309,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenFailToUpdate(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _readingRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
@@ -371,7 +358,7 @@ namespace SimulationExercise.Tests.Service
 
                 Result<ConsistentReading>.Ok(consistentReading),
 
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.New)
             };
         }
 

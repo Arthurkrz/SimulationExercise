@@ -34,7 +34,7 @@ namespace SimulationExercise.Services
                                                          r.UnitaMisura, r.Idstazione,
                                                          r.NomeStazione, r.Quota,
                                                          r.Provincia, r.Comune,
-                                                         IsHistoric(r.Storico),
+                                                         IsHistoric(r.Storico!),
                                                          r.DataStart, r.DataStop,
                                                          r.Utm_Nord, r.UTM_Est,
                                                          r.lat, r.lng)).ToList();

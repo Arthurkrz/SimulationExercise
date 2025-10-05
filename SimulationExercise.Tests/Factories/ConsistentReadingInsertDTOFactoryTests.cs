@@ -42,37 +42,37 @@ namespace SimulationExercise.Tests.Factories
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", true, Status.New)
             };
 
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.New)
             };
 
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", true, Status.New)
             };
 
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", false, Status.New)
             };
 
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", true, Status.New)
             };
 
             yield return new object[]
             {
                 new ConsistentReading(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 1 },
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude", false, Status.New)
             };
         }
     }

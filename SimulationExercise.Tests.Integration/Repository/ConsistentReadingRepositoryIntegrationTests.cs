@@ -6,30 +6,30 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
-using SimulationExercise.Tests.Utilities;
+using SimulationExercise.Tests.Integration.Utilities;
 
 namespace SimulationExercise.Tests.Repository
 {
-    public class InputFileRepositoryTests
+    public class ConsistentReadingRepositoryIntegrationTests
     {
         private readonly IContextFactory _contextFactory;
-        private readonly IInputFileRepository _sut;
+        private readonly IConsistentReadingRepository _sut;
         private readonly IRepositoryInitializer _repositoryInitializer;
         private readonly TestRepositoryCleanup _testRepositoryCleanup;
-        private readonly TestRepositoryObjectInsertion<InputFileInsertDTO> _testRepositoryObjectInsertion;
+        private readonly TestRepositoryObjectInsertion<ConsistentReadingInsertDTO> _testRepositoryObjectInsertion;
 
-        private readonly string _tableNameInputFile = "InputFile";
-        private readonly string _tableNameInputFileMessage = "InputFileMessage";
+        private readonly string _tableNameConsistentReading = "ConsistentReading";
+        private readonly string _tableNameConsistentReadingMessage = "ConsistentReadingMessage";
         private readonly string _connectionString;
 
-        public InputFileRepositoryTests()
+        public ConsistentReadingRepositoryIntegrationTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
             _testRepositoryCleanup = new TestRepositoryCleanup();
-            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<InputFileInsertDTO>();
+            _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ConsistentReadingInsertDTO>();
 
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException(nameof(_connectionString));
@@ -39,7 +39,7 @@ namespace SimulationExercise.Tests.Repository
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
 
-            _sut = new InputFileRepository();
+            _sut = new ConsistentReadingRepository();
         }
 
         [Fact]
@@ -47,15 +47,17 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
+            _testRepositoryObjectInsertion.InsertMethodTestSetup();
 
             var currentTime = new DateTime(2025, 05, 12);
-            const string currentUser = "currentUser1";
+            var currentUser = "currentUser1";
             SystemTime.Now = () => currentTime;
             SystemIdentity.CurrentName = () => currentUser;
 
-            var dto = new InputFileInsertDTO("InputFileName1", 
-                                             new byte[] { 1, 2, 3 },
-                                             "ext", Status.New);
+            var dto = new ConsistentReadingInsertDTO(1, 1, 
+                "SensorTypeName", Unit.mg_m3, 1, "Province", 
+                "City", true, 1, 1, 1, "Latitude", 
+                "Longitude", false, Status.New);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -68,15 +70,27 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Assert
                 IList<dynamic> items = assertContext.Query<dynamic>
-                    ($@"SELECT NAME, EXTENSION, BYTES, STATUSID, 
-                        CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER 
-                            FROM {_tableNameInputFile};");
+                    ($@"SELECT READINGID, SENSORID, SENSORTYPENAME, 
+                        UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
+                        DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
+                        LONGITUDE, LASTUPDATETIME, CREATIONTIME, 
+                        LASTUPDATEUSER, STATUSID FROM {_tableNameConsistentReading};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
-                Assert.Equal(dto.Name, retrievedItem.NAME);
-                Assert.Equal(dto.Extension, retrievedItem.EXTENSION);
-                Assert.True(dto.Bytes.SequenceEqual((byte[])retrievedItem.BYTES));
+                Assert.Equal(dto.ReadingId, retrievedItem.READINGID);
+                Assert.Equal(dto.SensorId, retrievedItem.SENSORID);
+                Assert.Equal(dto.SensorTypeName, retrievedItem.SENSORTYPENAME);
+                Assert.Equal((int)dto.Unit, retrievedItem.UNIT);
+                Assert.Equal(dto.Value, retrievedItem.VALUE);
+                Assert.Equal(dto.Province, retrievedItem.PROVINCE);
+                Assert.Equal(dto.City, retrievedItem.CITY);
+                Assert.Equal(dto.IsHistoric, retrievedItem.ISHISTORIC);
+                Assert.Equal(dto.DaysOfMeasure, retrievedItem.DAYSOFMEASURE);
+                Assert.Equal(dto.UtmNord, retrievedItem.UTMNORD);
+                Assert.Equal(dto.UtmEst, retrievedItem.UTMEST);
+                Assert.Equal(dto.Latitude, retrievedItem.LATITUDE);
+                Assert.Equal(dto.Longitude, retrievedItem.LONGITUDE);
                 Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
                 Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
@@ -92,13 +106,13 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1, Status.Success);
+            _testRepositoryObjectInsertion.InsertObjects(1);
 
-            InputFileGetDTO expectedReturn = new InputFileGetDTO
-                (1, "InputFileName0", new byte[] { 1, 2, 3 },
-                 "Ext0", Status.Success);
+            ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
+                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province",
+                "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.Success);
 
-            InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
+            ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
                 (1, Status.Success);
 
             using (IContext context = _contextFactory.Create())
@@ -111,10 +125,13 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.Query<InputFileGetDTO>
-                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;",
-                    new { expectedReturn.InputFileId });
+                var result = assertContext.Query<ConsistentReadingGetDTO>
+                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
+                        DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, 
+                        STATUSID AS STATUS FROM {_tableNameConsistentReading} 
+                            WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
+                    new { expectedReturn.ConsistentReadingId });
 
                 Assert.Single(result);
                 result.First().Should().BeEquivalentTo(expectedReturn);
@@ -131,12 +148,12 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup.Cleanup();
             _testRepositoryObjectInsertion.InsertObjects(1);
 
-            InputFileGetDTO expectedReturn = new InputFileGetDTO
-                (1, "InputFileName0", new byte[] { 1, 2, 3 },
-                 "Ext0", Status.Error);
+            ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
+                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", 
+                "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.Error);
 
-            InputFileUpdateDTO updateDTO = new InputFileUpdateDTO
-                (1, Status.Error, new List<string> { "Error0" });
+            ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
+                (1, Status.Error, false, new List<string> { "Error0" });
 
             using (IContext context = _contextFactory.Create())
             {
@@ -148,18 +165,22 @@ namespace SimulationExercise.Tests.Repository
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.Query<InputFileGetDTO>
-                    ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;", 
-                    new { expectedReturn.InputFileId });
+                var result = assertContext.Query<ConsistentReadingGetDTO>
+                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
+                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
+                        ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
+                        LATITUDE, LONGITUDE, STATUSID AS STATUS 
+                        FROM {_tableNameConsistentReading}
+                            WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
+                    new { expectedReturn.ConsistentReadingId });
 
                 IList<dynamic> messageResult = assertContext.Query<dynamic>
-                    ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
-                            FROM INPUTFILE F 
-                            INNER JOIN {_tableNameInputFileMessage} M
-                            ON F.INPUTFILEID = M.INPUTFILEID
-                            WHERE F.INPUTFILEID = @INPUTFILEID;", 
-                    new { expectedReturn.InputFileId });
+                    ($@"SELECT M.CONSISTENTREADINGID, C.STATUSID AS STATUS, M.MESSAGE
+                            FROM CONSISTENTREADING C
+                            INNER JOIN {_tableNameConsistentReadingMessage} M
+                            ON C.CONSISTENTREADINGID = M.CONSISTENTREADINGID
+                            WHERE C.CONSISTENTREADINGID = @CONSISTENTREADINGID;",
+                    new { expectedReturn.ConsistentReadingId });
 
                 Assert.Single(result);
                 Assert.Single(messageResult);
@@ -168,7 +189,7 @@ namespace SimulationExercise.Tests.Repository
                 Status status = (Status)(int)message.STATUS;
 
                 result.First().Should().BeEquivalentTo(expectedReturn);
-                Assert.Equal((long)message.INPUTFILEID, updateDTO.InputFileId);
+                Assert.Equal((long)message.CONSISTENTREADINGID, updateDTO.ConsistentReadingId);
                 Assert.Equal(Status.Error, status);
                 Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }

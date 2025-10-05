@@ -8,7 +8,6 @@ using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Utilities;
 using System.Text;
 
 namespace SimulationExercise.Tests.Service
@@ -23,7 +22,6 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IReadingInsertDTOFactory> _readingInsertDTOFactoryMock;
         private readonly Mock<IContext> _contextMock;
         private readonly Mock<ILogger<ReadingService>> _loggerMock;
-        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         public ReadingServiceTests()
         {
@@ -34,7 +32,6 @@ namespace SimulationExercise.Tests.Service
             _readingInsertDTOFactoryMock = new Mock<IReadingInsertDTOFactory>();
             _contextMock = new Mock<IContext>();
             _loggerMock = new Mock<ILogger<ReadingService>>();
-            _testRepositoryCleanup = new TestRepositoryCleanup();
 
             var serviceCollection = new ServiceCollection();
 
@@ -63,8 +60,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldProcessInputFiles(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _inputFileRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(inputFileDTOList);
@@ -148,8 +143,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldLogError_IfNoNewObjectsFound(List<InputFileGetDTO> inputFileDTOs, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             inputFileDTOs = new List<InputFileGetDTO>();
 
             _inputFileRepositoryMock.Setup(x => x.GetByStatus(
@@ -182,8 +175,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldLogError_WhenFailToInsert(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _inputFileRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(inputFileDTOList);
@@ -218,8 +209,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessInputFiles_ShouldLogError_WhenFailToUpdate(List<InputFileGetDTO> inputFileDTOList, ImportResult importResultWithErrors)
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-
             _inputFileRepositoryMock.Setup(x => x.GetByStatus(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(inputFileDTOList);

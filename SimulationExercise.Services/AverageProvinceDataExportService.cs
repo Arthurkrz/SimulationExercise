@@ -41,7 +41,7 @@ namespace SimulationExercise.Services
 
             if (apdGetDTOs.Count == 0)
             {
-                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Average Province Data");
+                _logger.LogError(LogMessages.NONONEXPORTEDOBJECTSFOUND, "Average Province Data");
                 return;
             }
 

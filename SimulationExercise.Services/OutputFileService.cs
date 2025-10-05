@@ -1,4 +1,6 @@
 ﻿using FileHelpers;
+using Microsoft.Extensions.Logging;
+using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
@@ -12,11 +14,13 @@ namespace SimulationExercise.Services
     {
         private readonly IContextFactory _contextFactory;
         private readonly IOutputFileRepository _outputFileRepository;
+        private readonly ILogger<OutputFileService> _logger;
 
-        public OutputFileService(IContextFactory contextFactory, IOutputFileRepository outputFileRepository)
+        public OutputFileService(IContextFactory contextFactory, IOutputFileRepository outputFileRepository, ILogger<OutputFileService> logger)
         {
             _contextFactory = contextFactory;
             _outputFileRepository = outputFileRepository;
+            _logger = logger;
         }
 
         public Result<OutputFileInsertDTO> CreateOutputFiles<T>(IList<T> objs) where T : class
@@ -35,8 +39,19 @@ namespace SimulationExercise.Services
 
             using (IContext insertContext = _contextFactory.Create())
             {
-                _outputFileRepository.Insert(insertDTO, insertContext);
-                insertContext.Commit();
+                try
+                {
+                    _outputFileRepository.Insert(insertDTO, insertContext);
+                    insertContext.Commit();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
+                }
+                finally
+                {
+                    insertContext.Dispose();
+                }
             }
 
             return Result<OutputFileInsertDTO>.Ok(insertDTO);

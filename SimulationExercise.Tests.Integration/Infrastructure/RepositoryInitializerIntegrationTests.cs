@@ -6,13 +6,13 @@ using SimulationExercise.Core.Contracts.Repository;
 
 namespace SimulationExercise.Tests.Architecture
 {
-    public class RepositoryInitializerTests
+    public class RepositoryInitializerIntegrationTests
     {
         private IContextFactory _contextFactory;
         private readonly IRepositoryInitializer _sut;
         private readonly string? _connectionString;
 
-        public RepositoryInitializerTests()
+        public RepositoryInitializerIntegrationTests()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

@@ -6,7 +6,6 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Services;
-using SimulationExercise.Tests.Utilities;
 using System.Text;
 
 namespace SimulationExercise.Tests.Service
@@ -17,7 +16,6 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IContextFactory> _contextFactoryMock;
         private readonly Mock<IInputFileRepository> _inputFileRepositoryMock;
         private readonly Mock<ILogger<InputFileService>> _loggerMock;
-        private readonly TestRepositoryCleanup _testRepositoryCleanup;
 
         private readonly string _basePath;
         private readonly string _inDirectoryPath;
@@ -27,7 +25,6 @@ namespace SimulationExercise.Tests.Service
             _contextFactoryMock = new Mock<IContextFactory>();
             _inputFileRepositoryMock = new Mock<IInputFileRepository>();
             _loggerMock = new Mock<ILogger<InputFileService>>();
-            _testRepositoryCleanup = new TestRepositoryCleanup();
 
             var serviceCollection = new ServiceCollection();
 
@@ -53,7 +50,6 @@ namespace SimulationExercise.Tests.Service
         public void ProcessFiles_ShouldProcessFiles()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
             DirectoryCleanup();
             InputFileGenerator(2);
 

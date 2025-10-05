@@ -29,12 +29,12 @@ namespace SimulationExercise.Core.CSVDTOs
             Location = location;
         }
 
-        public long? IdSensore { get; set; }
+        public long IdSensore { get; set; }
         public string? NomeTipoSensore { get; set; }
         public string? UnitaMisura { get; set; }
-        public long? Idstazione { get; set; }
+        public long Idstazione { get; set; }
         public string? NomeStazione { get; set; }
-        public int? Quota { get; set; }
+        public int Quota { get; set; }
         public string? Provincia { get; set; }
         public string? Comune { get; set; }
         public string? Storico { get; set; }
@@ -44,8 +44,8 @@ namespace SimulationExercise.Core.CSVDTOs
         [FieldConverter(ConverterKind.Date, "dd/MM/yyyy")]
         public DateTime? DataStop { get; set; }
 
-        public int? Utm_Nord { get; set; }
-        public int? UTM_Est { get; set; }
+        public int Utm_Nord { get; set; }
+        public int UTM_Est { get; set; }
         public string? lat { get; set; }
         public string? lng { get; set; }
         public string? Location { get; set; }

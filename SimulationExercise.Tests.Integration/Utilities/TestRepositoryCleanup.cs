@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Infrastructure;
 
-namespace SimulationExercise.Tests.Utilities
+namespace SimulationExercise.Tests.Integration.Utilities
 {
     public class TestRepositoryCleanup
     {

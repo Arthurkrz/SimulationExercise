@@ -56,31 +56,34 @@ namespace SimulationExercise.Services
                                                               cr.UtmEst, cr.Latitude!,
                                                               cr.Longitude!)).ToList();
 
-                    var apdCreationResult = _averageProvinceDataFactory
+                    var apdCreationResults = _averageProvinceDataFactory
                         .CreateAverageProvinceData(consistentReadings);
 
-                    if (apdCreationResult.Success)
+                    foreach(var apdCreationResult in apdCreationResults)
                     {
-                        var apd = apdCreationResult.Value;
-                        var insertDTO = new AverageProvinceDataInsertDTO(apd!.Province, apd.SensorTypeName,
-                                                                         apd.AverageValue, apd.Unit,
-                                                                         apd.AverageDaysOfMeasure, false);
-
-                        _averageProvinceDataRepository.Insert(insertDTO, context);
-
-                        foreach (var crGetDTO in crGetDTOs)
+                        if (apdCreationResult.Success)
                         {
-                            var updateDTO = new ConsistentReadingUpdateDTO(crGetDTO.ConsistentReadingId, 
-                                                                           Status.Success, crGetDTO.IsExported);
+                            var apd = apdCreationResult.Value;
+                            var insertDTO = new AverageProvinceDataInsertDTO(apd!.Province, apd.SensorTypeName,
+                                                                             apd.AverageValue, apd.Unit,
+                                                                             apd.AverageDaysOfMeasure, false);
 
-                            _consistentReadingRepository.Update(updateDTO, context);
+                            _averageProvinceDataRepository.Insert(insertDTO, context);
+
+                            foreach (var crGetDTO in crGetDTOs)
+                            {
+                                var updateDTO = new ConsistentReadingUpdateDTO(crGetDTO.ConsistentReadingId,
+                                                                               Status.Success, crGetDTO.IsExported);
+
+                                _consistentReadingRepository.Update(updateDTO, context);
+                            }
                         }
-                    }
-                    else
-                    {
-                        _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", _errorGroupNumber);
-                        foreach (var error in apdCreationResult.Errors!) _logger.LogError(error);
-                        _errorGroupNumber++;
+                        else
+                        {
+                            _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", _errorGroupNumber);
+                            foreach (var error in apdCreationResult.Errors!) _logger.LogError(error);
+                            _errorGroupNumber++;
+                        }
                     }
                 }
                 catch (Exception ex)

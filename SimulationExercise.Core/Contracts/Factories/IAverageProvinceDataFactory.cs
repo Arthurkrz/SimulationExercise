@@ -4,6 +4,6 @@ namespace SimulationExercise.Core.Contracts.Factories
 {
     public interface IAverageProvinceDataFactory
     {
-        Result<AverageProvinceData> CreateAverageProvinceData(IList<ConsistentReading> consistentReadings);
+        IList<Result<AverageProvinceData>> CreateAverageProvinceData(IList<ConsistentReading> consistentReadings);
     }
 }

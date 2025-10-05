@@ -1,6 +1,6 @@
 ﻿namespace SimulationExercise.Tests.Integration.Utilities
 {
-    public class IntegrationTestINFileCreator
+    public class INFileCreator
     {
         public void CreateINFiles(string inDirectoryPath, int numberOfFilesToBeCreated, Stream inputFileStream)
         {

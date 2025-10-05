@@ -16,7 +16,7 @@ using SimulationExercise.Tests.Integration.ObjectGenerators;
 using SimulationExercise.Tests.Integration.Utilities;
 using System.Text;
 
-namespace SimulationExercise.Tests.Integration
+namespace SimulationExercise.Tests.Integration.Service
 {
     public class FilePersistanceIntegrationTest
     {
@@ -28,8 +28,8 @@ namespace SimulationExercise.Tests.Integration
         private readonly IOutputFileRepository _outputFileRepository;
         private readonly IContextFactory _contextFactory;
 
-        private readonly IntegrationTestRepositoryCleanup _integrationTestRepositoryCleanup;
-        private readonly IntegrationTestINFileCreator _integrationTestINFileCreator;
+        private readonly TestRepositoryCleanup _integrationTestRepositoryCleanup;
+        private readonly INFileCreator _integrationTestINFileCreator;
 
         private readonly string _basePath;
         private readonly string _inDirectoryPath;
@@ -64,7 +64,7 @@ namespace SimulationExercise.Tests.Integration
                 loggingBuilder.AddSerilog();
             });
 
-            services.AddSingleton<string>(connectionString);
+            services.AddSingleton(connectionString);
             _serviceProvider = services.BuildServiceProvider();
             _sut = _serviceProvider.GetRequiredService<IFilePersistanceService>();
             _contextFactory = _serviceProvider.GetRequiredService<IContextFactory>();
@@ -77,8 +77,8 @@ namespace SimulationExercise.Tests.Integration
             _inDirectoryPath = Path.Combine(_basePath, "INTest");
             _outDirectoryPath = Path.Combine(_basePath, "OUTTest");
 
-            _integrationTestRepositoryCleanup = new IntegrationTestRepositoryCleanup();
-            _integrationTestINFileCreator = new IntegrationTestINFileCreator();
+            _integrationTestRepositoryCleanup = new TestRepositoryCleanup();
+            _integrationTestINFileCreator = new INFileCreator();
         }
 
         [Theory]
@@ -99,7 +99,11 @@ namespace SimulationExercise.Tests.Integration
             _sut.Initialize(_inDirectoryPath);
             _sut.CreateReadings();
             _sut.CreateConsistentReadings();
-            _sut.CreateOutputFiles();
+            _sut.CreateAverageProvinceDatas();
+            _sut.CreateAverageProvinceDataOutputFiles();
+            _sut.CreateConsistentReadingOutputFiles();
+            _sut.ExportAverageProvinceData(_outDirectoryPath);
+            _sut.ExportConsistentReadings(_outDirectoryPath);
 
             // Assert
             using (IContext context = _contextFactory.Create())
@@ -107,7 +111,7 @@ namespace SimulationExercise.Tests.Integration
                 var inputFiles = _inputFileRepository.GetByStatus(Status.Success, context);
                 var readings = _readingRepository.GetByStatus(Status.Success, context);
                 var consistentReadings = _consistentReadingRepository.GetByStatus(Status.Success, context);
-                var outputFiles = _outputFileRepository.GetByStatus(Status.Success, context);
+                var outputFiles = _outputFileRepository.GetByIsExported(true, context); // MODIFY
                 
                 Assert.Single(inputFiles);
                 Assert.Equal(10, readings.Count);
@@ -173,8 +177,8 @@ namespace SimulationExercise.Tests.Integration
             }
         }
 
-        [Theory]
-        [MemberData(nameof(StreamData.InvalidStreamGenerator), MemberType = typeof(StreamData))]
+        [Theory] // MODIFY DATA METHOD
+        [MemberData(nameof(StreamData.InvalidConsistentReadingStreamGenerator), MemberType = typeof(StreamData))]
         public void CreateReadings_ShouldLogErrorsAndUpdate(Stream inputStreamWithErrors, List<string> expectedErrorLines, List<ReadingGetDTO> expectedReadings)
         {
             // Arrange
@@ -187,7 +191,8 @@ namespace SimulationExercise.Tests.Integration
             _sut.Initialize(_inDirectoryPath);
             _sut.CreateReadings();
             _sut.CreateConsistentReadings();
-            _sut.CreateOutputFiles();
+            _sut.CreateConsistentReadingOutputFiles(); // IMPLEMENT
+            _sut.ExportConsistentReadings(_outDirectoryPath); // IMPLEMENT
 
             // Assert
             using (IContext context = _contextFactory.Create())

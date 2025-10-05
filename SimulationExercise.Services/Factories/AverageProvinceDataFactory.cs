@@ -13,37 +13,34 @@ namespace SimulationExercise.Services.Factory
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        public Result<AverageProvinceData> CreateAverageProvinceData(IList<ConsistentReading> consistentReadings)
+        public IList<Result<AverageProvinceData>> CreateAverageProvinceData(IList<ConsistentReading> consistentReadings)
         {
             if (consistentReadings == null || consistentReadings.Count == 0)
-                return Result<AverageProvinceData>.Ko(
-                    new List<string> { "Null or empty consistent reading list" });
+                return new List<Result<AverageProvinceData>>
+                    { Result<AverageProvinceData>.Ko(
+                      new List<string> { "Null or empty consistent reading list" }) };
 
+            var apdCreationResult = new List<Result<AverageProvinceData>>();
             List<ProvinceData> provinceDatas = new();
-            try
-            {
-                var groupedReadings = consistentReadings
-                    .GroupBy(cr => new { cr.Province,
-                                         cr.SensorTypeName,
-                                         cr.Unit}).ToList();
 
-                provinceDatas = groupedReadings.Select(cr => new ProvinceData
-                                                      (cr.Key.Province,
-                                                       cr.Key.SensorTypeName,
-                                                       cr.ToList())).ToList();
-            }
-            catch(Exception ex)
-            {
-                return Result<AverageProvinceData>.Ko(
-                    new List<string> { ex.Message });
-            }
+            var groupedReadings = consistentReadings
+                .GroupBy(cr => new { cr.Province,
+                                        cr.SensorTypeName,
+                                        cr.Unit}).ToList();
+
+            provinceDatas = groupedReadings.Select(cr => new ProvinceData
+                                                    (cr.Key.Province,
+                                                    cr.Key.SensorTypeName,
+                                                    cr.ToList())).ToList();
 
             foreach (var provinceData in provinceDatas)
             {
                 var validationResult = _validator.Validate(provinceData);
 
-                if (!validationResult.IsValid) return Result<AverageProvinceData>.Ko(
-                    validationResult.Errors.Select(e => e.ErrorMessage).ToList());
+                if (!validationResult.IsValid)
+                    return new List<Result<AverageProvinceData>>
+                { Result<AverageProvinceData>.Ko(
+                    validationResult.Errors.Select(e => e.ErrorMessage).ToList()) };
 
                 double averageValue = Math.Round(provinceData
                     .ConsistentReadings.Average(r => r.Value), 2);
@@ -55,17 +52,16 @@ namespace SimulationExercise.Services.Factory
 
                 var averageProvinceData = new AverageProvinceData
                 (
-                    provinceData.Province, 
+                    provinceData.Province,
                     provinceData.SensorTypeName,
-                    averageValue, unit, 
+                    averageValue, unit,
                     averageDaysOfMeasure
                 );
 
-                return Result<AverageProvinceData>.Ok(averageProvinceData);
+                apdCreationResult.Add(Result<AverageProvinceData>.Ok(averageProvinceData));
             }
 
-            return Result<AverageProvinceData>.Ko(
-                new List<string> { "No valid province data found." });
+            return apdCreationResult;
         }
     }
 }

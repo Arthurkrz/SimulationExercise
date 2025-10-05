@@ -1,11 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
+using SimulationExercise.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SimulationExercise.Tests.Utilities
+namespace SimulationExercise.Tests.Integration.Utilities
 {
     public class TestRepositoryObjectInsertion<T>
     {
@@ -26,7 +31,7 @@ namespace SimulationExercise.Tests.Utilities
 
             _connectionString = config.GetConnectionString("Default") ??
                 throw new ArgumentNullException(nameof(_connectionString));
-            
+
             _contextFactory = new DapperContextFactory(_connectionString);
         }
 
@@ -60,7 +65,7 @@ namespace SimulationExercise.Tests.Utilities
             if (objectType == typeof(ConsistentReadingInsertDTO))
             {
                 InputFileRepositoryInsert(1, Status.New);
-                ReadingRepositoryInsert(1, Status.New);                
+                ReadingRepositoryInsert(1, Status.New);
             }
         }
 
