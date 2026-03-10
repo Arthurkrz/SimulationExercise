@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AverageProvinceDataService.cs~RF823e75ae.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="FileHelpers" Version="3.5.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />

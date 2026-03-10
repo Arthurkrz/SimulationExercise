@@ -1,10 +1,10 @@
 ﻿using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Core.DTOS
+namespace SimulationExercise.Core.DTOs.DatabaseDTOs
 {
-    public class ConsistentReadingUpdateDTO
+    public class InputFileUpdateDTO
     {
-        public ConsistentReadingUpdateDTO(long consistentReadingId, Status status, bool isExported = false, IList<string>? messages = null)
+        public InputFileUpdateDTO(long inputFileId, Status status, IList<string>? messages = null)
         {
             if (status == Status.Error && (messages == null || !messages.Any()))
                 throw new ArgumentNullException("Update as error without error message list is not allowed.");
@@ -12,14 +12,12 @@ namespace SimulationExercise.Core.DTOS
             else if (status == Status.Success && messages != null)
                 throw new ArgumentException("Update as success with error message list is not allowed.");
 
-            ConsistentReadingId = consistentReadingId;
-            IsExported = isExported;
+            InputFileId = inputFileId;
             Status = status;
             Messages = messages ?? new List<string>();
         }
 
-        public long ConsistentReadingId { get; }
-        public bool IsExported { get; set; } = false;
+        public long InputFileId { get; }
         public Status Status { get; }
         public IList<string> Messages { get; }
     }

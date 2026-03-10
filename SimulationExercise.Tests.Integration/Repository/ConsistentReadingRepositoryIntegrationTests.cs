@@ -3,10 +3,11 @@ using Microsoft.Extensions.Configuration;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.Infrastructure.Repository;
 using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DTOS;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using SimulationExercise.Tests.Integration.Utilities;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
+using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Tests.Repository
 {

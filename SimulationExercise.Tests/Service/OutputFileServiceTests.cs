@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 

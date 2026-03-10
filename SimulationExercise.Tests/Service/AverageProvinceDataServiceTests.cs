@@ -2,14 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimulationExercise.Tests.Service
 {

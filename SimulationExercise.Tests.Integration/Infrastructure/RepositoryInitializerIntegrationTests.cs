@@ -2,7 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using SimulationExercise.Infrastructure;
-using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Tests.Architecture
 {

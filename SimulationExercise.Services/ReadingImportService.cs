@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.CSVDTOs;
+using SimulationExercise.Core.DTOs.CSVDTOs;
 using SimulationExercise.Core.Entities;
 
 namespace SimulationExercise.Services

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Infrastructure;
 
 namespace SimulationExercise.Tests.Integration.Utilities

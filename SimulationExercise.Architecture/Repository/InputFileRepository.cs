@@ -1,5 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 

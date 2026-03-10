@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Core.Contracts.Repository
+﻿namespace SimulationExercise.Core.Contracts.Infrastructure
 {
     public interface IContext : IDisposable
     {

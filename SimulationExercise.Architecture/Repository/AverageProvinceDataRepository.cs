@@ -1,6 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DatabaseDTOs;
-using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Infrastructure.Repository

@@ -1,14 +1,9 @@
 ﻿using FluentAssertions;
 using SimulationExercise.Core.Contracts.Factories;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimulationExercise.Tests.Factories
 {

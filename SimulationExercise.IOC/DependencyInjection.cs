@@ -10,6 +10,7 @@ using SimulationExercise.Services.Factory;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.Services.Factories;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.IOC
 {

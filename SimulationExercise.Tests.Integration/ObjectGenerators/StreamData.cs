@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using System.Text;

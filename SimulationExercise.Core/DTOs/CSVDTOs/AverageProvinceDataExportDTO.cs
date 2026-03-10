@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
 
-namespace SimulationExercise.Core.CSVDTOs
+namespace SimulationExercise.Core.DTOs.CSVDTOs
 {
     [DelimitedRecord(",")]
     public class AverageProvinceDataExportDTO : ExportDTO

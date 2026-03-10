@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Core.DatabaseDTOs
+﻿namespace SimulationExercise.Core.DTOs.DatabaseDTOs
 {
     public class AverageProvinceDataUpdateDTO
     {

@@ -1,5 +1,5 @@
 ﻿using SimulationExercise.Core.Contracts.Factories;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factories;

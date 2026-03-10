@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 
 namespace SimulationExercise.Services
 {

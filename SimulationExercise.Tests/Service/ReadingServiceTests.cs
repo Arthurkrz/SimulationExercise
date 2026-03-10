@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;

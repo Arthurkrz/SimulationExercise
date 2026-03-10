@@ -1,16 +1,15 @@
 ﻿using FileHelpers;
 using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Core.DTOS
+namespace SimulationExercise.Core.DTOs.DatabaseDTOs
 {
-    public class ReadingGetDTO
+    public class ReadingInsertDTO
     {
-        public ReadingGetDTO(long readingId, long inputFileId, long sensorId, string? sensorTypeName, string? unit, 
-                             long stationId, string? stationName, int value, string? province, string? city, 
-                             bool isHistoric, DateTime startDate, DateTime? stopDate, int utmNord, 
-                             int utmEst, string? latitude, string? longitude, Status status)
+        public ReadingInsertDTO(long inputFileId, long sensorId, string? sensorTypeName, string? unit, 
+                                long stationId, string? stationName, int value, string? province, string? city, 
+                                bool isHistoric, DateTime startDate, DateTime? stopDate, int utmNord, 
+                                int utmEst, string? latitude, string? longitude, Status status)
         {
-            ReadingId = readingId;
             InputFileId = inputFileId;
             SensorId = sensorId;
             SensorTypeName = sensorTypeName;
@@ -30,7 +29,6 @@ namespace SimulationExercise.Core.DTOS
             Status = status;
         }
 
-        public long ReadingId { get; }
         public long InputFileId { get; }
         public long SensorId { get; set; }
         public string? SensorTypeName { get; set; }

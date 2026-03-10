@@ -1,4 +1,4 @@
-﻿namespace SimulationExercise.Core.DTOS
+﻿namespace SimulationExercise.Core.DTOs.DatabaseDTOs
 {
     public class OutputFileInsertDTO
     {

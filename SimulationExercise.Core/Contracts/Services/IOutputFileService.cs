@@ -1,4 +1,4 @@
-﻿using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 
 namespace SimulationExercise.Core.Contracts.Services

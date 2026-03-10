@@ -1,5 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
-using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Infrastructure
 {

@@ -1,6 +1,6 @@
 ﻿using SimulationExercise.Core.Contracts.Factories;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 
 namespace SimulationExercise.Services.Factories
 {

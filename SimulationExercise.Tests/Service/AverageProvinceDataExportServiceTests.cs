@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.CSVDTOs;
-using SimulationExercise.Core.DatabaseDTOs;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
@@ -174,7 +174,9 @@ namespace SimulationExercise.Tests.Service
             // Arrange
             DirectoryCleanup();
 
+            var outFilePath = Path.Combine(_outDirectoryPath, "");
             var outputFileGetDTO = new OutputFileGetDTO(1, "Name", new byte[] { 1, 2, 3 }, ".csv", typeof(AverageProvinceData), false);
+
             _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
                 false, It.IsAny<IContext>())).
                 Returns(new List<OutputFileGetDTO> { outputFileGetDTO });

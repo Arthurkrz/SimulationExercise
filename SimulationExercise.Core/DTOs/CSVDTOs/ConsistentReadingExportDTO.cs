@@ -1,7 +1,7 @@
 ﻿using FileHelpers;
 using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Core.CSVDTOs
+namespace SimulationExercise.Core.DTOs.CSVDTOs
 {
     [DelimitedRecord(",")]
     public class ConsistentReadingExportDTO : ExportDTO
