@@ -17,19 +17,20 @@ namespace SimulationExercise.Infrastructure.Repository
 
             string sql = $@"INSERT INTO {_mainTableName} (PROVINCE, 
                                  SENSORTYPENAME, UNIT, AVERAGEVALUE, AVERAGEDAYSOFMEASURE, 
-                                 CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER) 
-                                    VALUES (@OUTPUTFILEID, @PROVINCE, @SENSORTYPENAME, 
+                                 CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED) 
+                                    VALUES (@PROVINCE, @SENSORTYPENAME, 
                                             @UNIT, @AVERAGEVALUE, @AVERAGEDAYSOFMEASURE, 
                                             @CREATIONTIME, @LASTUPDATETIME,
-                                            @LASTUPDATEUSER, @STATUS);";
+                                            @LASTUPDATEUSER, @ISEXPORTED);";
 
             context.Execute(sql, new
             {
                 dto.Province, dto.SensorTypeName, dto.Unit, 
                 dto.AverageValue, dto.AverageDaysOfMeasure,
                 CreationTime = SystemTime.Now(),
-                LastUpdateDate = SystemTime.Now(),
-                LastUpdateUser = SystemIdentity.CurrentName()
+                LastUpdateTime = SystemTime.Now(),
+                LastUpdateUser = SystemIdentity.CurrentName(),
+                dto.IsExported
             });
         }
 
@@ -48,7 +49,7 @@ namespace SimulationExercise.Infrastructure.Repository
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             var sql = $@"SELECT AVERAGEPROVINCEDATAID, PROVINCE, 
-                             SENSORTYPENAME, UNIT, AVERAGEVALUE, AVERAGEDAYSOFMEASURE, 
+                             SENSORTYPENAME, AVERAGEVALUE, UNIT, AVERAGEDAYSOFMEASURE, 
                              ISEXPORTED FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED 
                                 ORDER BY CREATIONTIME DESC;";
 

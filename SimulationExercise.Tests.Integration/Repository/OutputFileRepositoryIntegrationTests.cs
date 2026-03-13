@@ -57,7 +57,7 @@ namespace SimulationExercise.Tests.Integration.Repository
 
             var dto = new OutputFileInsertDTO("filename1", 
                                               new byte[] { 1, 2, 3 }, 
-                                              "ext", typeof(ConsistentReading), false);
+                                              "ext", "ConsistentReading", false);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -97,7 +97,7 @@ namespace SimulationExercise.Tests.Integration.Repository
 
             OutputFileGetDTO expectedReturn = new OutputFileGetDTO
                 (1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
-                 "Ext0", typeof(ConsistentReading), false);
+                 "Ext0", "ConsistentReading", false);
 
             OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
                 (1, Status.Success);
@@ -114,7 +114,8 @@ namespace SimulationExercise.Tests.Integration.Repository
                 // Assert
                 var result = assertContext.Query<OutputFileGetDTO>
                     ($@"SELECT OUTPUTFILEID, NAME, 
-                        BYTES, EXTENSION FROM {_tableNameOutputFile} 
+                        BYTES, EXTENSION, OBJECTTYPE, ISEXPORTED
+                            FROM {_tableNameOutputFile} 
                             WHERE OUTPUTFILEID = @OUTPUTFILEID;",
                     new { expectedReturn.OutputFileId });
 
@@ -135,7 +136,7 @@ namespace SimulationExercise.Tests.Integration.Repository
 
             OutputFileGetDTO expectedReturn = new OutputFileGetDTO
                 (1, "OutputFileName0", new byte[] { 1, 2, 3 },
-                 "Ext0", typeof(ConsistentReading), false);
+                 "Ext0", "ConsistentReading", false);
 
             OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
                 (1, Status.Error, new List<string> { "Error0" });

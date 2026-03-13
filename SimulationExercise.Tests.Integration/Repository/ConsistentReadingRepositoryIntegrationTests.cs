@@ -58,7 +58,7 @@ namespace SimulationExercise.Tests.Repository
             var dto = new ConsistentReadingInsertDTO(1, 1, 
                 "SensorTypeName", Unit.mg_m3, 1, "Province", 
                 "City", true, 1, 1, 1, "Latitude", 
-                "Longitude", false, Status.New);
+                "Longitude", false);
 
             using (IContext context = _contextFactory.Create())
             {
@@ -75,7 +75,8 @@ namespace SimulationExercise.Tests.Repository
                         UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
                         DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
                         LONGITUDE, LASTUPDATETIME, CREATIONTIME, 
-                        LASTUPDATEUSER, STATUSID FROM {_tableNameConsistentReading};");
+                        LASTUPDATEUSER, ISEXPORTED, STATUSID FROM 
+                        {_tableNameConsistentReading};");
 
                 Assert.Single(items);
                 var retrievedItem = items[0];
@@ -92,7 +93,7 @@ namespace SimulationExercise.Tests.Repository
                 Assert.Equal(dto.UtmEst, retrievedItem.UTMEST);
                 Assert.Equal(dto.Latitude, retrievedItem.LATITUDE);
                 Assert.Equal(dto.Longitude, retrievedItem.LONGITUDE);
-                Assert.Equal((int)dto.Status, retrievedItem.STATUSID);
+                Assert.Equal(dto.IsExported, retrievedItem.ISEXPORTED);
                 Assert.Equal(currentTime, retrievedItem.LASTUPDATETIME);
                 Assert.Equal(currentTime, retrievedItem.CREATIONTIME);
                 Assert.Equal(currentUser, retrievedItem.LASTUPDATEUSER);
@@ -103,104 +104,7 @@ namespace SimulationExercise.Tests.Repository
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithSuccessStatus()
-        {
-            // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
-
-            ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
-                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province",
-                "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.Success);
-
-            ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
-                (1, Status.Success);
-
-            using (IContext context = _contextFactory.Create())
-            {
-                // Act
-                _sut.Update(updateDTO, context);
-                context.Commit();
-            }
-
-            using (IContext assertContext = _contextFactory.Create())
-            {
-                // Assert
-                var result = assertContext.Query<ConsistentReadingGetDTO>
-                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
-                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
-                        DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, LONGITUDE, 
-                        STATUSID AS STATUS FROM {_tableNameConsistentReading} 
-                            WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
-                    new { expectedReturn.ConsistentReadingId });
-
-                Assert.Single(result);
-                result.First().Should().BeEquivalentTo(expectedReturn);
-            }
-
-            // Teardown
-            _testRepositoryCleanup.Cleanup();
-        }
-
-        [Fact]
-        public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
-        {
-            // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
-
-            ConsistentReadingGetDTO expectedReturn = new ConsistentReadingGetDTO
-                (1, 1, 1, "SensorTypeName", Unit.mg_m3, 1, "Province", 
-                "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.Error);
-
-            ConsistentReadingUpdateDTO updateDTO = new ConsistentReadingUpdateDTO
-                (1, Status.Error, false, new List<string> { "Error0" });
-
-            using (IContext context = _contextFactory.Create())
-            {
-                // Act
-                _sut.Update(updateDTO, context);
-                context.Commit();
-            }
-
-            using (IContext assertContext = _contextFactory.Create())
-            {
-                // Assert
-                var result = assertContext.Query<ConsistentReadingGetDTO>
-                    ($@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
-                        SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
-                        ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
-                        LATITUDE, LONGITUDE, STATUSID AS STATUS 
-                        FROM {_tableNameConsistentReading}
-                            WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
-                    new { expectedReturn.ConsistentReadingId });
-
-                IList<dynamic> messageResult = assertContext.Query<dynamic>
-                    ($@"SELECT M.CONSISTENTREADINGID, C.STATUSID AS STATUS, M.MESSAGE
-                            FROM CONSISTENTREADING C
-                            INNER JOIN {_tableNameConsistentReadingMessage} M
-                            ON C.CONSISTENTREADINGID = M.CONSISTENTREADINGID
-                            WHERE C.CONSISTENTREADINGID = @CONSISTENTREADINGID;",
-                    new { expectedReturn.ConsistentReadingId });
-
-                Assert.Single(result);
-                Assert.Single(messageResult);
-
-                var message = messageResult.First();
-                Status status = (Status)(int)message.STATUS;
-
-                result.First().Should().BeEquivalentTo(expectedReturn);
-                Assert.Equal((long)message.CONSISTENTREADINGID, updateDTO.ConsistentReadingId);
-                Assert.Equal(Status.Error, status);
-                Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
-            }
-
-            // Teardown
-            _testRepositoryCleanup.Cleanup();
-        }
-
-        [Fact]
-        public void GetByStatus_SuccesfullyGets()
+        public void GetByIsExported_SuccesfullyGets()
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
@@ -209,7 +113,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByStatus(Status.Success, context);
+                var results = _sut.GetByIsExported(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
 

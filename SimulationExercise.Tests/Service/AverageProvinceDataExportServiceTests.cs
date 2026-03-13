@@ -136,7 +136,7 @@ namespace SimulationExercise.Tests.Service
             // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
             var apdExportDTO = new AverageProvinceDataExportDTO("Province1", "Sensor1", 10, "mg/m³", 20);
-            var outputFileCreationResult = Result<OutputFileInsertDTO>.Ok(new OutputFileInsertDTO("AverageProvinceDataExportDTO", new byte[] { 1, 2, 3 }, ".csv", typeof(AverageProvinceDataExportDTO), false));
+            var outputFileCreationResult = Result<OutputFileInsertDTO>.Ok(new OutputFileInsertDTO("AverageProvinceDataExportDTO", new byte[] { 1, 2, 3 }, ".csv", "AverageProvinceData", false));
 
             _apdRepositoryMock.Setup(x => x.GetByIsExported(
                 false, It.IsAny<IContext>()))
@@ -175,7 +175,7 @@ namespace SimulationExercise.Tests.Service
             DirectoryCleanup();
 
             var outFilePath = Path.Combine(_outDirectoryPath, "");
-            var outputFileGetDTO = new OutputFileGetDTO(1, "Name", new byte[] { 1, 2, 3 }, ".csv", typeof(AverageProvinceData), false);
+            var outputFileGetDTO = new OutputFileGetDTO(1, "Name", new byte[] { 1, 2, 3 }, ".csv", "AverageProvinceData", false);
 
             _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
                 false, It.IsAny<IContext>())).

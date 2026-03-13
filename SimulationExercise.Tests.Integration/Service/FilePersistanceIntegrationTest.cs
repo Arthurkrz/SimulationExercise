@@ -26,6 +26,7 @@ namespace SimulationExercise.Tests.Integration.Service
         private readonly IInputFileRepository _inputFileRepository;
         private readonly IReadingRepository _readingRepository;
         private readonly IConsistentReadingRepository _consistentReadingRepository;
+        private readonly IAverageProvinceDataRepository _averageProvinceDataRepository;
         private readonly IOutputFileRepository _outputFileRepository;
         private readonly IContextFactory _contextFactory;
 
@@ -72,6 +73,7 @@ namespace SimulationExercise.Tests.Integration.Service
             _inputFileRepository = _serviceProvider.GetRequiredService<IInputFileRepository>();
             _readingRepository = _serviceProvider.GetRequiredService<IReadingRepository>();
             _consistentReadingRepository = _serviceProvider.GetRequiredService<IConsistentReadingRepository>();
+            _averageProvinceDataRepository = _serviceProvider.GetRequiredService<IAverageProvinceDataRepository>();
             _outputFileRepository = _serviceProvider.GetRequiredService<IOutputFileRepository>();
 
             _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests.Integration");
@@ -88,6 +90,7 @@ namespace SimulationExercise.Tests.Integration.Service
                                                                                 List<string> expectedInputFileLines,
                                                                                 List<ReadingGetDTO> expectedReadings,
                                                                                 List<ConsistentReadingGetDTO> expectedCRs,
+                                                                                List<AverageProvinceDataGetDTO> expectedAPDs,
                                                                                 List<string> expectedOutputFileLines)
         {
             // Arrange
@@ -111,12 +114,14 @@ namespace SimulationExercise.Tests.Integration.Service
             {
                 var inputFiles = _inputFileRepository.GetByStatus(Status.Success, context);
                 var readings = _readingRepository.GetByStatus(Status.Success, context);
-                var consistentReadings = _consistentReadingRepository.GetByStatus(Status.Success, context);
-                var outputFiles = _outputFileRepository.GetByIsExported(true, context); // MODIFY
+                var consistentReadings = _consistentReadingRepository.GetByIsExported(true, context);
+                var averageProvinceDatas = _averageProvinceDataRepository.GetByIsExported(true, context);
+                var outputFiles = _outputFileRepository.GetByIsExported(true, context);
                 
                 Assert.Single(inputFiles);
                 Assert.Equal(10, readings.Count);
                 Assert.Equal(10, consistentReadings.Count);
+                Assert.Equal(5, averageProvinceDatas.Count);
                 Assert.Single(outputFiles);
 
                 foreach (var expected in expectedReadings)
@@ -162,6 +167,19 @@ namespace SimulationExercise.Tests.Integration.Service
                     Assert.Equal(expectedCR.Latitude, cr.Latitude);
                     Assert.Equal(expectedCR.Longitude, cr.Longitude);
                     Assert.Equal(expectedCR.Status, cr.Status);
+                }
+
+                foreach (var expectedAPD in expectedAPDs)
+                {
+                    var apd = averageProvinceDatas.FirstOrDefault(x => x.AverageProvinceDataId ==  expectedAPD.AverageProvinceDataId)!;
+                    Assert.NotNull(apd);
+
+                    Assert.Equal(expectedAPD.Province, apd.Province);
+                    Assert.Equal(expectedAPD.SensorTypeName, apd.SensorTypeName);
+                    Assert.Equal(expectedAPD.AverageValue, apd.AverageValue);
+                    Assert.Equal(expectedAPD.Unit, apd.Unit);
+                    Assert.Equal(expectedAPD.AverageDaysOfMeasure, apd.AverageDaysOfMeasure);
+                    Assert.Equal(expectedAPD.IsExported, apd.IsExported);
                 }
 
                 var inputFileText = Encoding.UTF8.GetString(inputFiles.First().Bytes).Replace("\r\n", "\n").Trim();

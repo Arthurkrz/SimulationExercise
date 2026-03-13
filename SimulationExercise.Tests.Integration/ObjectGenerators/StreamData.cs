@@ -89,6 +89,15 @@ namespace SimulationExercise.Tests.Integration.ObjectGenerators
                     new ConsistentReadingGetDTO(1, 7, 10270, "Ozono", Unit.µg_m3, 221, "MI", "Darfo Boario Terme", true, (int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays, 5080789, 591371, "45.87460256", "10.17736553", true, Status.Success)
                 },
 
+                new List<AverageProvinceDataGetDTO>
+                {
+                    new AverageProvinceDataGetDTO(1, "BS", "Ossidi di Azoto", 230, Unit.mg_m3, 10832, true),
+                    new AverageProvinceDataGetDTO(2, "VA", "Arsenico", 299, Unit.ng_m3, 6797, true),
+                    new AverageProvinceDataGetDTO(3, "MI", "Ozono", 212.67, Unit.µg_m3, 4719, true),
+                    new AverageProvinceDataGetDTO(4, "CO", "Biossidi di Azoto", 139, Unit.µg_m3, 16519, true),
+                    new AverageProvinceDataGetDTO(5, "CO", "Benzene", 74, Unit.µg_m3, 7342, true)
+                },
+
                 new List<string>
                 {
                     $"SensorId,SensorTypeName,Unit,Value,Province,City,IsHistoric,DaysOfMeasure,UtmNord,UtmEst,Latitude,Longitude",

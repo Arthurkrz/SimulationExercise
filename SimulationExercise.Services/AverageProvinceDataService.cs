@@ -36,7 +36,7 @@ namespace SimulationExercise.Services
         {
             IList<ConsistentReadingGetDTO>? crGetDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
-                crGetDTOs = _consistentReadingRepository.GetByStatus(Status.New, searchContext);
+                crGetDTOs = _consistentReadingRepository.GetByIsExported(false, searchContext);
 
             if (crGetDTOs.Count == 0)
             {
@@ -53,9 +53,9 @@ namespace SimulationExercise.Services
                                                               cr.SensorTypeName!,
                                                               cr.Unit, cr.Value,
                                                               cr.Province!, cr.City!,
-                                                              cr.IsHistoric, cr.UtmNord,
-                                                              cr.UtmEst, cr.Latitude!,
-                                                              cr.Longitude!)).ToList();
+                                                              cr.IsHistoric, cr.DaysOfMeasure, 
+                                                              cr.UtmNord, cr.UtmEst, 
+                                                              cr.Latitude!, cr.Longitude!)).ToList();
 
                     var apdCreationResults = _averageProvinceDataFactory
                         .CreateAverageProvinceData(consistentReadings);
@@ -70,14 +70,6 @@ namespace SimulationExercise.Services
                                                                              apd.AverageDaysOfMeasure, false);
 
                             _averageProvinceDataRepository.Insert(insertDTO, context);
-
-                            foreach (var crGetDTO in crGetDTOs)
-                            {
-                                var updateDTO = new ConsistentReadingUpdateDTO(crGetDTO.ConsistentReadingId,
-                                                                               Status.Success, crGetDTO.IsExported);
-
-                                _consistentReadingRepository.Update(updateDTO, context);
-                            }
                         }
                         else
                         {
@@ -86,6 +78,8 @@ namespace SimulationExercise.Services
                             _errorGroupNumber++;
                         }
                     }
+
+                    context.Commit();
                 }
                 catch (Exception ex)
                 {

@@ -2,7 +2,7 @@
 {
     public class OutputFileGetDTO
     {
-        public OutputFileGetDTO(long outputFileId, string name, byte[] bytes, string extension, Type objectType, bool isExported)
+        public OutputFileGetDTO(long outputFileId, string name, byte[] bytes, string extension, string objectType, bool isExported)
         {
             OutputFileId = outputFileId;
             Name = name;
@@ -16,7 +16,7 @@
         public string Name { get; }
         public byte[] Bytes { get; }
         public string Extension { get; }
-        public Type ObjectType { get; }
+        public string ObjectType { get; }
         public bool IsExported { get; }
     }
 }

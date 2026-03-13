@@ -16,10 +16,10 @@ namespace SimulationExercise.Infrastructure.Repository
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (NAME, BYTES, EXTENSION, OBJECTTYPE, CREATIONTIME, 
-                             LASTUPDATETIME, LASTUPDATEUSER) 
-                                 VALUES (@NAME, @BYTES, @EXTENSION, @OBJECTTYPE
+                             LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED) 
+                                 VALUES (@NAME, @BYTES, @EXTENSION, @OBJECTTYPE, 
                                          @CREATIONTIME, @LASTUPDATETIME, 
-                                         @LASTUPDATEUSER);";
+                                         @LASTUPDATEUSER, @ISEXPORTED);";
 
             context.Execute(sql, new
             {
@@ -28,6 +28,7 @@ namespace SimulationExercise.Infrastructure.Repository
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
+                dto.IsExported
             });
         }
 
@@ -46,8 +47,9 @@ namespace SimulationExercise.Infrastructure.Repository
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, OBJECTTYPE, 
-                            FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED 
+            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, 
+                         OBJECTTYPE, ISEXPORTED FROM {_mainTableName} 
+                            WHERE ISEXPORTED = @ISEXPORTED 
                                 ORDER BY CREATIONTIME DESC;";
 
             return context.Query<OutputFileGetDTO>(sql, new { isExported });

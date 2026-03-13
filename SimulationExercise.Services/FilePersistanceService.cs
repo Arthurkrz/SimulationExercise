@@ -23,7 +23,6 @@ namespace SimulationExercise.Services
             _inputFileService = inputFileService;
             _readingService = readingService;
             _consistentReadingService = consistentReadingService;
-
             _averageProvinceDataService = averageProvinceDataService;
             _consistentReadingExportService = consistentReadingExportService;
             _averageProvinceDataExportService = averageProvinceDataExportService;

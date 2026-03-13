@@ -24,17 +24,20 @@ namespace SimulationExercise.IOC
             services.AddScoped<IReadingInsertDTOFactory, ReadingInsertDTOFactory>();
             services.AddScoped<IConsistentReadingInsertDTOFactory, ConsistentReadingInsertDTOFactory>();
             services.AddScoped<IConsistentReadingExportDTOFactory, ConsistentReadingExportDTOFactory>();
+            services.AddScoped<IAverageProvinceDataExportDTOFactory, AverageProvinceDataExportDTOFactory>();
         }
 
         public static void InjectServices(this IServiceCollection services)
         {
             services.AddScoped<IReadingImportService, ReadingImportService>();
             services.AddScoped<IAverageProvinceDataExportService, AverageProvinceDataExportService>();
+            services.AddScoped<IConsistentReadingExportService, ConsistentReadingExportService>();
             services.AddScoped<IInputFileService, InputFileService>();
             services.AddScoped<IReadingService, ReadingService>();
             services.AddScoped<IConsistentReadingService, ConsistentReadingService>();
             services.AddScoped<IOutputFileService, OutputFileService>();
             services.AddScoped<IFilePersistanceService, FilePersistanceService>();
+            services.AddScoped<IAverageProvinceDataService, AverageProvinceDataService>();
         }
 
         public static void InjectRepositories(this IServiceCollection services)
@@ -42,12 +45,14 @@ namespace SimulationExercise.IOC
             services.AddScoped<IInputFileRepository, InputFileRepository>();
             services.AddScoped<IReadingRepository, ReadingRepository>();
             services.AddScoped<IConsistentReadingRepository, ConsistentReadingRepository>();
+            services.AddScoped<IAverageProvinceDataRepository, AverageProvinceDataRepository>();
             services.AddScoped<IOutputFileRepository, OutputFileRepository>();
         }
 
         public static void InjectValidators(this IServiceCollection services)
         {
             services.AddScoped<IValidator<Reading>, ReadingValidator>();
+            services.AddScoped<IValidator<ProvinceData>, ProvinceDataValidator>();
         }
     }
 }

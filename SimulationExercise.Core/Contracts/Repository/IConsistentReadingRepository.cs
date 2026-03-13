@@ -1,6 +1,5 @@
 ﻿using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
-using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Core.Contracts.Repository
 {
@@ -8,7 +7,6 @@ namespace SimulationExercise.Core.Contracts.Repository
     {
         void Insert(ConsistentReadingInsertDTO dto, IContext context);
         void Update(ConsistentReadingUpdateDTO dto, IContext context);
-        IList<ConsistentReadingGetDTO> GetByStatus(Status status, IContext context);
         IList<ConsistentReadingGetDTO> GetByIsExported(bool isExported, IContext context);
     }
 }

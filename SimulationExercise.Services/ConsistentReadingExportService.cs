@@ -58,8 +58,7 @@ namespace SimulationExercise.Services
 
                 foreach (var consistentReading in crGetDTOs)
                 {
-                    var updateDTO = new ConsistentReadingUpdateDTO(consistentReading.ConsistentReadingId, 
-                                                                   consistentReading.Status, true);
+                    var updateDTO = new ConsistentReadingUpdateDTO(consistentReading.ConsistentReadingId, true);
 
                     using (IContext updateContext = _contextFactory.Create())
                     {

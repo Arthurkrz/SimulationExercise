@@ -36,7 +36,7 @@ namespace SimulationExercise.Services
             var fileName = $"{typeof(T).Name}{SystemTime.Now():dd_MM_yyyy}";
             var fileExtension = ".csv";
 
-            var insertDTO = new OutputFileInsertDTO(fileName, csvBytes, fileExtension, typeof(T), false);
+            var insertDTO = new OutputFileInsertDTO(fileName, csvBytes, fileExtension, type.Name, false);
 
             using (IContext insertContext = _contextFactory.Create())
             {

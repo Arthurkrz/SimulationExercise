@@ -2,7 +2,7 @@
 {
     public class OutputFileInsertDTO
     {
-        public OutputFileInsertDTO(string name, byte[] bytes, string extension, Type objectType, bool isExported)
+        public OutputFileInsertDTO(string name, byte[] bytes, string extension, string objectType, bool isExported)
         {
             Name = name;
             Bytes = bytes;
@@ -14,7 +14,7 @@
         public string Name { get; }
         public byte[] Bytes { get; }
         public string Extension { get; }
-        public Type ObjectType { get; }
+        public string ObjectType { get; }
         public bool IsExported { get; }
     }
 }

@@ -4,11 +4,6 @@ using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using SimulationExercise.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimulationExercise.Tests.Integration.Utilities
 {
@@ -169,12 +164,13 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, 
                              PROVINCE, CITY, ISHISTORIC, DAYSOFMEASURE, UTMNORD, 
                              UTMEST, LATITUDE, LONGITUDE, CREATIONTIME, 
-                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
+                             LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED, STATUSID)
                                 VALUES(@READINGID, @SENSORID, @SENSORTYPENAME, @UNIT, 
                                        @VALUE, @PROVINCE, @CITY, @ISHISTORIC, 
                                        @DAYSOFMEASURE, @UTMNORD, @UTMEST, 
                                        @LATITUDE, @LONGITUDE, @CREATIONTIME, 
-                                       @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
+                                       @LASTUPDATETIME, @LASTUPDATEUSER, 
+                                       @ISEXPORTED, @STATUSID);",
                         new
                         {
                             ReadingId = objectNumber + 1,
@@ -193,6 +189,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             creationTime,
                             lastUpdateTime,
                             lastUpdateUser,
+                            IsExported = false,
                             StatusId = status
                         });
                 }
@@ -214,9 +211,10 @@ namespace SimulationExercise.Tests.Integration.Utilities
                     context.Execute
                         ($@"INSERT INTO {_tableNameOutputFile}
                         (NAME, BYTES, EXTENSION, CREATIONTIME, 
-                        LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
+                        LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED, STATUSID)
                             VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
-                                    @LASTUPDATETIME, @LASTUPDATEUSER, @STATUSID);",
+                                   @LASTUPDATETIME, @LASTUPDATEUSER, 
+                                   @ISEXPORTED, @STATUSID);",
                         new
                         {
                             Name = $"OutputFileName{objectNumber}",
@@ -225,6 +223,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             creationTime,
                             lastUpdateTime,
                             lastUpdateUser,
+                            IsExported = false,
                             StatusId = status
                         });
                 }

@@ -24,11 +24,13 @@ namespace SimulationExercise.Tests.Integration.Utilities
         private readonly string _tableNameInputFile = "InputFile";
         private readonly string _tableNameReading = "Reading";
         private readonly string _tableNameConsistentReading = "ConsistentReading";
+        private readonly string _tableNameAverageProvinceData = "AverageProvinceData";
         private readonly string _tableNameOutputFile = "OutputFile";
 
         private readonly string _tableNameInputFileMessage = "InputFileMessage";
         private readonly string _tableNameReadingMessage = "ReadingMessage";
         private readonly string _tableNameConsistentReadingMessage = "ConsistentReadingMessage";
+        private readonly string _tableNameAverageProvinceDataMessage = "AverageProvinceDataMessage";
         private readonly string _tableNameOutputFileMessage = "OutputFileMessage";
 
         public void Cleanup()
@@ -43,6 +45,16 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameOutputFile}', 
+                                        RESEED, 0);");
+
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceDataMessage}', 'U') 
+                                        IS NOT NULL TRUNCATE TABLE {_tableNameAverageProvinceDataMessage};");
+
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
+                                        IS NOT NULL DELETE FROM {_tableNameAverageProvinceData};");
+
+                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
+                                        IS NOT NULL DBCC CHECKIDENT ('{_tableNameAverageProvinceData}', 
                                         RESEED, 0);");
 
                 cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReadingMessage}', 'U')

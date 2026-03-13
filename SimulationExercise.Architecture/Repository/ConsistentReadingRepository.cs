@@ -19,11 +19,11 @@ namespace SimulationExercise.Infrastructure.Repository
             string sql = $@"INSERT INTO {_mainTableName}
                             (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, PROVINCE, 
                              CITY, ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
-                             LONGITUDE, CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
+                             LONGITUDE, CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED)
                                 VALUES (@READINGID, @SENSORID, @SENSORTYPENAME, @UNIT, @VALUE, 
                                         @PROVINCE, @CITY, @ISHISTORIC, @DAYSOFMEASURE, @UTMNORD, 
                                         @UTMEST, @LATITUDE, @LONGITUDE, @CREATIONTIME, 
-                                        @LASTUPDATETIME, @LASTUPDATEUSER, @STATUS);";
+                                        @LASTUPDATETIME, @LASTUPDATEUSER, @ISEXPORTED);";
 
             context.Execute(sql, new
             {
@@ -34,7 +34,7 @@ namespace SimulationExercise.Infrastructure.Repository
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
-                dto.Status
+                dto.IsExported,
             });
         }
 
@@ -43,46 +43,9 @@ namespace SimulationExercise.Infrastructure.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS, ISEXPORTED = @ISEXPORTED 
+            context.Execute($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
                                    WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
-                            new { dto.Status, dto.ConsistentReadingId });
-
-            if (dto.Messages.Any() && dto.Status == Status.Error)
-            {
-                foreach (var message in dto.Messages)
-                {
-                    string sql = $@"INSERT INTO {_messageTableName}(
-                                    CONSISTENTREADINGID, CREATIONDATE, 
-                                    LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE) 
-                                        VALUES (@CONSISTENTREADINGID, 
-                                                @CREATIONDATE, @LASTUPDATEDATE, 
-                                                @LASTUPDATEUSER, @MESSAGE);";
-
-                    context.Execute(sql, new
-                    {
-                        dto.ConsistentReadingId,
-                        CreationDate = SystemTime.Now(),
-                        LastUpdateDate = SystemTime.Now(),
-                        LastUpdateUser = SystemIdentity.CurrentName(),
-                        message
-                    });
-                }
-            }
-        }
-
-        public IList<ConsistentReadingGetDTO> GetByStatus(Status status, IContext context)
-        {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            int statusId = (int)status;
-            var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
-                         SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
-                         ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
-                         LATITUDE, LONGITUDE, STATUSID AS STATUS
-                            FROM {_mainTableName} WHERE STATUSID = @STATUSID
-                                ORDER BY CREATIONTIME DESC;";
-
-             return context.Query<ConsistentReadingGetDTO>(sql, new { statusId });
+                            new { dto.IsExported, dto.ConsistentReadingId });
         }
 
         public IList<ConsistentReadingGetDTO> GetByIsExported(bool isExported, IContext context)
@@ -92,7 +55,7 @@ namespace SimulationExercise.Infrastructure.Repository
             var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
                          SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
                          ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
-                         LATITUDE, LONGITUDE, STATUSID AS STATUS
+                         LATITUDE, LONGITUDE, ISEXPORTED
                             FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED
                                 ORDER BY CREATIONTIME DESC;";
 

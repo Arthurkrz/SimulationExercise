@@ -35,20 +35,20 @@ namespace SimulationExercise.Tests.Factories
 
             var consistentReadings = new List<ConsistentReading>
             {
-                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 2927, "Province1", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 9471 },
-                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 3054, "Province1", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 8828 },
-                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 1663, "Province1", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 2863 },
-                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 6033, "Province1", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 7130 },
+                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 2927, "Province1", "City1", true, 9471, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 3054, "Province1", "City1", true, 8828, 123, 123, "Latitude", "Longitude")    ,
+                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 1663, "Province1", "City1", false, 2863, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 6033, "Province1", "City1", false, 7130, 123, 123, "Latitude", "Longitude"),
 
-                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 5693, "Province2", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 1967 },
-                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 3729, "Province2", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 2016 },
-                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 9452, "Province2", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 5174 },
-                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 9719, "Province2", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 7242 },
+                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 5693, "Province2", "City1", true, 1967, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 3729, "Province2", "City1", true, 2016, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 9452, "Province2", "City1", false, 5174, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor2", Unit.ng_m3, 9719, "Province2", "City1", false, 7242, 123, 123, "Latitude", "Longitude"),
                 
-                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 6145, "Province3", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 3307 },
-                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 2897, "Province3", "City1", true, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 2362 },
-                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 8254, "Province3", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 9440 },
-                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 6754, "Province3", "City1", false, 123, 123, "Latitude", "Longitude") { DaysOfMeasure = 4979 },
+                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 6145, "Province3", "City1", true, 3307, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 2897, "Province3", "City1", true, 2362, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 8254, "Province3", "City1", false, 9440, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor3", Unit.µg_m3, 6754, "Province3", "City1", false, 4979, 123, 123, "Latitude", "Longitude"),
             };
 
             var expectedResults = new List<Result<AverageProvinceData>>
@@ -75,8 +75,8 @@ namespace SimulationExercise.Tests.Factories
 
             var consistentReadings = new List<ConsistentReading>
             {
-                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
-                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123,"Province1", "City1", true, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude"),
             };
 
             // Act & Assert

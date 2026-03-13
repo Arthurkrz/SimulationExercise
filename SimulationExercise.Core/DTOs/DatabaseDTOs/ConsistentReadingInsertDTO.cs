@@ -7,7 +7,7 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
         public ConsistentReadingInsertDTO(long readingId, long sensorId, string sensorTypeName, Unit unit, 
                                           int value, string province, string city, bool isHistoric, 
                                           int daysOfMeasure, int utmNord, int utmEst, string latitude, 
-                                          string longitude, bool isExported, Status status)
+                                          string longitude, bool isExported)
         {
             ReadingId = readingId;
             SensorId = sensorId;
@@ -23,7 +23,6 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
             Latitude = latitude;
             Longitude = longitude;
             IsExported = isExported;
-            Status = status;
         }
 
         public long ReadingId { get; }
@@ -40,6 +39,5 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public bool IsExported { get; set; }
-        public Status Status { get; }
     }
 }
