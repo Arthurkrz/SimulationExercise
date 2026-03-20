@@ -7,7 +7,6 @@ using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services.Factory;
-using System.Security.Cryptography;
 
 namespace SimulationExercise.Tests.Factories
 {

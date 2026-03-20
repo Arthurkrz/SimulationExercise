@@ -45,8 +45,6 @@ namespace SimulationExercise.Tests.Service
         [MemberData(nameof(GetValidObjects))]
         public void CreateOutputFiles_ShouldCreateOutputFiles(IList<object> exportDTOs)
         {
-            // Arrange
-
             // Act
             _sut.CreateOutputFiles(exportDTOs);
 
@@ -83,9 +81,8 @@ namespace SimulationExercise.Tests.Service
             throw new NotImplementedException();
         }
 
-        [Theory]
-        [MemberData(nameof(GetValidExportObjects))]
-        public void Export_ShouldExportObjects(OutputFileGetDTO OutputFile, string expectedText, Stream outputFileStream)
+        [Fact]
+        public void Export_ShouldCallOutputFileExportMethod()
         {
             throw new NotImplementedException();
         }
@@ -100,123 +97,6 @@ namespace SimulationExercise.Tests.Service
             yield return new object[]
             {
 
-            };
-        }
-
-        public static IEnumerable<object[]> GetValidExportObjects()
-        {
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                ""
-
-                // stream
-            };
-
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                ""
-
-                // stream
-            };
-
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                ""
-
-                // strem
-            };
-
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                // stream
-
-                ""
-            };
-
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                // stream
-
-                ""
-            };
-
-            yield return new object[]
-            {
-                new List<ConsistentReadingExportDTO>
-                {
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.mg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude"),
-                    new ConsistentReadingExportDTO(1, "SensorTypeName", Unit.µg_m3, 1, "Province", "City", false, 1, 1, 1, "Latitude", "Longitude"),
-                },
-
-                // stream
-
-                ""
             };
         }
     }

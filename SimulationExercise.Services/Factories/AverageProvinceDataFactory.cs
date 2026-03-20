@@ -25,8 +25,8 @@ namespace SimulationExercise.Services.Factory
 
             var groupedReadings = consistentReadings
                 .GroupBy(cr => new { cr.Province,
-                                        cr.SensorTypeName,
-                                        cr.Unit}).ToList();
+                                     cr.SensorTypeName,
+                                     cr.Unit }).ToList();
 
             provinceDatas = groupedReadings.Select(cr => new ProvinceData
                                                     (cr.Key.Province,

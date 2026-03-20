@@ -341,7 +341,7 @@ namespace SimulationExercise.Tests.Service
 
         public static IEnumerable<object[]> GetValidObjects()
         {
-            var consistentReading = new ConsistentReading(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, "Latitude", "Longitude");
+            var consistentReading = new ConsistentReading(1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude");
 
             yield return new object[]
             {
@@ -359,7 +359,7 @@ namespace SimulationExercise.Tests.Service
 
                 Result<ConsistentReading>.Ok(consistentReading),
 
-                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", false, Status.New)
+                new ConsistentReadingInsertDTO(1, 1, "SensorTypeName", Unit.ng_m3, 1, "Province", "City", true, 1, 1, 1, "Latitude", "Longitude", false)
             };
         }
 

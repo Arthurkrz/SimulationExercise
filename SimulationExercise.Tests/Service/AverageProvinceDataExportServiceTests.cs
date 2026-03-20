@@ -10,6 +10,7 @@ using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
+using System.Text;
 
 namespace SimulationExercise.Tests.Service
 {
@@ -22,9 +23,6 @@ namespace SimulationExercise.Tests.Service
         private readonly Mock<IOutputFileService> _outputFileServiceMock;
         private readonly Mock<IOutputFileRepository> _outputFileRepositoryMock;
         private readonly Mock<ILogger<AverageProvinceDataExportService>> _loggerMock;
-
-        private readonly string _basePath;
-        private readonly string _outDirectoryPath;
 
         public AverageProvinceDataExportServiceTests()
         {
@@ -54,15 +52,12 @@ namespace SimulationExercise.Tests.Service
                 _loggerMock.Object
             );
 
-            _basePath = Path.Combine(Path.GetTempPath(), "SimulationExerciseTests");
-            _outDirectoryPath = Path.Combine(_basePath, "OUT");
-
             var contextMock = new Mock<IContext>();
             _contextFactoryMock.Setup(x => x.Create()).Returns(contextMock.Object);
         }
 
         [Fact]
-        public void CreateOutputFiles_ShouldCreateOutputFiles()
+        public void CreateOutputFiles_ShouldCallOutputFileCreateMethod()
         {
             // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
@@ -169,45 +164,66 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void Export_ShouldCreateNotEmptyFile()
+        public void Export_ShouldCallOutputFileExportMethod()
         {
             // Arrange
-            DirectoryCleanup();
+            var outputFileText = "Province,SensorTypeName,AverageValue,Unit,AverageDaysOfMeasure\n" +
+                                 "Province,SensorTypeName,1,mg_m3,1";
 
-            var outFilePath = Path.Combine(_outDirectoryPath, "");
-            var outputFileGetDTO = new OutputFileGetDTO(1, "Name", new byte[] { 1, 2, 3 }, ".csv", "AverageProvinceData", false);
+            var outputFileBytes = Encoding.UTF8.GetBytes(outputFileText);
+            var outputFileStream = new MemoryStream(outputFileBytes);
+
+            var outputFileGetDTO = new OutputFileGetDTO(1, "Name", outputFileBytes, ".csv", "AverageProvinceData", false);
 
             _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
                 false, It.IsAny<IContext>())).
                 Returns(new List<OutputFileGetDTO> { outputFileGetDTO });
 
-            Stream outputStream = new MemoryStream();
-
             // Act
-            _sut.Export(_outDirectoryPath);
+            _sut.Export("OUT");
 
             // Assert
-            var outFiles = Directory.GetFiles(_outDirectoryPath);
-            Assert.Single(outFiles);
-            Assert.NotEmpty(outFiles.First());
+            _outputFileServiceMock.Verify(x => x.Export<AverageProvinceData>(outputFileGetDTO, outputFileStream), Times.Once);
         }
 
         [Fact]
         public void Export_ShouldLogError_WhenNoOutputFilesFound()
         {
-            throw new NotImplementedException();
+            // Arrange
+            _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
+                true, It.IsAny<IContext>())).
+                Returns(new List<OutputFileGetDTO>());
+
+            // Act
+            _sut.Export("OutputFilePath");
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("No new Output Files have been found!")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
         }
 
         [Fact]
         public void Export_ShouldLogError_WhenNoOutDirectoryFound()
         {
-            throw new NotImplementedException();
-        }
+            // Act
+            _sut.Export("");
 
-        private void DirectoryCleanup()
-        {
-            if (Directory.Exists(_outDirectoryPath)) Directory.Delete(_outDirectoryPath, true);
-            Directory.CreateDirectory(_outDirectoryPath);
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
         }
     }
 }

@@ -108,12 +108,12 @@ namespace SimulationExercise.Tests.Repository
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success, true);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByIsExported(Status.Success, context);
+                var results = _sut.GetByIsExported(true, context);
                 Assert.Equal(2, results.Count);
             }
 

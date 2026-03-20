@@ -89,110 +89,18 @@ namespace SimulationExercise.Tests.Integration.Repository
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithSuccessStatus()
+        public void GetByIsExported_SuccesfullyGets()
         {
             // Arrange
             _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success, true);
 
-            OutputFileGetDTO expectedReturn = new OutputFileGetDTO
-                (1, "OutputFileName0", new byte[] { 1, 2, 3 }, 
-                 "Ext0", "ConsistentReading", false);
-
-            OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
-                (1, Status.Success);
-
-            //using (IContext context = _contextFactory.Create())
-            //{
-            //    // Act
-            //    _sut.Update(updateDTO, context);
-            //    context.Commit();
-            //}
-
-            using (IContext assertContext = _contextFactory.Create())
+            using (IContext context = _contextFactory.Create())
             {
-                // Assert
-                var result = assertContext.Query<OutputFileGetDTO>
-                    ($@"SELECT OUTPUTFILEID, NAME, 
-                        BYTES, EXTENSION, OBJECTTYPE, ISEXPORTED
-                            FROM {_tableNameOutputFile} 
-                            WHERE OUTPUTFILEID = @OUTPUTFILEID;",
-                    new { expectedReturn.OutputFileId });
-
-                Assert.Single(result);
-                result.First().Should().BeEquivalentTo(expectedReturn);
+                // Act & Assert
+                var results = _sut.GetByIsExported(true, context);
+                Assert.Equal(2, results.Count);
             }
-
-            // Teardown
-            _testRepositoryCleanup.Cleanup();
-        }
-
-        [Fact]
-        public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
-        {
-            // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
-
-            OutputFileGetDTO expectedReturn = new OutputFileGetDTO
-                (1, "OutputFileName0", new byte[] { 1, 2, 3 },
-                 "Ext0", "ConsistentReading", false);
-
-            OutputFileUpdateDTO updateDTO = new OutputFileUpdateDTO
-                (1, Status.Error, new List<string> { "Error0" });
-
-            //using (IContext context = _contextFactory.Create())
-            //{
-            //    // Act
-            //    _sut.Update(updateDTO, context);
-            //    context.Commit();
-            //}
-
-            using (IContext assertContext = _contextFactory.Create())
-            {
-                // Assert
-                var result = assertContext.Query<OutputFileGetDTO>
-                    ($@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                        FROM {_tableNameOutputFile} WHERE OUTPUTFILEID = @OUTPUTFILEID;",
-                    new { expectedReturn.OutputFileId });
-
-                IList<dynamic> messageResult = assertContext.Query<dynamic>
-                    ($@"SELECT M.OUTPUTFILEID, O.STATUSID AS STATUS, M.MESSAGE 
-                            FROM OUTPUTFILE O 
-                            INNER JOIN {_tableNameOutputFileMessage} M 
-                            ON O.OUTPUTFILEID = M.OUTPUTFILEID 
-                            WHERE O.OUTPUTFILEID = @OUTPUTFILEID;",
-                    new { expectedReturn.OutputFileId });
-
-                Assert.Single(result);
-                Assert.Single(messageResult);
-
-                var message = messageResult.First();
-                Status status = (Status)(int)message.STATUS;
-
-                result.First().Should().BeEquivalentTo(expectedReturn);
-                Assert.Equal((long)message.OUTPUTFILEID, updateDTO.OutputFileId);
-                Assert.Equal(Status.Error, status);
-                Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
-            }
-
-            // Teardown
-            _testRepositoryCleanup.Cleanup();
-        }
-
-        [Fact]
-        public void GetByStatus_SuccesfullyGets()
-        {
-            // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
-
-            //using (IContext context = _contextFactory.Create())
-            //{
-            //    // Act & Assert
-            //    var results = _sut.GetByStatus(Status.Success, context);
-            //    Assert.Equal(2, results.Count);
-            //}
 
             // Teardown
             _testRepositoryCleanup.Cleanup();

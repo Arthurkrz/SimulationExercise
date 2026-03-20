@@ -2,7 +2,7 @@
 {
     public class AverageProvinceDataUpdateDTO
     {
-        public AverageProvinceDataUpdateDTO(long averageProvinceDataId, bool isExported = false)
+        public AverageProvinceDataUpdateDTO(long averageProvinceDataId, bool isExported)
         {
             AverageProvinceDataId = averageProvinceDataId;
             IsExported = isExported;

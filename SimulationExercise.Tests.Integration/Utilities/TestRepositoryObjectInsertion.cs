@@ -16,6 +16,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
         private readonly string _tableNameInputFile = "InputFile";
         private readonly string _tableNameReading = "Reading";
         private readonly string _tableNameConsistentReading = "ConsistentReading";
+        private readonly string _tableNameAverageProvinceData = "AverageProvinceData";
         private readonly string _tableNameOutputFile = "OutputFile";
 
         public TestRepositoryObjectInsertion()
@@ -30,7 +31,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             _contextFactory = new DapperContextFactory(_connectionString);
         }
 
-        public void InsertObjects(int numberOfObjectsToBeInserted, Status status = Status.New)
+        public void InsertObjects(int numberOfObjectsToBeInserted, Status status = Status.New, bool isExported = false)
         {
             if (objectType == typeof(InputFileInsertDTO))
                 InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
@@ -45,11 +46,19 @@ namespace SimulationExercise.Tests.Integration.Utilities
             {
                 InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
                 ReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ConsistentReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
+                ConsistentReadingRepositoryInsert(numberOfObjectsToBeInserted, isExported);
+            }
+
+            if (objectType == typeof(AverageProvinceDataInsertDTO))
+            {
+                InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
+                ReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
+                ConsistentReadingRepositoryInsert(numberOfObjectsToBeInserted, isExported);
+                AverageProvinceDataRepositoryInsert(numberOfObjectsToBeInserted, isExported);
             }
 
             if (objectType == typeof(OutputFileInsertDTO))
-                OutputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
+                OutputFileRepositoryInsert(numberOfObjectsToBeInserted, isExported);
         }
 
         public void InsertMethodTestSetup()
@@ -149,7 +158,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void ConsistentReadingRepositoryInsert(int numberOfObjectsToBeInserted, Status status)
+        private void ConsistentReadingRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -164,13 +173,13 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, 
                              PROVINCE, CITY, ISHISTORIC, DAYSOFMEASURE, UTMNORD, 
                              UTMEST, LATITUDE, LONGITUDE, CREATIONTIME, 
-                             LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED, STATUSID)
+                             LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED)
                                 VALUES(@READINGID, @SENSORID, @SENSORTYPENAME, @UNIT, 
                                        @VALUE, @PROVINCE, @CITY, @ISHISTORIC, 
                                        @DAYSOFMEASURE, @UTMNORD, @UTMEST, 
                                        @LATITUDE, @LONGITUDE, @CREATIONTIME, 
                                        @LASTUPDATETIME, @LASTUPDATEUSER, 
-                                       @ISEXPORTED, @STATUSID);",
+                                       @ISEXPORTED);",
                         new
                         {
                             ReadingId = objectNumber + 1,
@@ -189,8 +198,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             creationTime,
                             lastUpdateTime,
                             lastUpdateUser,
-                            IsExported = false,
-                            StatusId = status
+                            IsExported = isExported
                         });
                 }
 
@@ -198,7 +206,40 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void OutputFileRepositoryInsert(int numberOfObjectsToBeInserted, Status status)
+        private void AverageProvinceDataRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
+        {
+            using (IContext context = _contextFactory.Create())
+            {
+                var creationTime = SystemTime.Now();
+                var lastUpdateTime = SystemTime.Now;
+                var lastUpdateUser = SystemTime.Now;
+
+                for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
+                {
+                    context.Execute
+                        ($@"INSERT INTO {_tableNameAverageProvinceData} 
+                        (PROVNCE, SENSORTYPENAME, AVERAGEVALUE, 
+                        UNIT, AVERAGEDAYSOFMEASURE, ISEXPORTED) 
+                            VALUES(@PROVINCE, @SENSORTYPENAME, 
+                                   @AVERAGEVALUE, @UNIT, 
+                                   @AVERAGEDAYSOFMEASE, 
+                                   @ISEXPORTED);",
+                        new
+                        {
+                            Province = $"Province{objectNumber}",
+                            SensorTypeName = $"SensorTypeName{objectNumber}",
+                            AverageValue = objectNumber,
+                            Unit = Unit.mg_m3,
+                            AverageDaysOfMeasure = objectNumber,
+                            IsExported = isExported
+                        });
+                }
+
+                context.Commit();
+            }
+        }
+
+        private void OutputFileRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -211,10 +252,10 @@ namespace SimulationExercise.Tests.Integration.Utilities
                     context.Execute
                         ($@"INSERT INTO {_tableNameOutputFile}
                         (NAME, BYTES, EXTENSION, CREATIONTIME, 
-                        LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED, STATUSID)
+                        LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED)
                             VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
                                    @LASTUPDATETIME, @LASTUPDATEUSER, 
-                                   @ISEXPORTED, @STATUSID);",
+                                   @ISEXPORTED);",
                         new
                         {
                             Name = $"OutputFileName{objectNumber}",
@@ -223,8 +264,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
                             creationTime,
                             lastUpdateTime,
                             lastUpdateUser,
-                            IsExported = false,
-                            StatusId = status
+                            IsExported = isExported,
                         });
                 }
 
