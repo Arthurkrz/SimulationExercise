@@ -6,8 +6,8 @@ namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IReadingRepository
     {
-        void Insert(ReadingInsertDTO dto, IContext context);
-        void Update(ReadingUpdateDTO dto, IContext context);
-        IList<ReadingGetDTO> GetByStatus(Status status, IContext context);
+        Task InsertAsync(ReadingInsertDTO dto, IContext context);
+        Task UpdateAsync(ReadingUpdateDTO dto, IContext context);
+        Task<IList<ReadingGetDTO>> GetByStatusAsync(Status status, IContext context);
     }
 }

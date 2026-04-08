@@ -2,14 +2,14 @@
 {
     public interface IFilePersistanceService
     {
-        void Initialize(string inDirectoryPath);
-        void CreateReadings();
-        void CreateConsistentReadings();
-        void CreateAverageProvinceDatas();
-        void CreateAverageProvinceDataOutputFiles();
-        void CreateConsistentReadingOutputFiles();
-        void ExportAverageProvinceData(string outDirectoryPath);
-        void ExportConsistentReadings(string outDirectoryPath);
-        void LoggerConfiguration(string baseOutPath);
+        Task Initialize(string inDirectoryPath);
+        Task CreateReadings();
+        Task CreateConsistentReadings();
+        Task CreateAverageProvinceDatas();
+        Task CreateAverageProvinceDataOutputFiles();
+        Task CreateConsistentReadingOutputFiles();
+        Task ExportAverageProvinceData(string outDirectoryPath);
+        Task ExportConsistentReadings(string outDirectoryPath);
+        bool LoggerConfiguration(string baseOutPath);
     }
 }

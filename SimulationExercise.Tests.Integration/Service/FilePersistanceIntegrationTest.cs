@@ -113,7 +113,7 @@ namespace SimulationExercise.Tests.Integration.Service
             using (IContext context = _contextFactory.Create())
             {
                 var inputFiles = _inputFileRepository.GetByStatus(Status.Success, context);
-                var readings = _readingRepository.GetByStatus(Status.Success, context);
+                var readings = _readingRepository.GetByStatusAsync(Status.Success, context);
                 var consistentReadings = _consistentReadingRepository.GetByIsExported(true, context);
                 var averageProvinceDatas = _averageProvinceDataRepository.GetByIsExported(true, context);
                 var outputFiles = _outputFileRepository.GetByIsExported(true, context);
@@ -217,7 +217,7 @@ namespace SimulationExercise.Tests.Integration.Service
             using (IContext context = _contextFactory.Create())
             {
                 Assert.Single(_inputFileRepository.GetByStatus(Status.Error, context));
-                var readings = _readingRepository.GetByStatus(Status.Error, context);
+                var readings = _readingRepository.GetByStatusAsync(Status.Error, context);
 
                 foreach (var expected in expectedReadings)
                 {

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using SimulationExercise.Console;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.IOC;
@@ -41,3 +42,9 @@ services.AddLogging(loggingBuilder =>
 
 using var serviceProvider = services.BuildServiceProvider();
 var filePersistanceService = serviceProvider.GetRequiredService<IFilePersistanceService>();
+var logPathSetup = serviceProvider.GetRequiredService<ILogSetupService>();
+
+logPathSetup.Configure();
+
+var menu = new MenuSetup(filePersistanceService);
+await menu.RunAsync();

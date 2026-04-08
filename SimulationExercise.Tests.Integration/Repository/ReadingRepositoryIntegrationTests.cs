@@ -123,7 +123,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.Update(updateDTO, context);
+                _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
@@ -166,7 +166,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.Update(updateDTO, context);
+                _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
@@ -217,7 +217,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByStatus(Status.Success, context);
+                var results = _sut.GetByStatusAsync(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
 

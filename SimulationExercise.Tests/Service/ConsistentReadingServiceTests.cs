@@ -59,7 +59,7 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldProcessReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _readingRepositoryMock.Setup(x => x.GetByStatus(
+            _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
 
@@ -83,7 +83,7 @@ namespace SimulationExercise.Tests.Service
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Never);
 
-            _readingRepositoryMock.Verify(x => x.Update(
+            _readingRepositoryMock.Verify(x => x.UpdateAsync(
                 It.IsAny<ReadingUpdateDTO>(), It.IsAny<IContext>()), 
                 Times.Exactly(6));
 
@@ -97,7 +97,7 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogErrors_WhenInvalidReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult)
         {
             // Arrange
-            _readingRepositoryMock.Setup(x => x.GetByStatus(
+            _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
 
@@ -253,7 +253,7 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenNoNewObjectsFound()
         {
             // Arrange
-            _readingRepositoryMock.Setup(x => x.GetByStatus(
+            _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(new List<ReadingGetDTO>());
 
@@ -276,7 +276,7 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenFailToInsert(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _readingRepositoryMock.Setup(x => x.GetByStatus(
+            _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
 
@@ -310,7 +310,7 @@ namespace SimulationExercise.Tests.Service
         public void ProcessReadings_ShouldLogError_WhenFailToUpdate(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
-            _readingRepositoryMock.Setup(x => x.GetByStatus(
+            _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .Returns(readingDTOs);
 
@@ -321,7 +321,7 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<ConsistentReading>(), It.IsAny<long>()))
                 .Returns(crInsertDTO);
 
-            _readingRepositoryMock.Setup(x => x.Update(
+            _readingRepositoryMock.Setup(x => x.UpdateAsync(
                 It.IsAny<ReadingUpdateDTO>(), It.IsAny<IContext>()))
                 .Throws(new Exception("Update failed"));
 

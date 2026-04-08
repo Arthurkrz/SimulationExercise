@@ -28,35 +28,43 @@ namespace SimulationExercise.Services
             _averageProvinceDataExportService = averageProvinceDataExportService;
         }
 
-        public void Initialize(string inDirectoryPath) =>
-            _inputFileService.ProcessFiles(inDirectoryPath);
+        public async Task Initialize(string inDirectoryPath) =>
+            await _inputFileService.ProcessFiles(inDirectoryPath);
 
-        public void CreateReadings() => 
-            _readingService.ProcessInputFiles();
+        public async Task CreateReadings() => 
+            await _readingService.ProcessInputFiles();
 
-        public void CreateConsistentReadings() => 
-            _consistentReadingService.ProcessReadings();
+        public async Task CreateConsistentReadings() => 
+            await _consistentReadingService.ProcessReadings();
 
-        public void CreateAverageProvinceDatas() => 
-            _averageProvinceDataService.ProcessConsistentReadings();
+        public async Task CreateAverageProvinceDatas() => 
+            await _averageProvinceDataService.ProcessConsistentReadings();
 
-        public void CreateAverageProvinceDataOutputFiles() =>
-            _averageProvinceDataExportService.CreateOutputFiles();
+        public async Task CreateAverageProvinceDataOutputFiles() =>
+            await _averageProvinceDataExportService.CreateOutputFiles();
 
-        public void CreateConsistentReadingOutputFiles() =>
-            _consistentReadingExportService.CreateOutputFiles();
+        public async Task CreateConsistentReadingOutputFiles() =>
+            await _consistentReadingExportService.CreateOutputFiles();
 
-        public void ExportAverageProvinceData(string outDirectoryPath) => 
-            _averageProvinceDataExportService.Export(outDirectoryPath);
+        public async Task ExportAverageProvinceData(string outDirectoryPath) => 
+            await _averageProvinceDataExportService.Export(outDirectoryPath);
 
-        public void ExportConsistentReadings(string outDirectoryPath) => 
-            _consistentReadingExportService.Export(outDirectoryPath);
+        public async Task ExportConsistentReadings(string outDirectoryPath) => 
+            await _consistentReadingExportService.Export(outDirectoryPath);
 
-        public void LoggerConfiguration(string baseOutPath) =>
-            LogPathHolder.ErrorLogPath = GetExportDirectoryPath(baseOutPath);
+        public bool LoggerConfiguration(string baseOutPath)
+        {
+            try { LogPathHolder.ErrorLogPath = GetExportDirectoryPath(baseOutPath); }
+            catch (Exception) { return false; }
+
+            return true;
+        }
 
         private string GetExportDirectoryPath(string baseOutPath)
         {
+            if (!Directory.Exists(baseOutPath))
+                throw new InvalidOperationException("Path not located.");
+
             string exportDirectoryName = SystemTime.Now()
                 .ToString("yyyyMMdd_HHmmss");
 
