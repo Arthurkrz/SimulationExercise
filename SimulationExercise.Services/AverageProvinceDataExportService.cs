@@ -88,12 +88,21 @@ namespace SimulationExercise.Services
                     return;
                 }
 
-                var fileStream = new FileStream(outDirectoryPath, 
-                                                FileMode.Create, 
-                                                FileAccess.Write);
+                Directory.CreateDirectory(outDirectoryPath);
 
                 foreach (var outputFile in outputFiles)
-                    _outputFileService.Export<AverageProvinceDataExportDTO>(outputFile, fileStream);
+                {
+                    var exportDTO = new AverageProvinceDataExportDTO
+                    {
+
+                    };
+
+                    var fileName = $"{outputFile.Name}.csv";
+                    var fullPath = Path.Combine(outDirectoryPath, fileName);
+
+                    using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                    _outputFileService.Export(exportDTO, fileStream);
+                }
             }
             catch (Exception ex)
             {

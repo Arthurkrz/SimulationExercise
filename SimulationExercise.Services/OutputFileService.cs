@@ -58,15 +58,13 @@ namespace SimulationExercise.Services
             return Result<OutputFileInsertDTO>.Ok(insertDTO);
         }
 
-        public void Export<T>(OutputFileGetDTO obj, Stream outputStream) where T : class
+        public void Export<T>(T obj, Stream outputStream) where T : class
         {
             var engine = new FileHelperEngine<T>();
-            using (var sr = new StreamReader(outputStream))
-            {
-                var records = engine.ReadStream(sr);
 
-                using (var sw = new StreamWriter(outputStream, leaveOpen: true))
-                    engine.WriteStream(sw, records);
+            using (var sw = new StreamWriter(outputStream, leaveOpen: true))
+            {
+                engine.WriteStream(sw, new[] { obj });
             }
         }
     }

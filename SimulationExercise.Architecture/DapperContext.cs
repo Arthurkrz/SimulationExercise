@@ -41,7 +41,7 @@ namespace SimulationExercise.Infrastructure
             (await Connection.QueryAsync<T>(sql, null, Transaction)).ToList();
 
         public async Task<IList<T>> QueryAsync<T>(string sql, object param) =>
-            (await Connection.QueryAsync<T>(sql, param)).ToList();
+            (await Connection.QueryAsync<T>(sql, param, Transaction)).ToList();
 
         public T ExecuteScalar<T>(string sql, object? param = null, int? commandTimeout = null) =>
             (T)Connection.ExecuteScalar(sql, param, Transaction, commandTimeout: commandTimeout)!;

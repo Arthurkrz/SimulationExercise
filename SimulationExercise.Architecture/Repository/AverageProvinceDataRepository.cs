@@ -14,12 +14,12 @@ namespace SimulationExercise.Infrastructure.Repository
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            string sql = $@"INSERT INTO {_mainTableName} (PROVINCE, 
-                                 SENSORTYPENAME, UNIT, AVERAGEVALUE, AVERAGEDAYSOFMEASURE, 
-                                 CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED) 
-                                    VALUES (@PROVINCE, @SENSORTYPENAME, 
-                                            @UNIT, @AVERAGEVALUE, @AVERAGEDAYSOFMEASURE, 
-                                            @CREATIONTIME, @LASTUPDATETIME,
+            string sql = $@"INSERT INTO {_mainTableName} (PROVINCE, SENSORTYPENAME, 
+                                AVERAGEVALUE, UNIT, AVERAGEDAYSOFMEASURE, 
+                                CREATIONTIME, LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED) 
+                                    VALUES (@PROVINCE, @SENSORTYPENAME, @AVERAGEVALUE, 
+                                            @UNIT, @AVERAGEDAYSOFMEASURE, 
+                                            @CREATIONTIME, @LASTUPDATETIME, 
                                             @LASTUPDATEUSER, @ISEXPORTED);";
 
             await context.ExecuteAsync(sql, new

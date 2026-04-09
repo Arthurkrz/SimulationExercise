@@ -93,7 +93,6 @@
                         Bytes VARBINARY(MAX) NOT NULL,
                         Extension VARCHAR(10) NOT NULL,
                         ObjectType NVARCHAR(50) NOT NULL,
-                        IsAverageProvinceDataExported BIT NOT NULL,
                         CreationTime DATETIME NOT NULL,
                         LastUpdateTime DATETIME NOT NULL,
                         LastUpdateUser NVARCHAR(100) NOT NULL,
@@ -103,12 +102,14 @@
                 @"IF OBJECT_ID('AverageProvinceData', 'U') IS NULL 
                         CREATE TABLE AverageProvinceData(
                         AverageProvinceDataId BIGINT IDENTITY(1,1) PRIMARY KEY, 
-                        OutputFileId BIGINT NOT NULL REFERENCES dbo.OutputFile(OutputFileId), 
                         Province NVARCHAR(100) NOT NULL,
                         SensorTypeName NVARCHAR(100) NOT NULL,
                         AverageValue FLOAT NOT NULL,
                         Unit NVARCHAR(10) NOT NULL,
                         AverageDaysOfMeasure INT NOT NULL,
+                        CreationTime DATETIME NOT NULL,
+                        LastUpdateTime DATETIME NOT NULL,
+                        LastUpdateUser NVARCHAR(100) NOT NULL,
                         IsExported BIT NOT NULL);";
 
             tableCreationQueries.Add(inputFileSQL);

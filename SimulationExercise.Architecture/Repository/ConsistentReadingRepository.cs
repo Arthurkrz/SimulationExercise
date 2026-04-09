@@ -34,7 +34,7 @@ namespace SimulationExercise.Infrastructure.Repository
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
-                dto.IsExported,
+                dto.IsExported
             });
         }
 
@@ -55,7 +55,7 @@ namespace SimulationExercise.Infrastructure.Repository
             var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
                          SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
                          ISHISTORIC, DAYSOFMEASURE, UTMNORD, UTMEST, 
-                         LATITUDE, LONGITUDE, ISEXPORTED
+                         LATITUDE, LONGITUDE, ISEXPORTED 
                             FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED
                                 ORDER BY CREATIONTIME DESC;";
 

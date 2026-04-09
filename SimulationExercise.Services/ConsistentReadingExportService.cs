@@ -75,10 +75,10 @@ namespace SimulationExercise.Services
 
         public async Task ExportAsync(string outDirectoryPath)
         {
-            IList<OutputFileGetDTO>? outputFiles = null;
-
             try
             {
+                IList<OutputFileGetDTO>? outputFiles;
+
                 using (IContext searchContext = _contextFactory.Create())
                     outputFiles = await _outputFileRepository.GetByIsExportedAsync(false, searchContext);
 
@@ -88,12 +88,21 @@ namespace SimulationExercise.Services
                     return;
                 }
 
-                var fileStream = new FileStream(outDirectoryPath,
-                                                FileMode.Create,
-                                                FileAccess.Write);
+                Directory.CreateDirectory(outDirectoryPath);
 
                 foreach (var outputFile in outputFiles)
-                    _outputFileService.Export<ConsistentReadingExportDTO>(outputFile, fileStream);
+                {
+                    var exportDTO = new ConsistentReadingExportDTO
+                    {
+
+                    };
+
+                    var fileName = $"{outputFile.Name}.csv";
+                    var fullPath = Path.Combine(outDirectoryPath, fileName);
+
+                    using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                    _outputFileService.Export(exportDTO, fileStream);
+                }
             }
             catch (Exception ex)
             {

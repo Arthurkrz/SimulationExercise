@@ -35,8 +35,8 @@ namespace SimulationExercise.Console
             menu.AddOptionAsync(5, "Create average province data output files", async () =>
             { await _filePersistanceService.CreateAverageProvinceDataOutputFiles(); });
 
-            menu.AddOptionAsync(6, "Create average province data output files", async () =>
-            { await _filePersistanceService.CreateAverageProvinceDataOutputFiles(); });
+            menu.AddOptionAsync(6, "Create consistent reading output files", async () =>
+            { await _filePersistanceService.CreateConsistentReadingOutputFiles(); });
 
             menu.AddHandlerOption(7, "Export average province data files", "export-averageprovincedata");
 

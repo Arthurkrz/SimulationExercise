@@ -55,7 +55,7 @@ namespace SimulationExercise.Tests.Integration.Service
                 throw new ArgumentNullException("Null Connection String");
 
             ServiceCollection services = new ServiceCollection();
-            services.InjectFactories();
+            services.InjectFactories(config);
             services.InjectServices();
             services.InjectRepositories();
             services.InjectValidators();
