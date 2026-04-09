@@ -34,7 +34,7 @@ namespace SimulationExercise.Services.Handlers
                 loopPath = false;
             }
 
-            await _exportService.Export(path!);
+            await _exportService.ExportAsync(path!);
         }
     }
 }

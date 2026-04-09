@@ -2,6 +2,6 @@
 {
     public interface IConsistentReadingExportService : IBaseExport
     {
-        void CreateOutputFiles();
+        Task CreateOutputFilesAsync();
     }
 }

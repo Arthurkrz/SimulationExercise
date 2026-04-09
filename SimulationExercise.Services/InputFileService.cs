@@ -23,7 +23,7 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessFiles(string inDirectoryPath)
+        public async Task ProcessFilesAsync(string inDirectoryPath)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -52,7 +52,7 @@ namespace SimulationExercise.Services
                         var inputFileInsertDTO = new InputFileInsertDTO
                             (fileName, fileBytes, fileExtension, Status.New);
 
-                        _inputFileRepository.Insert(inputFileInsertDTO, context);
+                        await _inputFileRepository.InsertAsync(inputFileInsertDTO, context);
                         SendToBackup(file, inDirectoryPath);
                     }
 

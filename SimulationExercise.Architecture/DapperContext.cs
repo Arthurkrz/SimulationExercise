@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Infrastructure
@@ -26,16 +27,31 @@ namespace SimulationExercise.Infrastructure
         public SqlTransaction Transaction { get; }
 
         public string GetConnectionString() => this.Connection.ConnectionString;
+        
         public IReadOnlyList<dynamic> Query(string sql, object param) =>
-                        Connection.Query(sql, param, Transaction).ToList();
-        public IList<T> Query<T>(string sql, object param) =>
-                        Connection.Query<T>(sql, param, Transaction).ToList();
+            Connection.Query(sql, param, Transaction).ToList();
+        
         public IList<T> Query<T>(string sql) =>
-                        Connection.Query<T>(sql, null, Transaction).ToList();
+            Connection.Query<T>(sql, null, Transaction).ToList();
+
+        public IList<T> Query<T>(string sql, object param) =>
+            Connection.Query<T>(sql, param, Transaction).ToList();
+
+        public async Task<IList<T>> QueryAsync<T>(string sql) =>
+            (await Connection.QueryAsync<T>(sql, null, Transaction)).ToList();
+
+        public async Task<IList<T>> QueryAsync<T>(string sql, object param) =>
+            (await Connection.QueryAsync<T>(sql, param)).ToList();
+
         public T ExecuteScalar<T>(string sql, object? param = null, int? commandTimeout = null) =>
             (T)Connection.ExecuteScalar(sql, param, Transaction, commandTimeout: commandTimeout)!;
+        
         public int Execute(string sql, object? param = null, int? commandTimeout = null) => 
             Connection.Execute(sql, param, Transaction, commandTimeout: commandTimeout);
+        
+        public Task<int> ExecuteAsync(string sql, object? param = null, int? commandTimeout = null) =>
+            Connection.ExecuteAsync(sql, param, Transaction, commandTimeout: commandTimeout);
+        
         public void Commit()
         {
             Transaction.Commit();

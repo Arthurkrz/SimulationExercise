@@ -5,8 +5,8 @@ namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IOutputFileRepository
     {
-        void Insert(OutputFileInsertDTO dto, IContext context);
-        IList<OutputFileGetDTO> GetByObjectType(Type objectType, IContext context);
-        IList<OutputFileGetDTO> GetByIsExported(bool isExported, IContext context);
+        Task InsertAsync(OutputFileInsertDTO dto, IContext context);
+        Task<IList<OutputFileGetDTO>> GetByObjectTypeAsync(Type objectType, IContext context);
+        Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, IContext context);
     }
 }

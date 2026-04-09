@@ -33,11 +33,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void CreateOutputFiles()
+        public async Task CreateOutputFilesAsync()
         {
             IList<ConsistentReadingGetDTO> crGetDTOs;
             using (IContext searchContext = _contextFactory.Create())
-                crGetDTOs = _consistentReadingRepository.GetByIsExported(false, searchContext);
+                crGetDTOs = await _consistentReadingRepository.GetByIsExportedAsync(false, searchContext);
 
             if (crGetDTOs.Count == 0)
             {
@@ -48,13 +48,13 @@ namespace SimulationExercise.Services
             try
             {
                 var records = _consistentReadingExportDTOFactory.CreateExportDTOList(crGetDTOs);
-                var result = _outputFileService.CreateOutputFiles<ConsistentReadingExportDTO>(records);
+                var result = _outputFileService.CreateOutputFilesAsync<ConsistentReadingExportDTO>(records);
                 
-                if (!result.Success)
-                {
-                    _logger.LogError(LogMessages.ERRORSFOUND, "Consistent Reading list", 0);
-                    foreach (var error in result.Errors!) _logger.LogError(error);
-                }
+                //if (!result.Success)
+                //{
+                //    _logger.LogError(LogMessages.ERRORSFOUND, "Consistent Reading list", 0);
+                //    foreach (var error in result.Errors!) _logger.LogError(error);
+                //}
 
                 foreach (var consistentReading in crGetDTOs)
                 {
@@ -62,7 +62,7 @@ namespace SimulationExercise.Services
 
                     using (IContext updateContext = _contextFactory.Create())
                     {
-                        _consistentReadingRepository.Update(updateDTO, updateContext);
+                        await _consistentReadingRepository.UpdateAsync(updateDTO, updateContext);
                         updateContext.Commit();
                     }
                 }
@@ -73,14 +73,14 @@ namespace SimulationExercise.Services
             }
         }
 
-        public void Export(string outDirectoryPath)
+        public async Task ExportAsync(string outDirectoryPath)
         {
             IList<OutputFileGetDTO>? outputFiles = null;
 
             try
             {
                 using (IContext searchContext = _contextFactory.Create())
-                    outputFiles = _outputFileRepository.GetByIsExported(false, searchContext);
+                    outputFiles = await _outputFileRepository.GetByIsExportedAsync(false, searchContext);
 
                 if (outputFiles.Count == 0)
                 {

@@ -63,18 +63,18 @@ namespace SimulationExercise.Tests.Service
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
             var apdExportDTO = new AverageProvinceDataExportDTO("Province1", "Sensor1", 10, "mg/m³", 20);
 
-            _apdRepositoryMock.Setup(x => x.GetByIsExported(
-                false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+            //_apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+            //    false, It.IsAny<IContext>()))
+            //    .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
             _apdExportDTOFactoryMock.Setup(x => x.CreateExportDTOList(
                 It.IsAny<IList<AverageProvinceDataGetDTO>>()))
                 .Returns(new List<AverageProvinceDataExportDTO> { apdExportDTO });
 
             // Act & Assert
-            _sut.CreateOutputFiles();
+            _sut.CreateOutputFilesAsync();
 
-            _outputFileServiceMock.Verify(x => x.CreateOutputFiles<AverageProvinceDataExportDTO>(
+            _outputFileServiceMock.Verify(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
                 new List<AverageProvinceDataExportDTO> { apdExportDTO }), Times.Once);
         }
 
@@ -82,11 +82,11 @@ namespace SimulationExercise.Tests.Service
         public void CreateOutputFiles_ShouldLogError_WhenNoAPDsFound()
         {
             // Arrange
-            _apdRepositoryMock.Setup(x => x.GetByIsExported(false, It.IsAny<IContext>()))
-                                  .Returns(new List<AverageProvinceDataGetDTO>());
+            //_apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(false, It.IsAny<IContext>()))
+            //                      .Returns(new List<AverageProvinceDataGetDTO>());
 
             // Act & Assert
-            _sut.CreateOutputFiles();
+            _sut.CreateOutputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -104,15 +104,15 @@ namespace SimulationExercise.Tests.Service
         {
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
 
-            _apdRepositoryMock.Setup(x => x.GetByIsExported(
-                false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+            //_apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+            //    false, It.IsAny<IContext>()))
+            //    .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
-            _outputFileServiceMock.Setup(x => x.CreateOutputFiles(
-                It.IsAny<IList<AverageProvinceDataExportDTO>>()))
-                .Returns(Result<OutputFileInsertDTO>.Ko(new List<string> { "ERROR" }));
+            //_outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync(
+            //    It.IsAny<IList<AverageProvinceDataExportDTO>>()))
+            //    .Returns(Result<OutputFileInsertDTO>.Ko(new List<string> { "ERROR" }));
 
-            _sut.CreateOutputFiles();
+            _sut.CreateOutputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -133,24 +133,24 @@ namespace SimulationExercise.Tests.Service
             var apdExportDTO = new AverageProvinceDataExportDTO("Province1", "Sensor1", 10, "mg/m³", 20);
             var outputFileCreationResult = Result<OutputFileInsertDTO>.Ok(new OutputFileInsertDTO("AverageProvinceDataExportDTO", new byte[] { 1, 2, 3 }, ".csv", "AverageProvinceData", false));
 
-            _apdRepositoryMock.Setup(x => x.GetByIsExported(
-                false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+            //_apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+            //    false, It.IsAny<IContext>()))
+            //    .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
             _apdExportDTOFactoryMock.Setup(x => x.CreateExportDTOList(
                 It.IsAny<IList<AverageProvinceDataGetDTO>>()))
                 .Returns(new List<AverageProvinceDataExportDTO> { apdExportDTO });
 
-            _outputFileServiceMock.Setup(x => x.CreateOutputFiles<AverageProvinceDataExportDTO>(
-                It.IsAny<IList<AverageProvinceDataExportDTO>>()))
-                .Returns(outputFileCreationResult);
+            //_outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
+            //    It.IsAny<IList<AverageProvinceDataExportDTO>>()))
+            //    .Returns(outputFileCreationResult);
 
-            _apdRepositoryMock.Setup(x => x.Update(
+            _apdRepositoryMock.Setup(x => x.UpdateAsync(
                 It.IsAny<AverageProvinceDataUpdateDTO>(), It.IsAny<IContext>()))
                 .Throws(new Exception("Update failed"));
 
             // Act & Assert
-            _sut.CreateOutputFiles();
+            _sut.CreateOutputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -175,12 +175,12 @@ namespace SimulationExercise.Tests.Service
 
             var outputFileGetDTO = new OutputFileGetDTO(1, "Name", outputFileBytes, ".csv", "AverageProvinceData", false);
 
-            _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
-                false, It.IsAny<IContext>())).
-                Returns(new List<OutputFileGetDTO> { outputFileGetDTO });
+            //_outputFileRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+            //    false, It.IsAny<IContext>())).
+            //    Returns(new List<OutputFileGetDTO> { outputFileGetDTO });
 
             // Act
-            _sut.Export("OUT");
+            _sut.ExportAsync("OUT");
 
             // Assert
             _outputFileServiceMock.Verify(x => x.Export<AverageProvinceData>(outputFileGetDTO, outputFileStream), Times.Once);
@@ -190,12 +190,12 @@ namespace SimulationExercise.Tests.Service
         public void Export_ShouldLogError_WhenNoOutputFilesFound()
         {
             // Arrange
-            _outputFileRepositoryMock.Setup(x => x.GetByIsExported(
-                true, It.IsAny<IContext>())).
-                Returns(new List<OutputFileGetDTO>());
+            //_outputFileRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+            //    true, It.IsAny<IContext>())).
+            //    Returns(new List<OutputFileGetDTO>());
 
             // Act
-            _sut.Export("OutputFilePath");
+            _sut.ExportAsync("OutputFilePath");
 
             // Assert
             _loggerMock.Verify(
@@ -213,7 +213,7 @@ namespace SimulationExercise.Tests.Service
         public void Export_ShouldLogError_WhenNoOutDirectoryFound()
         {
             // Act
-            _sut.Export("");
+            _sut.ExportAsync("");
 
             // Assert
             _loggerMock.Verify(

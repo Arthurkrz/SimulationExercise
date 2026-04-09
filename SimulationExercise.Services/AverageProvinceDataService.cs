@@ -32,11 +32,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessConsistentReadings()
+        public async Task ProcessConsistentReadingsAsync()
         {
             IList<ConsistentReadingGetDTO>? crGetDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
-                crGetDTOs = _consistentReadingRepository.GetByIsExported(false, searchContext);
+                crGetDTOs = await _consistentReadingRepository.GetByIsExportedAsync(false, searchContext);
 
             if (crGetDTOs.Count == 0)
             {
@@ -69,7 +69,7 @@ namespace SimulationExercise.Services
                                                                              apd.AverageValue, apd.Unit,
                                                                              apd.AverageDaysOfMeasure, false);
 
-                            _averageProvinceDataRepository.Insert(insertDTO, context);
+                            await _averageProvinceDataRepository.InsertAsync(insertDTO, context);
                         }
                         else
                         {

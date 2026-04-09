@@ -33,11 +33,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void CreateOutputFiles()
+        public async Task CreateOutputFilesAsync()
         {
             IList<AverageProvinceDataGetDTO> apdGetDTOs;
             using (IContext searchContext = _contextFactory.Create())
-                apdGetDTOs = _averageProvinceDataRepository.GetByIsExported(false, searchContext);
+                apdGetDTOs = await _averageProvinceDataRepository.GetByIsExportedAsync(false, searchContext);
 
             if (apdGetDTOs.Count == 0)
             {
@@ -48,13 +48,13 @@ namespace SimulationExercise.Services
             try 
             {
                 var records = _averageProvinceDataExportDTOFactory.CreateExportDTOList(apdGetDTOs);
-                var result = _outputFileService.CreateOutputFiles<AverageProvinceDataExportDTO>(records);
+                var result = _outputFileService.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(records);
 
-                if (!result.Success)
-                {
-                    _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", 0);
-                    foreach (var error in result.Errors!) _logger.LogError(error);
-                }
+                //if (!result.Success)
+                //{
+                //    _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", 0);
+                //    foreach (var error in result.Errors!) _logger.LogError(error);
+                //}
 
                 foreach (var averageProvinceData in apdGetDTOs)
                 {
@@ -62,7 +62,7 @@ namespace SimulationExercise.Services
 
                     using (IContext updateContext = _contextFactory.Create())
                     {
-                        _averageProvinceDataRepository.Update(updateDTO, updateContext);
+                        await _averageProvinceDataRepository.UpdateAsync(updateDTO, updateContext);
                         updateContext.Commit();
                     }
                 }
@@ -73,14 +73,14 @@ namespace SimulationExercise.Services
             }
         }
 
-        public void Export(string outDirectoryPath)
+        public async Task ExportAsync(string outDirectoryPath)
         {
             IList<OutputFileGetDTO>? outputFiles = null;
 
             try
             {
                 using (IContext searchContext = _contextFactory.Create())
-                    outputFiles = _outputFileRepository.GetByIsExported(false, searchContext);
+                    outputFiles = await _outputFileRepository.GetByIsExportedAsync(false, searchContext);
 
                 if (outputFiles.Count == 0)
                 {

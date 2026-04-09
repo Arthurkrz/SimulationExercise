@@ -24,7 +24,7 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public Result<OutputFileInsertDTO> CreateOutputFiles<T>(IList<T> objs) where T : class
+        public async Task<Result<OutputFileInsertDTO>> CreateOutputFilesAsync<T>(IList<T> objs) where T : class
         {
             Type type = typeof(T);
             var engine = new FileHelperEngine<T>();
@@ -42,7 +42,7 @@ namespace SimulationExercise.Services
             {
                 try
                 {
-                    _outputFileRepository.Insert(insertDTO, insertContext);
+                    await _outputFileRepository.InsertAsync(insertDTO, insertContext);
                     insertContext.Commit();
                 }
                 catch (Exception ex)

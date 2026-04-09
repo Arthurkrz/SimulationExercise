@@ -6,8 +6,8 @@ namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IInputFileRepository
     {
-        void Insert(InputFileInsertDTO dto, IContext context);
-        void Update(InputFileUpdateDTO dto, IContext context);
-        IList<InputFileGetDTO> GetByStatus(Status status, IContext context);
+        Task InsertAsync(InputFileInsertDTO dto, IContext context);
+        Task UpdateAsync(InputFileUpdateDTO dto, IContext context);
+        Task<IList<InputFileGetDTO>> GetByStatusAsync(Status status, IContext context);
     }
 }

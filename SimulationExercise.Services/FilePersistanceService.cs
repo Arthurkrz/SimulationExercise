@@ -29,28 +29,28 @@ namespace SimulationExercise.Services
         }
 
         public async Task Initialize(string inDirectoryPath) =>
-            await _inputFileService.ProcessFiles(inDirectoryPath);
+            await _inputFileService.ProcessFilesAsync(inDirectoryPath);
 
         public async Task CreateReadings() => 
-            await _readingService.ProcessInputFiles();
+            await _readingService.ProcessInputFilesAsync();
 
         public async Task CreateConsistentReadings() => 
-            await _consistentReadingService.ProcessReadings();
+            await _consistentReadingService.ProcessReadingsAsync();
 
         public async Task CreateAverageProvinceDatas() => 
-            await _averageProvinceDataService.ProcessConsistentReadings();
+            await _averageProvinceDataService.ProcessConsistentReadingsAsync();
 
         public async Task CreateAverageProvinceDataOutputFiles() =>
-            await _averageProvinceDataExportService.CreateOutputFiles();
+            await _averageProvinceDataExportService.CreateOutputFilesAsync();
 
         public async Task CreateConsistentReadingOutputFiles() =>
-            await _consistentReadingExportService.CreateOutputFiles();
+            await _consistentReadingExportService.CreateOutputFilesAsync();
 
         public async Task ExportAverageProvinceData(string outDirectoryPath) => 
-            await _averageProvinceDataExportService.Export(outDirectoryPath);
+            await _averageProvinceDataExportService.ExportAsync(outDirectoryPath);
 
         public async Task ExportConsistentReadings(string outDirectoryPath) => 
-            await _consistentReadingExportService.Export(outDirectoryPath);
+            await _consistentReadingExportService.ExportAsync(outDirectoryPath);
 
         public bool LoggerConfiguration(string baseOutPath)
         {

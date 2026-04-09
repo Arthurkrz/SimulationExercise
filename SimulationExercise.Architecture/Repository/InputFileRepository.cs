@@ -11,7 +11,7 @@ namespace SimulationExercise.Infrastructure.Repository
         private readonly string _mainTableName = "InputFile";
         private readonly string _messageTableName = "InputFileMessage";
 
-        public void Insert(InputFileInsertDTO dto, IContext context)
+        public async Task InsertAsync(InputFileInsertDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -23,7 +23,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                         @CREATIONTIME, @LASTUPDATETIME, 
                                         @LASTUPDATEUSER, @STATUS);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
                 dto.Name, dto.Extension, dto.Bytes,
                 CreationTime = SystemTime.Now(),
@@ -33,14 +33,14 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public void Update(InputFileUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(InputFileUpdateDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
-                                   WHERE INPUTFILEID = @INPUTFILEID;", 
-                            new { dto.Status, dto.InputFileId });
+            await context.ExecuteAsync($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+                                          WHERE INPUTFILEID = @INPUTFILEID;", 
+                                       new { dto.Status, dto.InputFileId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
             {
@@ -51,7 +51,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                         VALUES (@INPUTFILEID, @CREATIONDATE, @LASTUPDATEDATE,
                                         @LASTUPDATEUSER, @MESSAGE);";
 
-                    context.Execute(sql, new 
+                    await context.ExecuteAsync(sql, new 
                     { 
                         dto.InputFileId, 
                         CreationDate = SystemTime.Now(), 
@@ -63,7 +63,7 @@ namespace SimulationExercise.Infrastructure.Repository
             }
         }
 
-        public IList<InputFileGetDTO> GetByStatus(Status status, IContext context)
+        public async Task<IList<InputFileGetDTO>> GetByStatusAsync(Status status, IContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -72,7 +72,7 @@ namespace SimulationExercise.Infrastructure.Repository
                             FROM {_mainTableName} WHERE STATUSID = @STATUSID 
                                 ORDER BY CreationTime DESC";
 
-            return context.Query<InputFileGetDTO>(sql, new { statusId });
+            return await context.QueryAsync<InputFileGetDTO>(sql, new { statusId });
         }
     }
 }

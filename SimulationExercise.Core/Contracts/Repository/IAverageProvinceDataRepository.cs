@@ -5,8 +5,8 @@ namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IAverageProvinceDataRepository
     {
-        void Insert(AverageProvinceDataInsertDTO dto, IContext context);
-        void Update(AverageProvinceDataUpdateDTO dto, IContext context);
-        IList<AverageProvinceDataGetDTO> GetByIsExported(bool isExported, IContext context);
+        Task InsertAsync(AverageProvinceDataInsertDTO dto, IContext context);
+        Task UpdateAsync(AverageProvinceDataUpdateDTO dto, IContext context);
+        Task<IList<AverageProvinceDataGetDTO>> GetByIsExportedAsync(bool isExported, IContext context);
     }
 }

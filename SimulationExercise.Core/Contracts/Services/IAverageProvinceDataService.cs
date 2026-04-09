@@ -2,6 +2,6 @@
 {
     public interface IAverageProvinceDataService
     {
-        void ProcessConsistentReadings();
+        Task ProcessConsistentReadingsAsync();
     }
 }

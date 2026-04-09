@@ -2,6 +2,6 @@
 {
     public interface IReadingService
     {
-        void ProcessInputFiles();
+        Task ProcessInputFilesAsync();
     }
 }

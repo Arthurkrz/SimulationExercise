@@ -2,6 +2,6 @@
 {
     public interface IBaseExport
     {
-        void Export(string outDirectoryPath);
+        Task ExportAsync(string outDirectoryPath);
     }
 }

@@ -5,8 +5,8 @@ namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IConsistentReadingRepository
     {
-        void Insert(ConsistentReadingInsertDTO dto, IContext context);
-        void Update(ConsistentReadingUpdateDTO dto, IContext context);
-        IList<ConsistentReadingGetDTO> GetByIsExported(bool isExported, IContext context);
+        Task InsertAsync(ConsistentReadingInsertDTO dto, IContext context);
+        Task UpdateAsync(ConsistentReadingUpdateDTO dto, IContext context);
+        Task<IList<ConsistentReadingGetDTO>> GetByIsExportedAsync(bool isExported, IContext context);
     }
 }

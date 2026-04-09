@@ -2,6 +2,6 @@
 {
     public interface IConsistentReadingService
     {
-        void ProcessReadings();
+        Task ProcessReadingsAsync();
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IAverageProvinceDataExportService : IBaseExport
     {
-        void CreateOutputFiles();
+        Task CreateOutputFilesAsync();
     }
 }

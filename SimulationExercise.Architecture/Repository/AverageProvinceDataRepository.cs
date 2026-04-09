@@ -7,10 +7,9 @@ namespace SimulationExercise.Infrastructure.Repository
 {
     public class AverageProvinceDataRepository : IAverageProvinceDataRepository
     {
-
         private readonly string _mainTableName = "AverageProvinceData";
 
-        public void Insert(AverageProvinceDataInsertDTO dto, IContext context)
+        public async Task InsertAsync(AverageProvinceDataInsertDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -23,7 +22,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                             @CREATIONTIME, @LASTUPDATETIME,
                                             @LASTUPDATEUSER, @ISEXPORTED);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
                 dto.Province, dto.SensorTypeName, dto.Unit, 
                 dto.AverageValue, dto.AverageDaysOfMeasure,
@@ -34,17 +33,17 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public void Update(AverageProvinceDataUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(AverageProvinceDataUpdateDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
-                                   WHERE AVERAGEPROVINCEDATAID = @AVERAGEPROVINCEDATAID;",
-                            new { dto.IsExported, dto.AverageProvinceDataId });
+            await context.ExecuteAsync($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
+                                          WHERE AVERAGEPROVINCEDATAID = @AVERAGEPROVINCEDATAID;",
+                                       new { dto.IsExported, dto.AverageProvinceDataId });
         }
 
-        public IList<AverageProvinceDataGetDTO> GetByIsExported(bool isExported, IContext context)
+        public async Task<IList<AverageProvinceDataGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -53,7 +52,7 @@ namespace SimulationExercise.Infrastructure.Repository
                              ISEXPORTED FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED 
                                 ORDER BY CREATIONTIME DESC;";
 
-            return context.Query<AverageProvinceDataGetDTO>(sql, new { isExported });
+            return await context.QueryAsync<AverageProvinceDataGetDTO>(sql, new { isExported });
         }
     }
 }

@@ -35,11 +35,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessReadings()
+        public async Task ProcessReadingsAsync()
         {
             IList<ReadingGetDTO>? readingDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
-                readingDTOs = _readingRepository.GetByStatusAsync(Status.New, searchContext);
+                readingDTOs = await _readingRepository.GetByStatusAsync(Status.New, searchContext);
 
             if (readingDTOs.Count == 0)
             {
@@ -66,8 +66,8 @@ namespace SimulationExercise.Services
 
                             var successDTO = new ReadingUpdateDTO(readingDTO.ReadingId, Status.Success);
 
-                            _consistentReadingRepository.Insert(insertDTO, context);
-                            _readingRepository.UpdateAsync(successDTO, context);
+                            await _consistentReadingRepository.InsertAsync(insertDTO, context);
+                            await _readingRepository.UpdateAsync(successDTO, context);
                         }
                         else
                         {
@@ -78,7 +78,7 @@ namespace SimulationExercise.Services
                                                                         Status.Error,
                                                                         creationResult.Errors);
 
-                            _readingRepository.UpdateAsync(updateErrorDTO, context);
+                            await _readingRepository.UpdateAsync(updateErrorDTO, context);
                             _errorGroupNumber++;
                         }
 

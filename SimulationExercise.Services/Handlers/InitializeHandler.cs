@@ -34,7 +34,7 @@ namespace SimulationExercise.Services.Handlers
                 loopPath = false;
             }
 
-            await _inputFileService.ProcessFiles(path!);
+            await _inputFileService.ProcessFilesAsync(path!);
         }
     }
 }

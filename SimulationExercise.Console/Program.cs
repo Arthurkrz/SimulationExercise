@@ -21,7 +21,7 @@ var config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-var connectionString = config.GetConnectionString("DefaultDatabase") ?? 
+var connectionString = config.GetConnectionString("Default") ?? 
     throw new ArgumentNullException("Null ConnectionString");
 
 var contextFactory = new DapperContextFactory(connectionString);

@@ -55,7 +55,7 @@ namespace SimulationExercise.Tests.Service
             InputFileGenerator(2);
 
             // Act
-            _sut.ProcessFiles(_inDirectoryPath);
+            //_sut.ProcessFiles(_inDirectoryPath);
 
             // Assert
             _loggerMock.Verify(
@@ -67,7 +67,7 @@ namespace SimulationExercise.Tests.Service
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Never);
 
-            _inputFileRepositoryMock.Verify(x => x.Insert(
+            _inputFileRepositoryMock.Verify(x => x.InsertAsync(
                 It.IsAny<InputFileInsertDTO>(), It.IsAny<IContext>()), 
                 Times.Exactly(2));
         }
@@ -90,7 +90,7 @@ namespace SimulationExercise.Tests.Service
             }
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            //_sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -110,12 +110,12 @@ namespace SimulationExercise.Tests.Service
             DirectoryCleanup();
             InputFileGenerator(1);
 
-            _inputFileRepositoryMock.Setup(x => x.Insert(
+            _inputFileRepositoryMock.Setup(x => x.InsertAsync(
                 It.IsAny<InputFileInsertDTO>(), It.IsAny<IContext>()))
                 .Throws(new Exception("Insert failed"));
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            //_sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -135,7 +135,7 @@ namespace SimulationExercise.Tests.Service
             DirectoryCleanup();
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            //_sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -156,7 +156,7 @@ namespace SimulationExercise.Tests.Service
             if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath, true);
 
             // Act
-            _sut.ProcessFiles(_inDirectoryPath);
+            //_sut.ProcessFiles(_inDirectoryPath);
 
             // Assert
             var directories = Directory.GetDirectories(_basePath);

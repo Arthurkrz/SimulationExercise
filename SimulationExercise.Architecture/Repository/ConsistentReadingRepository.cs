@@ -11,7 +11,7 @@ namespace SimulationExercise.Infrastructure.Repository
         private readonly string _mainTableName = "ConsistentReading";
         private readonly string _messageTableName = "ConsistentReadingMessage";
 
-        public void Insert(ConsistentReadingInsertDTO dto, IContext context)
+        public async Task InsertAsync(ConsistentReadingInsertDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -25,7 +25,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                         @UTMEST, @LATITUDE, @LONGITUDE, @CREATIONTIME, 
                                         @LASTUPDATETIME, @LASTUPDATEUSER, @ISEXPORTED);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
                 dto.ReadingId, dto.SensorId, dto.SensorTypeName, dto.Unit,
                 dto.Value, dto.Province, dto.City, dto.IsHistoric,
@@ -38,17 +38,17 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public void Update(ConsistentReadingUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(ConsistentReadingUpdateDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            context.Execute($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
-                                   WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
-                            new { dto.IsExported, dto.ConsistentReadingId });
+            await context.ExecuteAsync($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
+                                          WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
+                                       new { dto.IsExported, dto.ConsistentReadingId });
         }
 
-        public IList<ConsistentReadingGetDTO> GetByIsExported(bool isExported, IContext context)
+        public async Task<IList<ConsistentReadingGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -59,7 +59,7 @@ namespace SimulationExercise.Infrastructure.Repository
                             FROM {_mainTableName} WHERE ISEXPORTED = @ISEXPORTED
                                 ORDER BY CREATIONTIME DESC;";
 
-            return context.Query<ConsistentReadingGetDTO>(sql, new { isExported });
+            return await context.QueryAsync<ConsistentReadingGetDTO>(sql, new { isExported });
         }
     }
 }

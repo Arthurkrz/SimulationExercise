@@ -46,7 +46,7 @@ namespace SimulationExercise.Tests.Service
         public void CreateOutputFiles_ShouldCreateOutputFiles(IList<object> exportDTOs)
         {
             // Act
-            _sut.CreateOutputFiles(exportDTOs);
+            _sut.CreateOutputFilesAsync(exportDTOs);
 
             // Assert
             _loggerMock.Verify(
@@ -58,7 +58,7 @@ namespace SimulationExercise.Tests.Service
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Never);
 
-            _outputFileRepositoryMock.Verify(x => x.Insert(
+            _outputFileRepositoryMock.Verify(x => x.InsertAsync(
                 It.IsAny<OutputFileInsertDTO>(), It.IsAny<IContext>()),
                 Times.Once);
         }

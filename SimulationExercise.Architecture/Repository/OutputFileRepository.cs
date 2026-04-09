@@ -9,7 +9,7 @@ namespace SimulationExercise.Infrastructure.Repository
     {
         private readonly string _mainTableName = "OutputFile";
 
-        public void Insert(OutputFileInsertDTO dto, IContext context)
+        public async Task InsertAsync(OutputFileInsertDTO dto, IContext context)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -21,7 +21,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                          @CREATIONTIME, @LASTUPDATETIME, 
                                          @LASTUPDATEUSER, @ISEXPORTED);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
                 dto.Name, dto.Bytes, dto.Extension,
                 dto.ObjectType, 
@@ -32,7 +32,7 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public IList<OutputFileGetDTO> GetByObjectType(Type objectType, IContext context)
+        public async Task<IList<OutputFileGetDTO>> GetByObjectTypeAsync(Type objectType, IContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -40,10 +40,10 @@ namespace SimulationExercise.Infrastructure.Repository
                             FROM {_mainTableName} WHERE OBJECTTYPE = @OBJECTTYPE 
                                 ORDER BY CREATIONTIME DESC;";
 
-            return context.Query<OutputFileGetDTO>(sql, new { objectType.Name });
+            return await context.QueryAsync<OutputFileGetDTO>(sql, new { objectType.Name });
         }
 
-        public IList<OutputFileGetDTO> GetByIsExported(bool isExported, IContext context)
+        public async Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -52,7 +52,7 @@ namespace SimulationExercise.Infrastructure.Repository
                             WHERE ISEXPORTED = @ISEXPORTED 
                                 ORDER BY CREATIONTIME DESC;";
 
-            return context.Query<OutputFileGetDTO>(sql, new { isExported });
+            return await context.QueryAsync<OutputFileGetDTO>(sql, new { isExported });
         }
     }
 }
