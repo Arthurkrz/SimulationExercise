@@ -8,6 +8,8 @@ using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.IOC;
 using SimulationExercise.Services.Utilities;
+using ConsoleMenu.IOC;
+using ConsoleMenu.Contracts;
 
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                       .WriteTo.Console()
@@ -21,30 +23,30 @@ var config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-var connectionString = config.GetConnectionString("Default") ?? 
-    throw new ArgumentNullException("Null ConnectionString");
+var contextFactory = new DapperContextFactory(config);
+new RepositoryInitializer().Initialize(contextFactory.Create());
 
-var contextFactory = new DapperContextFactory(connectionString);
+var services = new ServiceCollection();
 
-RepositoryInitializer repositoryInitializer = new RepositoryInitializer();
-
-repositoryInitializer.Initialize(contextFactory.Create());
-
-ServiceCollection services = new ServiceCollection();
-DependencyInjection.InjectServices(services);
-DependencyInjection.InjectValidators(services);
-
-services.AddLogging(loggingBuilder =>
-{
-    loggingBuilder.ClearProviders();
-    loggingBuilder.AddSerilog();
-});
+services.InjectServices()
+        .InjectHandlers()
+        .InjectRepositories()
+        .InjectFactories(config)
+        .InjectValidators()
+        .AddConsoleMenu()
+        .AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSerilog();
+        });
 
 using var serviceProvider = services.BuildServiceProvider();
 var filePersistanceService = serviceProvider.GetRequiredService<IFilePersistanceService>();
+var menuSelector = serviceProvider.GetRequiredService<IConsoleMenuSelector>();
+var menuExecutor = serviceProvider.GetRequiredService<IConsoleMenuExecutor>();
 var logPathSetup = serviceProvider.GetRequiredService<ILogSetupService>();
 
 logPathSetup.Configure();
 
-var menu = new MenuSetup(filePersistanceService);
+var menu = new MenuSetup(filePersistanceService, menuSelector, menuExecutor);
 await menu.RunAsync();

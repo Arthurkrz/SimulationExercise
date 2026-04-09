@@ -28,7 +28,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             _connectionString = config.GetConnectionString("Default") ??
                 throw new ArgumentNullException(nameof(_connectionString));
 
-            _contextFactory = new DapperContextFactory(_connectionString);
+            //_contextFactory = new DapperContextFactory(_connectionString);
         }
 
         public void InsertObjects(int numberOfObjectsToBeInserted, Status status = Status.New, bool isExported = false)

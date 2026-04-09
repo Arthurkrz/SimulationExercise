@@ -14,41 +14,29 @@ namespace SimulationExercise.Services.Utilities
 
         public void Configure()
         {
-            var path = "";
-            var loopPathInvalid = true;
-            var loopPathEmpty = true;
-            var loopPathNotLocated = true;
-
-            while (loopPathInvalid)
+            while (true)
             {
-                while (loopPathEmpty)
+                Console.WriteLine("Insert the path where errors will be logged:");
+                var path = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(path))
                 {
-                    Console.WriteLine("Insert the path where errors will be logged:");
-                    path = Console.ReadLine();
-
-                    if (path.IsNullOrEmpty())
-                    {
-                        Console.Clear();
-                        Console.WriteLine("No path specified.\n");
-                    }
-
-                    else loopPathEmpty = false;
+                    Console.Clear();
+                    Console.WriteLine("No path specified.\n");
+                    continue;
                 }
 
-                while (loopPathNotLocated)
+                var isValid = _filePersistanceService.LoggerConfiguration(path);
+
+                if (!isValid)
                 {
-                    var isValid = _filePersistanceService.LoggerConfiguration(path!);
-
-                    if (!isValid)
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Path not located.\n");
-                    }
-
-                    else loopPathNotLocated = false;
+                    Console.Clear();
+                    Console.WriteLine("Path not located.\n");
+                    continue;
                 }
 
-                loopPathInvalid = false;
+                Console.Clear();
+                break;
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using ConsoleMenu.Application;
+using ConsoleMenu.Contracts;
 using SimulationExercise.Core.Contracts.Services;
 
 namespace SimulationExercise.Console
@@ -6,15 +7,19 @@ namespace SimulationExercise.Console
     public class MenuSetup
     {
         private readonly IFilePersistanceService _filePersistanceService;
+        private readonly IConsoleMenuSelector _consoleMenuSelector;
+        private readonly IConsoleMenuExecutor _consoleMenuExecutor;
 
-        public MenuSetup(IFilePersistanceService filePersistanceService)
+        public MenuSetup(IFilePersistanceService filePersistanceService, IConsoleMenuSelector consoleMenuSelector, IConsoleMenuExecutor consoleMenuExecutor)
         {
             _filePersistanceService = filePersistanceService;
+            _consoleMenuSelector = consoleMenuSelector;
+            _consoleMenuExecutor = consoleMenuExecutor;
         }
 
         public async Task RunAsync()
         {
-            var menu = new ConsoleMenuSetup();
+            var menu = new ConsoleMenuSetup(_consoleMenuSelector, _consoleMenuExecutor);
 
             menu.AddHandlerOption(1, "Initialize", "initialize");
 

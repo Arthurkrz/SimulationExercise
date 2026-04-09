@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Infrastructure
@@ -7,10 +8,10 @@ namespace SimulationExercise.Infrastructure
     {
         private readonly string _connectionString;
 
-        public DapperContextFactory(string connectionString)
+        public DapperContextFactory(IConfiguration configuration)
         {
-            this._connectionString = connectionString ?? throw new 
-                ArgumentNullException(nameof(connectionString));
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                throw new ArgumentNullException("Null ConnectionString");
         }
 
         public IContext Create()

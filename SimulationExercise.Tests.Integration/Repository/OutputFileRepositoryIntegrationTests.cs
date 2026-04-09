@@ -36,7 +36,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException(nameof(_connectionString));
 
-            _contextFactory = new DapperContextFactory(_connectionString);
+            //_contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
