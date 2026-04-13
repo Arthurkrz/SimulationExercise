@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FileHelpers;
+using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Infrastructure;
@@ -6,6 +7,7 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOs.CSVDTOs;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
+using System.Text;
 
 namespace SimulationExercise.Services
 {
@@ -75,12 +77,12 @@ namespace SimulationExercise.Services
 
         public async Task ExportAsync(string outDirectoryPath)
         {
-            IList<OutputFileGetDTO>? outputFiles = null;
-
             try
             {
+                IList<OutputFileGetDTO>? outputFiles = null;
+
                 using (IContext searchContext = _contextFactory.Create())
-                    outputFiles = await _outputFileRepository.GetByIsExportedAsync(false, searchContext);
+                    outputFiles = await _outputFileRepository.GetByIsExportedAsync(false, "AverageProvinceData", searchContext);
 
                 if (outputFiles.Count == 0)
                 {
@@ -90,24 +92,37 @@ namespace SimulationExercise.Services
 
                 Directory.CreateDirectory(outDirectoryPath);
 
+                var engine = new FileHelperEngine<AverageProvinceDataExportDTO>();
+
                 foreach (var outputFile in outputFiles)
                 {
-                    var exportDTO = new AverageProvinceDataExportDTO
-                    {
-
-                    };
-
                     var fileName = $"{outputFile.Name}.csv";
                     var fullPath = Path.Combine(outDirectoryPath, fileName);
+                    var records = BuildRecords(outputFile.Bytes, engine);
 
                     using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
-                    _outputFileService.Export(exportDTO, fileStream);
+                    using var streamWriter = new StreamWriter(fileStream, leaveOpen: true);
+
+                    engine.WriteStream(streamWriter, records);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
             }
+        }
+
+        private AverageProvinceDataExportDTO[] BuildRecords(byte[] bytes, FileHelperEngine<AverageProvinceDataExportDTO> engine)
+        {
+            var text = Encoding.UTF8.GetString(bytes);
+            text = text.Replace(',', '.');
+
+            var normalizedBytes = Encoding.UTF8.GetBytes(text);
+
+            using var memoryStream = new MemoryStream(normalizedBytes);
+            using var streamReader = new StreamReader(memoryStream);
+
+            return engine.ReadStream(streamReader);
         }
     }
 }

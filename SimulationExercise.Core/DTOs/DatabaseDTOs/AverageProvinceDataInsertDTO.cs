@@ -6,7 +6,7 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
     {
         public AverageProvinceDataInsertDTO(string province,
                                             string sensorTypeName,
-                                            double averageValue,
+                                            float averageValue,
                                             Unit unit,
                                             int averageDaysOfMeasure,
                                             bool isExported)
@@ -21,7 +21,7 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
 
         public string Province { get; }
         public string SensorTypeName { get; }
-        public double AverageValue { get; }
+        public float AverageValue { get; }
         public Unit Unit { get; }
         public int AverageDaysOfMeasure { get; }
         public bool IsExported { get; set; }

@@ -6,7 +6,7 @@ namespace SimulationExercise.Core.Entities
     {
         public AverageProvinceData(string province,
                                    string sensorTypeName,
-                                   double averageValue,
+                                   float averageValue,
                                    Unit unit,
                                    int averageDaysOfMeasure)
         {
@@ -19,7 +19,7 @@ namespace SimulationExercise.Core.Entities
 
         public string Province { get; }
         public string SensorTypeName { get; }
-        public double AverageValue { get; }
+        public float AverageValue { get; }
         public Unit Unit { get; }
         public int AverageDaysOfMeasure { get; set; }
     }

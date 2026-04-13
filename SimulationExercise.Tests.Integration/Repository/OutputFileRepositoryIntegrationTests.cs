@@ -98,7 +98,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByIsExportedAsync(true, context);
+                //var results = _sut.GetByIsExportedAsync(true, context);
                 //Assert.Equal(2, results.Count);
             }
 

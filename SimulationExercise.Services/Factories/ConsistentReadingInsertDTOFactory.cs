@@ -1,7 +1,6 @@
 ﻿using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Services.Factories
 {

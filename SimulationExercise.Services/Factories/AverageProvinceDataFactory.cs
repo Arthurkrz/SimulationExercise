@@ -42,7 +42,7 @@ namespace SimulationExercise.Services.Factory
                 { Result<AverageProvinceData>.Ko(
                     validationResult.Errors.Select(e => e.ErrorMessage).ToList()) };
 
-                double averageValue = Math.Round(provinceData
+                float averageValue = (float)Math.Round(provinceData
                     .ConsistentReadings.Average(r => r.Value), 2);
 
                 int averageDaysOfMeasure = (int)provinceData

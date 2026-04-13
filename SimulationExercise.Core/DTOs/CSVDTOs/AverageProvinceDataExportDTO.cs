@@ -2,7 +2,7 @@
 
 namespace SimulationExercise.Core.DTOs.CSVDTOs
 {
-    [DelimitedRecord(",")]
+    [DelimitedRecord(";")]
     public class AverageProvinceDataExportDTO : ExportDTO
     {
         public AverageProvinceDataExportDTO() { }
@@ -15,7 +15,7 @@ namespace SimulationExercise.Core.DTOs.CSVDTOs
         {
             Province = province;
             SensorTypeName = sensorTypeName;
-            AverageValue = averageValue;
+            AverageValue = (float)averageValue;
             Unit = unit;
             AverageDaysOfMeasure = averageDaysOfMeasure;
         }

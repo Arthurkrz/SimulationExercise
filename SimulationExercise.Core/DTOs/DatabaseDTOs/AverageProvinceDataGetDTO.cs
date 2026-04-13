@@ -15,7 +15,7 @@ namespace SimulationExercise.Core.DTOs.DatabaseDTOs
             AverageProvinceDataId = averageProvinceDataId;
             Province = province;
             SensorTypeName = sensorTypeName;
-            AverageValue = averageValue;
+            AverageValue = (float)averageValue;
             Unit = unit;
             AverageDaysOfMeasure = averageDaysOfMeasure;
             IsExported = isExported;

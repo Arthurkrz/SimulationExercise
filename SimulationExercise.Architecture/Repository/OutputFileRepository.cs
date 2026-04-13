@@ -32,27 +32,18 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public async Task<IList<OutputFileGetDTO>> GetByObjectTypeAsync(Type objectType, IContext context)
+        public async Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, string objectType, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, OBJECTTYPE, 
-                            FROM {_mainTableName} WHERE OBJECTTYPE = @OBJECTTYPE 
-                                ORDER BY CREATIONTIME DESC;";
-
-            return await context.QueryAsync<OutputFileGetDTO>(sql, new { objectType.Name });
-        }
-
-        public async Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
-        {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(nameof(context));
+            ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
             var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, 
                          OBJECTTYPE, ISEXPORTED FROM {_mainTableName} 
                             WHERE ISEXPORTED = @ISEXPORTED 
+                            AND OBJECTTYPE = @OBJECTTYPE 
                                 ORDER BY CREATIONTIME DESC;";
 
-            return await context.QueryAsync<OutputFileGetDTO>(sql, new { isExported });
+            return await context.QueryAsync<OutputFileGetDTO>(sql, new { isExported, objectType });
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
-using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Infrastructure.Repository
@@ -9,7 +8,6 @@ namespace SimulationExercise.Infrastructure.Repository
     public class ConsistentReadingRepository : IConsistentReadingRepository
     {
         private readonly string _mainTableName = "ConsistentReading";
-        private readonly string _messageTableName = "ConsistentReadingMessage";
 
         public async Task InsertAsync(ConsistentReadingInsertDTO dto, IContext context)
         {

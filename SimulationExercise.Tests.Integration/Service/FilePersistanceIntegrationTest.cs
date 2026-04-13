@@ -116,7 +116,7 @@ namespace SimulationExercise.Tests.Integration.Service
                 var readings = _readingRepository.GetByStatusAsync(Status.Success, context);
                 var consistentReadings = _consistentReadingRepository.GetByIsExportedAsync(true, context);
                 var averageProvinceDatas = _averageProvinceDataRepository.GetByIsExportedAsync(true, context);
-                var outputFiles = _outputFileRepository.GetByIsExportedAsync(true, context);
+                //var outputFiles = _outputFileRepository.GetByIsExportedAsync(true, context);
                 
                 //Assert.Single(inputFiles);
                 //Assert.Equal(10, readings.Count);
