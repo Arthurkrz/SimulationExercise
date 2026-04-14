@@ -56,12 +56,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessReadings_ShouldProcessReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
+        public async Task ProcessReadings_ShouldProcessReadingsAsync(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
             _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(readingDTOs);
+                .ReturnsAsync(readingDTOs);
 
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(
                 It.IsAny<Reading>())).Returns(creationResult);
@@ -71,7 +71,7 @@ namespace SimulationExercise.Tests.Service
                 .Returns(crInsertDTO);
 
             // Act
-            _sut.ProcessReadingsAsync();
+            await _sut.ProcessReadingsAsync();
 
             // Assert
             _loggerMock.Verify(
@@ -94,18 +94,18 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetInvalidObjects))]
-        public void ProcessReadings_ShouldLogErrors_WhenInvalidReadings(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult)
+        public async Task ProcessReadings_ShouldLogErrors_WhenInvalidReadingsAsync(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult)
         {
             // Arrange
             _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(readingDTOs);
+                .ReturnsAsync(readingDTOs);
 
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(
                 It.IsAny<Reading>())).Returns(creationResult);
 
             // Act
-            _sut.ProcessReadingsAsync();
+            await _sut.ProcessReadingsAsync();
 
             // Assert
             _loggerMock.Verify(
@@ -250,15 +250,15 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessReadings_ShouldLogError_WhenNoNewObjectsFound()
+        public async Task ProcessReadings_ShouldLogError_WhenNoNewObjectsFoundAsync()
         {
             // Arrange
             _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(new List<ReadingGetDTO>());
+                .ReturnsAsync(new List<ReadingGetDTO>());
 
             // Act & Assert
-            _sut.ProcessReadingsAsync();
+            await _sut.ProcessReadingsAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -273,12 +273,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessReadings_ShouldLogError_WhenFailToInsert(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
+        public async Task ProcessReadings_ShouldLogError_WhenFailToInsertAsync(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
             _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(readingDTOs);
+                .ReturnsAsync(readingDTOs);
 
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(
                 It.IsAny<Reading>())).Returns(creationResult);
@@ -292,7 +292,7 @@ namespace SimulationExercise.Tests.Service
                 .Throws(new Exception("Insert failed"));
 
             // Act & Assert
-            _sut.ProcessReadingsAsync();
+            await _sut.ProcessReadingsAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -307,12 +307,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessReadings_ShouldLogError_WhenFailToUpdate(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
+        public async Task ProcessReadings_ShouldLogError_WhenFailToUpdateAsync(List<ReadingGetDTO> readingDTOs, Result<ConsistentReading> creationResult, ConsistentReadingInsertDTO crInsertDTO)
         {
             // Arrange
             _readingRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(readingDTOs);
+                .ReturnsAsync(readingDTOs);
 
             _consistentReadingFactoryMock.Setup(x => x.CreateConsistentReading(
                 It.IsAny<Reading>())).Returns(creationResult);
@@ -326,7 +326,7 @@ namespace SimulationExercise.Tests.Service
                 .Throws(new Exception("Update failed"));
 
             // Act & Assert
-            _sut.ProcessReadingsAsync();
+            await _sut.ProcessReadingsAsync();
 
             _loggerMock.Verify(
                 x => x.Log(

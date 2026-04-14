@@ -6,7 +6,6 @@ namespace SimulationExercise.Tests.Integration.Utilities
 {
     public class TestRepositoryCleanup
     {
-        private readonly string _connectionString;
         private readonly IContextFactory _contextFactory;
 
         public TestRepositoryCleanup()
@@ -15,10 +14,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _connectionString = config.GetConnectionString("Default") ?? 
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
         }
 
         private readonly string _tableNameInputFile = "InputFile";
@@ -33,57 +29,57 @@ namespace SimulationExercise.Tests.Integration.Utilities
         private readonly string _tableNameAverageProvinceDataMessage = "AverageProvinceDataMessage";
         private readonly string _tableNameOutputFileMessage = "OutputFileMessage";
 
-        public void Cleanup()
+        public async Task CleanupAsync()
         {
             using (IContext cleanupContext = _contextFactory.Create())
             {
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFileMessage}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameOutputFileMessage}', 'U') 
                                         IS NOT NULL TRUNCATE TABLE {_tableNameOutputFileMessage};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
                                         IS NOT NULL DELETE FROM {_tableNameOutputFile};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameOutputFile}', 'U') 
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameOutputFile}', 
                                         RESEED, 0);");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceDataMessage}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameAverageProvinceDataMessage}', 'U') 
                                         IS NOT NULL TRUNCATE TABLE {_tableNameAverageProvinceDataMessage};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
                                         IS NOT NULL DELETE FROM {_tableNameAverageProvinceData};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameAverageProvinceData}', 'U') 
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameAverageProvinceData}', 
                                         RESEED, 0);");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReadingMessage}', 'U')
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameConsistentReadingMessage}', 'U')
                                         IS NOT NULL TRUNCATE TABLE {_tableNameConsistentReadingMessage};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
                                         IS NOT NULL DELETE FROM {_tableNameConsistentReading};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameConsistentReading}', 'U')
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameConsistentReading}', 
                                         RESEED, 0);");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReadingMessage}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameReadingMessage}', 'U') 
                                         IS NOT NULL TRUNCATE TABLE {_tableNameReadingMessage};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReading}', 'U')
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameReading}', 'U')
                                         IS NOT NULL DELETE FROM {_tableNameReading};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameReading}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameReading}', 'U') 
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameReading}', 
                                         RESEED, 0);");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameInputFileMessage}', 'U') 
                                         IS NOT NULL TRUNCATE TABLE {_tableNameInputFileMessage};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
                                         IS NOT NULL DELETE FROM {_tableNameInputFile};");
 
-                cleanupContext.Execute($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
+                await cleanupContext.ExecuteAsync($@"IF OBJECT_ID('{_tableNameInputFile}', 'U') 
                                         IS NOT NULL DBCC CHECKIDENT ('{_tableNameInputFile}', 
                                         RESEED, 0);");
                 cleanupContext.Commit();

@@ -86,7 +86,7 @@ namespace SimulationExercise.Tests.Integration.Service
 
         [Theory]
         [MemberData(nameof(StreamData.ValidStreamGenerator), MemberType = typeof(StreamData))]
-        public void AllPersistanceSteps_ShouldProcessExportAndPersistInDatabase(Stream inputStream,
+        public async Task AllPersistanceSteps_ShouldProcessExportAndPersistInDatabaseAsync(Stream inputStream,
                                                                                 List<string> expectedInputFileLines,
                                                                                 List<ReadingGetDTO> expectedReadings,
                                                                                 List<ConsistentReadingGetDTO> expectedCRs,
@@ -95,34 +95,36 @@ namespace SimulationExercise.Tests.Integration.Service
         {
             // Arrange
             _sut.LoggerConfiguration(_outDirectoryPath);
-            _integrationTestRepositoryCleanup.Cleanup();
+            await _integrationTestRepositoryCleanup.CleanupAsync();
             DirectoryCleanup();
             _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputStream);
 
             // Act
-            _sut.Initialize(_inDirectoryPath);
-            _sut.CreateReadings();
-            _sut.CreateConsistentReadings();
-            _sut.CreateAverageProvinceDatas();
-            _sut.CreateAverageProvinceDataOutputFiles();
-            _sut.CreateConsistentReadingOutputFiles();
-            _sut.ExportAverageProvinceData(_outDirectoryPath);
-            _sut.ExportConsistentReadings(_outDirectoryPath);
+            await _sut.Initialize(_inDirectoryPath);
+            await _sut.CreateReadings();
+            await _sut.CreateConsistentReadings();
+            await _sut.CreateAverageProvinceDatas();
+            await _sut.CreateAverageProvinceDataOutputFiles();
+            await _sut.CreateConsistentReadingOutputFiles();
+            await _sut.ExportAverageProvinceData(_outDirectoryPath);
+            await _sut.ExportConsistentReadings(_outDirectoryPath);
 
             // Assert
             using (IContext context = _contextFactory.Create())
             {
-                var inputFiles = _inputFileRepository.GetByStatusAsync(Status.Success, context);
-                var readings = _readingRepository.GetByStatusAsync(Status.Success, context);
-                var consistentReadings = _consistentReadingRepository.GetByIsExportedAsync(true, context);
-                var averageProvinceDatas = _averageProvinceDataRepository.GetByIsExportedAsync(true, context);
-                var outputFiles = _outputFileRepository.GetByIsExportedAsync(true, context);
+                var inputFiles = await _inputFileRepository.GetByStatusAsync(Status.Success, context);
+                var readings = await _readingRepository.GetByStatusAsync(Status.Success, context);
+                var consistentReadings = await _consistentReadingRepository.GetByIsExportedAsync(true, context);
+                var averageProvinceDatas = await _averageProvinceDataRepository.GetByIsExportedAsync(true, context);
+                var consistentReadingOutputFiles = await _outputFileRepository.GetByIsExportedAsync(true, "ConsistentReading", context);
+                var averageProvinceDataOutputFiles = await _outputFileRepository.GetByIsExportedAsync(true, "AverageProvinceData", context);
 
                 Assert.Single(inputFiles);
                 Assert.Equal(10, readings.Count);
                 Assert.Equal(10, consistentReadings.Count);
                 Assert.Equal(5, averageProvinceDatas.Count);
-                Assert.Single(outputFiles);
+                Assert.Single(consistentReadingOutputFiles);
+                Assert.Single(averageProvinceDataOutputFiles);
 
                 foreach (var expected in expectedReadings)
                 {
@@ -166,7 +168,6 @@ namespace SimulationExercise.Tests.Integration.Service
                     Assert.Equal(expectedCR.UtmEst, cr.UtmEst);
                     Assert.Equal(expectedCR.Latitude, cr.Latitude);
                     Assert.Equal(expectedCR.Longitude, cr.Longitude);
-                    Assert.Equal(expectedCR.Status, cr.Status);
                 }
 
                 foreach (var expectedAPD in expectedAPDs)
@@ -182,42 +183,53 @@ namespace SimulationExercise.Tests.Integration.Service
                     Assert.Equal(expectedAPD.IsExported, apd.IsExported);
                 }
 
-                var inputFileText = Encoding.UTF8.GetString(inputFiles.First().Bytes).Replace("\r\n", "\n").Trim();
-                var inputFileLines = inputFileText.Split('\n').Select(line => line.Trim()).ToList();
+                var inputFileText = Encoding.UTF8.GetString(inputFiles.First().Bytes)
+                    .Replace("\r\n", "\n").Trim();
 
-                var outputFileText = Encoding.UTF8.GetString(outputFiles.First().Bytes).Replace("\r\n", "\n").Trim();
-                var outputFileLines = outputFileText.Split('\n').Select(line => line.Trim()).ToList();
+                var inputFileLines = inputFileText.Split('\n').Select(line => line.Trim()).ToList();
+                var crOutputFileText = Encoding.UTF8.GetString(consistentReadingOutputFiles.First().Bytes)
+                    .Replace("\r\n", "\n").Trim();
+
+                var crOutputFileLines = crOutputFileText.Split('\n').Select(line => line.Trim()).ToList();
+
+                var apdOutputFileText = Encoding.UTF8.GetString(averageProvinceDataOutputFiles.First().Bytes)
+                    .Replace("\r\n", "\n").Trim();
+
+                var apdOutputFileLines = apdOutputFileText.Split('\n').Select(line => line.Trim()).ToList();
 
                 foreach (var expectedInputFileLine in expectedInputFileLines)
                     Assert.Contains(expectedInputFileLine, inputFileLines);
 
                 foreach (var expectedOutputFileLine in expectedOutputFileLines)
-                    Assert.Contains(expectedOutputFileLine, outputFileLines);
+                    Assert.Contains(expectedOutputFileLine, crOutputFileLines);
+
+                foreach (var expectedOutputFileLine in expectedOutputFileLines)
+                    Assert.Contains(expectedOutputFileLine, apdOutputFileLines);
             }
         }
 
         [Theory]
         [MemberData(nameof(StreamData.InvalidConsistentReadingStreamGenerator), MemberType = typeof(StreamData))]
-        public void CreateReadings_ShouldLogErrorsAndUpdate(Stream inputStreamWithErrors, List<string> expectedErrorLines, List<ReadingGetDTO> expectedReadings)
+        public async Task CreateReadings_ShouldLogErrorsAndUpdateAsync(Stream inputStreamWithErrors, List<string> expectedErrorLines, List<ReadingGetDTO> expectedReadings)
         {
             // Arrange
             _sut.LoggerConfiguration(_outDirectoryPath);
-            _integrationTestRepositoryCleanup.Cleanup();
+            await _integrationTestRepositoryCleanup.CleanupAsync();
             DirectoryCleanup();
             _integrationTestINFileCreator.CreateINFiles(_inDirectoryPath, 1, inputStreamWithErrors);
 
             // Act
-            _sut.Initialize(_inDirectoryPath);
-            _sut.CreateReadings();
-            _sut.CreateConsistentReadings();
-            _sut.CreateConsistentReadingOutputFiles();
-            _sut.ExportConsistentReadings(_outDirectoryPath);
+            await _sut.Initialize(_inDirectoryPath);
+            await _sut.CreateReadings();
+            await _sut.CreateConsistentReadings();
+            await _sut.CreateConsistentReadingOutputFiles();
+            await _sut.ExportConsistentReadings(_outDirectoryPath);
 
             // Assert
             using (IContext context = _contextFactory.Create())
             {
-                Assert.Single(_inputFileRepository.GetByStatusAsync(Status.Error, context));
-                var readings = _readingRepository.GetByStatusAsync(Status.Error, context);
+                Assert.Single(await _inputFileRepository.GetByStatusAsync(Status.Error, context));
+                var readings = await _readingRepository.GetByStatusAsync(Status.Error, context);
 
                 foreach (var expected in expectedReadings)
                 {

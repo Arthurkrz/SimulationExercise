@@ -48,14 +48,14 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessFiles_ShouldProcessFiles()
+        public async Task ProcessFiles_ShouldProcessFilesAsync()
         {
             // Arrange
             DirectoryCleanup();
             InputFileGenerator(2);
 
             // Act
-            _sut.ProcessFiles(_inDirectoryPath);
+            await _sut.ProcessFilesAsync(_inDirectoryPath);
 
             // Assert
             _loggerMock.Verify(
@@ -73,7 +73,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessFiles_ShouldLogError_WhenEmptyFile()
+        public async Task ProcessFiles_ShouldLogError_WhenEmptyFileAsync()
         {
             // Arrange
             DirectoryCleanup();
@@ -90,7 +90,7 @@ namespace SimulationExercise.Tests.Service
             }
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            await _sut.ProcessFilesAsync(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -104,7 +104,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessFiles_ShouldLogError_WhenFailToInsert()
+        public async Task ProcessFiles_ShouldLogError_WhenFailToInsertAsync()
         {
             // Arrange
             DirectoryCleanup();
@@ -115,7 +115,7 @@ namespace SimulationExercise.Tests.Service
                 .Throws(new Exception("Insert failed"));
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            await _sut.ProcessFilesAsync(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -129,13 +129,13 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void LocateFiles_ShouldLogError_WhenNoFilesFound()
+        public async Task LocateFiles_ShouldLogError_WhenNoFilesFoundAsync()
         {
             // Arrange
             DirectoryCleanup();
 
             // Act & Assert
-            _sut.ProcessFiles(_inDirectoryPath);
+            await _sut.ProcessFilesAsync(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -150,13 +150,13 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessFiles_ShouldCreateDirectory_WhenINDirectoryNotFound()
+        public async Task ProcessFiles_ShouldCreateDirectory_WhenINDirectoryNotFoundAsync()
         {
             // Arrange
             if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath, true);
 
             // Act
-            _sut.ProcessFiles(_inDirectoryPath);
+            await _sut.ProcessFilesAsync(_inDirectoryPath);
 
             // Assert
             var directories = Directory.GetDirectories(_basePath);

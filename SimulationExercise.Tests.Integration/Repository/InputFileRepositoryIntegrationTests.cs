@@ -9,7 +9,7 @@ using SimulationExercise.Tests.Integration.Utilities;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Contracts.Infrastructure;
 
-namespace SimulationExercise.Tests.Repository
+namespace SimulationExercise.Tests.Integration.Repository
 {
     public class InputFileRepositoryIntegrationTests
     {
@@ -21,7 +21,6 @@ namespace SimulationExercise.Tests.Repository
 
         private readonly string _tableNameInputFile = "InputFile";
         private readonly string _tableNameInputFileMessage = "InputFileMessage";
-        private readonly string _connectionString;
 
         public InputFileRepositoryIntegrationTests()
         {
@@ -32,10 +31,7 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<InputFileInsertDTO>();
 
-            _connectionString = config.GetConnectionString("Default") ?? 
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -44,10 +40,10 @@ namespace SimulationExercise.Tests.Repository
         }
 
         [Fact]
-        public void Insert_SuccesfullyInserts_WhenCommited()
+        public async Task Insert_SuccesfullyInserts_WhenCommitedAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
 
             var currentTime = new DateTime(2025, 05, 12);
             const string currentUser = "currentUser1";
@@ -61,7 +57,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.InsertAsync(dto, context);
+                await _sut.InsertAsync(dto, context);
                 context.Commit();
             }
 
@@ -85,15 +81,15 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithSuccessStatus()
+        public async Task Update_SuccesfullyUpdates_WithSuccessStatusAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1, Status.Success);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(1, Status.Success);
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
@@ -105,14 +101,14 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.UpdateAsync(updateDTO, context);
+                await _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.QueryAsync<InputFileGetDTO>
+                var result = await assertContext.QueryAsync<InputFileGetDTO>
                     ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
                             FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;",
                     new { expectedReturn.InputFileId });
@@ -122,15 +118,15 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
+        public async Task Update_SuccesfullyUpdates_WithErrorStatusAndMessagesAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(1);
 
             InputFileGetDTO expectedReturn = new InputFileGetDTO
                 (1, "InputFileName0", new byte[] { 1, 2, 3 },
@@ -142,19 +138,19 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.UpdateAsync(updateDTO, context);
+                await _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.QueryAsync<InputFileGetDTO>
+                var result = await assertContext.QueryAsync<InputFileGetDTO>
                     ($@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
                             FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;", 
                     new { expectedReturn.InputFileId });
 
-                IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
+                IList<dynamic> messageResult = await assertContext.QueryAsync<dynamic>
                     ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
                             FROM INPUTFILE F 
                             INNER JOIN {_tableNameInputFileMessage} M
@@ -175,25 +171,25 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void GetByStatus_SuccesfullyGets()
+        public async Task GetByStatus_SuccesfullyGetsAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByStatusAsync(Status.Success, context);
-                //Assert.Equal(2, results.Count);
+                var results = await _sut.GetByStatusAsync(Status.Success, context);
+                Assert.Equal(2, results.Count);
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
     }
 }

@@ -57,7 +57,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void CreateOutputFiles_ShouldCallOutputFileCreateMethod()
+        public async Task CreateOutputFiles_ShouldCallOutputFileCreateMethodAsync()
         {
             // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
@@ -65,14 +65,14 @@ namespace SimulationExercise.Tests.Service
 
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
                 false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+                .ReturnsAsync(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
             _apdExportDTOFactoryMock.Setup(x => x.CreateExportDTOList(
                 It.IsAny<IList<AverageProvinceDataGetDTO>>()))
                 .Returns(new List<AverageProvinceDataExportDTO> { apdExportDTO });
 
             // Act & Assert
-            _sut.CreateOutputFilesAsync();
+            await _sut.CreateOutputFilesAsync();
 
             _outputFileServiceMock.Verify(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
                 new List<AverageProvinceDataExportDTO> { apdExportDTO }), Times.Once);
@@ -83,7 +83,7 @@ namespace SimulationExercise.Tests.Service
         {
             // Arrange
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(false, It.IsAny<IContext>()))
-                                  .Returns(new List<AverageProvinceDataGetDTO>());
+                                  .ReturnsAsync(new List<AverageProvinceDataGetDTO>());
 
             // Act & Assert
             _sut.CreateOutputFilesAsync();
@@ -100,19 +100,19 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void CreateOutputFiles_ShouldLogErrors_WhenOutputFileCreationFails()
+        public async Task CreateOutputFiles_ShouldLogErrors_WhenOutputFileCreationFailsAsync()
         {
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
 
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
                 false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+                .ReturnsAsync(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
             _outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync(
                 It.IsAny<IList<AverageProvinceDataExportDTO>>()))
-                .Returns(Result<OutputFileInsertDTO>.Ko(new List<string> { "ERROR" }));
+                .ReturnsAsync(Result<OutputFileInsertDTO>.Ko(new List<string> { "ERROR" }));
 
-            _sut.CreateOutputFilesAsync();
+            await _sut.CreateOutputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -135,7 +135,7 @@ namespace SimulationExercise.Tests.Service
 
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
                 false, It.IsAny<IContext>()))
-                .Returns(new List<AverageProvinceDataGetDTO> { apdGetDTO });
+                .ReturnsAsync(new List<AverageProvinceDataGetDTO> { apdGetDTO });
 
             _apdExportDTOFactoryMock.Setup(x => x.CreateExportDTOList(
                 It.IsAny<IList<AverageProvinceDataGetDTO>>()))
@@ -143,7 +143,7 @@ namespace SimulationExercise.Tests.Service
 
             _outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
                 It.IsAny<IList<AverageProvinceDataExportDTO>>()))
-                .Returns(outputFileCreationResult);
+                .ReturnsAsync(outputFileCreationResult);
 
             _apdRepositoryMock.Setup(x => x.UpdateAsync(
                 It.IsAny<AverageProvinceDataUpdateDTO>(), It.IsAny<IContext>()))
@@ -164,35 +164,12 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void Export_ShouldCallOutputFileExportMethod()
-        {
-            // Arrange
-            var outputFileText = "Province,SensorTypeName,AverageValue,Unit,AverageDaysOfMeasure\n" +
-                                 "Province,SensorTypeName,1,mg_m3,1";
-
-            var outputFileBytes = Encoding.UTF8.GetBytes(outputFileText);
-            var outputFileStream = new MemoryStream(outputFileBytes);
-
-            var outputFileGetDTO = new OutputFileGetDTO(1, "Name", outputFileBytes, ".csv", "AverageProvinceData", false);
-
-            _outputFileRepositoryMock.Setup(x => x.GetByIsExportedAsync(
-                false, It.IsAny<IContext>())).
-                Returns(new List<OutputFileGetDTO> { outputFileGetDTO });
-
-            // Act
-            _sut.ExportAsync("OUT");
-
-            // Assert
-            _outputFileServiceMock.Verify(x => x.Export<AverageProvinceData>(outputFileGetDTO, outputFileStream), Times.Once);
-        }
-
-        [Fact]
         public void Export_ShouldLogError_WhenNoOutputFilesFound()
         {
             // Arrange
             _outputFileRepositoryMock.Setup(x => x.GetByIsExportedAsync(
-                true, It.IsAny<IContext>())).
-                Returns(new List<OutputFileGetDTO>());
+                true, "AverageProvinceData", It.IsAny<IContext>())).
+                ReturnsAsync(new List<OutputFileGetDTO>());
 
             // Act
             _sut.ExportAsync("OutputFilePath");

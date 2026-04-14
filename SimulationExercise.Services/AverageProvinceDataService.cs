@@ -6,7 +6,6 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Services
 {

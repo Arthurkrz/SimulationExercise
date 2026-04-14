@@ -1,14 +1,12 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using SimulationExercise.Infrastructure;
-using SimulationExercise.Infrastructure.Repository;
+﻿using Microsoft.Extensions.Configuration;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
+using SimulationExercise.Infrastructure;
+using SimulationExercise.Infrastructure.Repository;
 using SimulationExercise.Tests.Integration.Utilities;
-using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.DTOs.DatabaseDTOs;
-using SimulationExercise.Core.Contracts.Infrastructure;
 
 namespace SimulationExercise.Tests.Integration.Repository
 {
@@ -21,8 +19,6 @@ namespace SimulationExercise.Tests.Integration.Repository
         private readonly TestRepositoryObjectInsertion<OutputFileInsertDTO> _testRepositoryObjectInsertion;
 
         private readonly string _tableNameOutputFile = "OutputFile";
-        private readonly string _tableNameOutputFileMessage = "OutputFileMessage";
-        private readonly string _connectionString;
 
         public OutputFileRepositoryIntegrationTests()
         {
@@ -33,10 +29,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<OutputFileInsertDTO>();
 
-            _connectionString = config.GetConnectionString("Default") ?? 
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -45,10 +38,10 @@ namespace SimulationExercise.Tests.Integration.Repository
         }
 
         [Fact]
-        public void Insert_SuccesfullyInserts_WhenCommited()
+        public async Task Insert_SuccesfullyInserts_WhenCommitedAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
 
             var currentTime = new DateTime(2025, 05, 12);
             var currentUser = "currentUser1";
@@ -62,7 +55,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.InsertAsync(dto, context);
+                await _sut.InsertAsync(dto, context);
                 context.Commit();
             }
 
@@ -85,25 +78,25 @@ namespace SimulationExercise.Tests.Integration.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void GetByIsExported_SuccesfullyGets()
+        public async Task GetByIsExported_SuccesfullyGetsAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success, true);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(2, Status.Success, true);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByIsExportedAsync(true, context);
+                var results = await _sut.GetByIsExportedAsync(true, "ConsistentReading", context);
                 Assert.Equal(2, results.Count);
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
     }
 }

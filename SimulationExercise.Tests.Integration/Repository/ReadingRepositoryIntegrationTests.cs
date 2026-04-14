@@ -9,7 +9,7 @@ using SimulationExercise.Tests.Integration.Utilities;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Contracts.Infrastructure;
 
-namespace SimulationExercise.Tests.Repository
+namespace SimulationExercise.Tests.Integration.Repository
 {
     public class ReadingRepositoryIntegrationTests
     {
@@ -21,7 +21,6 @@ namespace SimulationExercise.Tests.Repository
 
         private readonly string _tableNameReading = "Reading";
         private readonly string _tableNameReadingMessage = "ReadingMessage";
-        private readonly string _connectionString;
 
         public ReadingRepositoryIntegrationTests()
         {
@@ -32,10 +31,7 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ReadingInsertDTO>();
 
-            _connectionString = config.GetConnectionString("Default") ?? 
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -44,11 +40,11 @@ namespace SimulationExercise.Tests.Repository
         }
 
         [Fact]
-        public void Insert_SuccesfullyInserts_WhenCommited()
+        public async Task Insert_SuccesfullyInserts_WhenCommitedAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertMethodTestSetup();
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertMethodTestSetupAsync();
 
             var currentTime = new DateTime(2025, 05, 12);
             var currentUser = "currentUser1";
@@ -63,7 +59,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.Insert(dto, context);
+                await _sut.InsertAsync(dto, context);
                 context.Commit();
             }
 
@@ -101,15 +97,15 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithSuccessStatus()
+        public async Task Update_SuccesfullyUpdates_WithSuccessStatusAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(1);
 
             ReadingGetDTO expectedReturn = new ReadingGetDTO
                 (1, 1, 1, "SensorTypeName", "mg/m³", 1, 
@@ -123,14 +119,14 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.UpdateAsync(updateDTO, context);
+                await _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.QueryAsync<ReadingGetDTO>
+                var result = await assertContext.QueryAsync<ReadingGetDTO>
                     ($@"SELECT READINGID, INPUTFILEID, SENSORID, 
                         SENSORTYPENAME, UNIT, STATIONID, STATIONNAME, 
                         VALUE, PROVINCE, CITY, ISHISTORIC, STARTDATE, 
@@ -144,15 +140,15 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void Update_SuccesfullyUpdates_WithErrorStatusAndMessages()
+        public async Task Update_SuccesfullyUpdates_WithErrorStatusAndMessagesAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(1);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(1);
 
             ReadingGetDTO expectedReturn = new ReadingGetDTO
                 (1, 1, 1, "SensorTypeName", "mg/m³", 1,
@@ -166,14 +162,14 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                _sut.UpdateAsync(updateDTO, context);
+                await _sut.UpdateAsync(updateDTO, context);
                 context.Commit();
             }
 
             using (IContext assertContext = _contextFactory.Create())
             {
                 // Assert
-                var result = assertContext.QueryAsync<ReadingGetDTO>
+                var result = await assertContext.QueryAsync<ReadingGetDTO>
                     ($@"SELECT READINGID, INPUTFILEID, SENSORID, 
                         SENSORTYPENAME, UNIT, STATIONID, STATIONNAME, 
                         VALUE, PROVINCE, CITY, ISHISTORIC, STARTDATE, 
@@ -182,7 +178,7 @@ namespace SimulationExercise.Tests.Repository
                             WHERE READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });
 
-                IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
+                IList<dynamic> messageResult = await assertContext.QueryAsync<dynamic>
                     ($@"SELECT M.READINGID, R.STATUSID AS STATUS, M.MESSAGE 
                             FROM READING R 
                             INNER JOIN {_tableNameReadingMessage} M 
@@ -204,25 +200,25 @@ namespace SimulationExercise.Tests.Repository
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
 
         [Fact]
-        public void GetByStatus_SuccesfullyGets()
+        public async Task GetByStatus_SuccesfullyGetsAsync()
         {
             // Arrange
-            _testRepositoryCleanup.Cleanup();
-            _testRepositoryObjectInsertion.InsertObjects(2, Status.Success);
+            await _testRepositoryCleanup.CleanupAsync();
+            await _testRepositoryObjectInsertion.InsertObjectsAsync(2, Status.Success);
 
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                var results = _sut.GetByStatusAsync(Status.Success, context);
+                var results = await _sut.GetByStatusAsync(Status.Success, context);
                 Assert.Equal(2, results.Count);
             }
 
             // Teardown
-            _testRepositoryCleanup.Cleanup();
+            await _testRepositoryCleanup.CleanupAsync();
         }
     }
 }

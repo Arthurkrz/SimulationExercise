@@ -9,7 +9,6 @@ namespace SimulationExercise.Tests.Integration.Utilities
 {
     public class TestRepositoryObjectInsertion<T>
     {
-        private readonly string _connectionString;
         private readonly IContextFactory _contextFactory;
         private readonly Type objectType = typeof(T);
 
@@ -25,55 +24,52 @@ namespace SimulationExercise.Tests.Integration.Utilities
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            _connectionString = config.GetConnectionString("Default") ??
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
         }
 
-        public void InsertObjects(int numberOfObjectsToBeInserted, Status status = Status.New, bool isExported = false)
+        public async Task InsertObjectsAsync(int numberOfObjectsToBeInserted, Status status = Status.New, bool isExported = false)
         {
             if (objectType == typeof(InputFileInsertDTO))
-                InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
+                await InputFileRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
 
             if (objectType == typeof(ReadingInsertDTO))
             {
-                InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
+                await InputFileRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
+                await ReadingRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
             }
 
             if (objectType == typeof(ConsistentReadingInsertDTO))
             {
-                InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ConsistentReadingRepositoryInsert(numberOfObjectsToBeInserted, isExported);
+                await InputFileRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
+                await ReadingRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
+                await ConsistentReadingRepositoryInsertAsync(numberOfObjectsToBeInserted, isExported);
             }
 
             if (objectType == typeof(AverageProvinceDataInsertDTO))
             {
-                InputFileRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ReadingRepositoryInsert(numberOfObjectsToBeInserted, status);
-                ConsistentReadingRepositoryInsert(numberOfObjectsToBeInserted, isExported);
-                AverageProvinceDataRepositoryInsert(numberOfObjectsToBeInserted, isExported);
+                await InputFileRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
+                await ReadingRepositoryInsertAsync(numberOfObjectsToBeInserted, status);
+                await ConsistentReadingRepositoryInsertAsync(numberOfObjectsToBeInserted, isExported);
+                await AverageProvinceDataRepositoryInsertAsync(numberOfObjectsToBeInserted, isExported);
             }
 
             if (objectType == typeof(OutputFileInsertDTO))
-                OutputFileRepositoryInsert(numberOfObjectsToBeInserted, isExported);
+                await OutputFileRepositoryInsertAsync(numberOfObjectsToBeInserted, isExported);
         }
 
-        public void InsertMethodTestSetup()
+        public async Task InsertMethodTestSetupAsync()
         {
             if (objectType == typeof(ReadingInsertDTO))
-                InputFileRepositoryInsert(1, Status.New);
+                await InputFileRepositoryInsertAsync(1, Status.New);
 
             if (objectType == typeof(ConsistentReadingInsertDTO))
             {
-                InputFileRepositoryInsert(1, Status.New);
-                ReadingRepositoryInsert(1, Status.New);
+                await InputFileRepositoryInsertAsync(1, Status.New);
+                await ReadingRepositoryInsertAsync(1, Status.New);
             }
         }
 
-        private void InputFileRepositoryInsert(int numberOfObjectsToBeInserted, Status status)
+        private async Task InputFileRepositoryInsertAsync(int numberOfObjectsToBeInserted, Status status)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -83,7 +79,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute
+                    await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameInputFile} 
                         (NAME, BYTES, EXTENSION, CREATIONTIME,
                         LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
@@ -105,7 +101,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void ReadingRepositoryInsert(int numberOfObjectsToBeInserted, Status status)
+        private async Task ReadingRepositoryInsertAsync(int numberOfObjectsToBeInserted, Status status)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -115,7 +111,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute
+                    await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameReading}
                         (INPUTFILEID, SENSORID, SENSORTYPENAME, 
                             UNIT, STATIONID, STATIONNAME, VALUE, 
@@ -158,7 +154,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void ConsistentReadingRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
+        private async Task ConsistentReadingRepositoryInsertAsync(int numberOfObjectsToBeInserted, bool isExported)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -168,7 +164,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute
+                    await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameConsistentReading}
                             (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, 
                              PROVINCE, CITY, ISHISTORIC, DAYSOFMEASURE, UTMNORD, 
@@ -206,7 +202,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void AverageProvinceDataRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
+        private async Task AverageProvinceDataRepositoryInsertAsync(int numberOfObjectsToBeInserted, bool isExported)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -216,7 +212,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute
+                    await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameAverageProvinceData} 
                         (PROVNCE, SENSORTYPENAME, AVERAGEVALUE, 
                         UNIT, AVERAGEDAYSOFMEASURE, ISEXPORTED) 
@@ -239,7 +235,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
             }
         }
 
-        private void OutputFileRepositoryInsert(int numberOfObjectsToBeInserted, bool isExported)
+        private async Task OutputFileRepositoryInsertAsync(int numberOfObjectsToBeInserted, bool isExported)
         {
             using (IContext context = _contextFactory.Create())
             {
@@ -249,7 +245,7 @@ namespace SimulationExercise.Tests.Integration.Utilities
 
                 for (int objectNumber = 0; objectNumber < numberOfObjectsToBeInserted; objectNumber++)
                 {
-                    context.Execute
+                    await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameOutputFile}
                         (NAME, BYTES, EXTENSION, CREATIONTIME, 
                         LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED)

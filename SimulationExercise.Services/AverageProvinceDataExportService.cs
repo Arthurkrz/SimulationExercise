@@ -1,5 +1,4 @@
-﻿using FileHelpers;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Infrastructure;
@@ -7,7 +6,6 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOs.CSVDTOs;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
-using System.Text;
 
 namespace SimulationExercise.Services
 {
@@ -52,11 +50,11 @@ namespace SimulationExercise.Services
                 var records = _averageProvinceDataExportDTOFactory.CreateExportDTOList(apdGetDTOs);
                 var result = _outputFileService.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(records);
 
-                //if (!result.Success)
-                //{
-                //    _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", 0);
-                //    foreach (var error in result.Errors!) _logger.LogError(error);
-                //}
+                if (!result.Result.Success)
+                {
+                    _logger.LogError(LogMessages.ERRORSFOUND, "Average Province Data", 0);
+                    foreach (var error in result.Result.Errors!) _logger.LogError(error);
+                }
 
                 foreach (var averageProvinceData in apdGetDTOs)
                 {

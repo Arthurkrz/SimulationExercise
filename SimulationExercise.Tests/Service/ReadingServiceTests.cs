@@ -58,12 +58,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessInputFiles_ShouldProcessInputFiles(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
+        public async Task ProcessInputFiles_ShouldProcessInputFilesAsync(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
             _inputFileRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(inputFileDTOList);
+                .ReturnsAsync(inputFileDTOList);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResult);
@@ -73,7 +73,7 @@ namespace SimulationExercise.Tests.Service
                 .Returns(insertDTOs);
 
             // Act
-            _sut.ProcessInputFilesAsync();
+            await _sut.ProcessInputFilesAsync();
 
             // Assert
             _loggerMock.Verify(
@@ -89,7 +89,7 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<InputFileUpdateDTO>(), It.IsAny<IContext>()), 
                 Times.Exactly(2));
 
-            _readingRepositoryMock.Verify(x => x.Insert(
+            _readingRepositoryMock.Verify(x => x.InsertAsync(
                 It.IsAny<ReadingInsertDTO>(), It.IsAny<IContext>()),
                 Times.Exactly(6));
 
@@ -98,18 +98,18 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetInvalidObjects))]
-        public void ProcessInputFiles_ShouldLogErrors_WhenInvalidRecords(List<InputFileGetDTO> inputFileDTOList, ImportResult importResultWithErrors)
+        public async Task ProcessInputFiles_ShouldLogErrors_WhenInvalidRecordsAsync(List<InputFileGetDTO> inputFileDTOList, ImportResult importResultWithErrors)
         {
             // Arrange
             _inputFileRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(inputFileDTOList);
+                .ReturnsAsync(inputFileDTOList);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResultWithErrors);
 
             // Act
-            _sut.ProcessInputFilesAsync();
+            await _sut.ProcessInputFilesAsync();
 
             // Assert
             _loggerMock.Verify(
@@ -141,14 +141,14 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessInputFiles_ShouldLogError_IfNoNewObjectsFound(List<InputFileGetDTO> inputFileDTOs, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
+        public async Task ProcessInputFiles_ShouldLogError_IfNoNewObjectsFoundAsync(List<InputFileGetDTO> inputFileDTOs, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
             inputFileDTOs = new List<InputFileGetDTO>();
 
             _inputFileRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(inputFileDTOs);
+                .ReturnsAsync(inputFileDTOs);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResult);
@@ -158,7 +158,7 @@ namespace SimulationExercise.Tests.Service
                 .Returns(insertDTOs);
 
             // Act & Assert
-            _sut.ProcessInputFilesAsync();
+            await _sut.ProcessInputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -173,12 +173,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void ProcessInputFiles_ShouldLogError_WhenFailToInsert(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
+        public async Task ProcessInputFiles_ShouldLogError_WhenFailToInsertAsync(List<InputFileGetDTO> inputFileDTOList, ImportResult importResult, List<ReadingInsertDTO> insertDTOs)
         {
             // Arrange
             _inputFileRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(inputFileDTOList);
+                .ReturnsAsync(inputFileDTOList);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResult);
@@ -187,12 +187,12 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<IList<Reading>>(), It.IsAny<long>()))
                 .Returns(insertDTOs);
 
-            _readingRepositoryMock.Setup(x => x.Insert(
+            _readingRepositoryMock.Setup(x => x.InsertAsync(
                 It.IsAny<ReadingInsertDTO>(), It.IsAny<IContext>()))
                 .Throws(new Exception("Insert failed"));
 
             // Act & Assert
-            _sut.ProcessInputFilesAsync();
+            await _sut.ProcessInputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -207,12 +207,12 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetInvalidObjects))]
-        public void ProcessInputFiles_ShouldLogError_WhenFailToUpdate(List<InputFileGetDTO> inputFileDTOList, ImportResult importResultWithErrors)
+        public async Task ProcessInputFiles_ShouldLogError_WhenFailToUpdateAsync(List<InputFileGetDTO> inputFileDTOList, ImportResult importResultWithErrors)
         {
             // Arrange
             _inputFileRepositoryMock.Setup(x => x.GetByStatusAsync(
                 It.IsAny<Status>(), It.IsAny<IContext>()))
-                .Returns(inputFileDTOList);
+                .ReturnsAsync(inputFileDTOList);
 
             _readingImportServiceMock.Setup(x => x.Import(
                 It.IsAny<Stream>())).Returns(importResultWithErrors);
@@ -222,7 +222,7 @@ namespace SimulationExercise.Tests.Service
                 .Throws(new Exception("Update failed"));
 
             // Act & Assert
-            _sut.ProcessInputFilesAsync();
+            await _sut.ProcessInputFilesAsync();
 
             _loggerMock.Verify(
                 x => x.Log(

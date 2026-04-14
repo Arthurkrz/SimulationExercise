@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using SimulationExercise.Infrastructure;
 using SimulationExercise.Core.Contracts.Infrastructure;
 
-namespace SimulationExercise.Tests.Architecture
+namespace SimulationExercise.Tests.Integration.Infrastructure
 {
     public class RepositoryInitializerIntegrationTests
     {
@@ -21,7 +21,7 @@ namespace SimulationExercise.Tests.Architecture
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException("Null ConnectionString");
 
-            _contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(config);
 
             _sut = new RepositoryInitializer();
         }
