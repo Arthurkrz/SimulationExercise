@@ -15,7 +15,7 @@ namespace SimulationExercise.Core.DTOs.CSVDTOs
         {
             Province = province;
             SensorTypeName = sensorTypeName;
-            AverageValue = (float)averageValue;
+            AverageValue = averageValue;
             Unit = unit;
             AverageDaysOfMeasure = averageDaysOfMeasure;
         }

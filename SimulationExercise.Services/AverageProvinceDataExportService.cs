@@ -92,37 +92,18 @@ namespace SimulationExercise.Services
 
                 Directory.CreateDirectory(outDirectoryPath);
 
-                var engine = new FileHelperEngine<AverageProvinceDataExportDTO>();
-
                 foreach (var outputFile in outputFiles)
                 {
                     var fileName = $"{outputFile.Name}.csv";
                     var fullPath = Path.Combine(outDirectoryPath, fileName);
-                    var records = BuildRecords(outputFile.Bytes, engine);
 
-                    using var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
-                    using var streamWriter = new StreamWriter(fileStream, leaveOpen: true);
-
-                    engine.WriteStream(streamWriter, records);
+                    await File.WriteAllBytesAsync(fullPath, outputFile.Bytes);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(LogMessages.UNEXPECTEDEXCEPTION, ex.Message);
             }
-        }
-
-        private AverageProvinceDataExportDTO[] BuildRecords(byte[] bytes, FileHelperEngine<AverageProvinceDataExportDTO> engine)
-        {
-            var text = Encoding.UTF8.GetString(bytes);
-            text = text.Replace(',', '.');
-
-            var normalizedBytes = Encoding.UTF8.GetBytes(text);
-
-            using var memoryStream = new MemoryStream(normalizedBytes);
-            using var streamReader = new StreamReader(memoryStream);
-
-            return engine.ReadStream(streamReader);
         }
     }
 }
