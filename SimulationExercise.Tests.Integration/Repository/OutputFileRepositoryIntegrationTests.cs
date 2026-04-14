@@ -36,7 +36,7 @@ namespace SimulationExercise.Tests.Integration.Repository
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException(nameof(_connectionString));
 
-            //_contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -98,8 +98,8 @@ namespace SimulationExercise.Tests.Integration.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act & Assert
-                //var results = _sut.GetByIsExportedAsync(true, context);
-                //Assert.Equal(2, results.Count);
+                var results = _sut.GetByIsExportedAsync(true, context);
+                Assert.Equal(2, results.Count);
             }
 
             // Teardown

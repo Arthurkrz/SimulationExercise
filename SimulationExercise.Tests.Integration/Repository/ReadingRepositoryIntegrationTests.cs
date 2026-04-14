@@ -35,7 +35,7 @@ namespace SimulationExercise.Tests.Repository
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException(nameof(_connectionString));
 
-            //_contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -63,7 +63,7 @@ namespace SimulationExercise.Tests.Repository
             using (IContext context = _contextFactory.Create())
             {
                 // Act
-                //_sut.Insert(dto, context);
+                _sut.Insert(dto, context);
                 context.Commit();
             }
 
@@ -139,8 +139,8 @@ namespace SimulationExercise.Tests.Repository
                             WHERE READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });
 
-                //Assert.Single(result);
-                //result.First().Should().BeEquivalentTo(expectedReturn);
+                Assert.Single(result);
+                result.First().Should().BeEquivalentTo(expectedReturn);
             }
 
             // Teardown
@@ -182,25 +182,25 @@ namespace SimulationExercise.Tests.Repository
                             WHERE READINGID = @READINGID;",
                     new { expectedReturn.ReadingId });
 
-                //IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
-                //    ($@"SELECT M.READINGID, R.STATUSID AS STATUS, M.MESSAGE 
-                //            FROM READING R 
-                //            INNER JOIN {_tableNameReadingMessage} M 
-                //            ON R.READINGID = M.READINGID 
-                //            WHERE R.READINGID = @READINGID;",
-                //    new { expectedReturn.ReadingId });
+                IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
+                    ($@"SELECT M.READINGID, R.STATUSID AS STATUS, M.MESSAGE 
+                            FROM READING R 
+                            INNER JOIN {_tableNameReadingMessage} M 
+                            ON R.READINGID = M.READINGID 
+                            WHERE R.READINGID = @READINGID;",
+                    new { expectedReturn.ReadingId });
 
-                //Assert.Single(result);
-                //Assert.Single(messageResult);
+                Assert.Single(result);
+                Assert.Single(messageResult);
 
-                //var message = messageResult.First();
-                //Status status = (Status)(int)message.STATUS;
+                var message = messageResult.First();
+                Status status = (Status)(int)message.STATUS;
 
-                //result.First().Should().BeEquivalentTo(expectedReturn);
+                result.First().Should().BeEquivalentTo(expectedReturn);
 
-                //Assert.Equal((long)message.READINGID, updateDTO.ReadingId);
-                //Assert.Equal(Status.Error, status);
-                //Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
+                Assert.Equal((long)message.READINGID, updateDTO.ReadingId);
+                Assert.Equal(Status.Error, status);
+                Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
 
             // Teardown
@@ -218,7 +218,7 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act & Assert
                 var results = _sut.GetByStatusAsync(Status.Success, context);
-                //Assert.Equal(2, results.Count);
+                Assert.Equal(2, results.Count);
             }
 
             // Teardown

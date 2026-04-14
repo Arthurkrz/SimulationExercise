@@ -52,9 +52,9 @@ namespace SimulationExercise.Tests.Factories
 
             var expectedResults = new List<Result<AverageProvinceData>>
             {
-                //Result<AverageProvinceData>.Ok(new AverageProvinceData("Province1", "Sensor1", 3419.25, Unit.mg_m3, 7073)),
-                //Result<AverageProvinceData>.Ok(new AverageProvinceData("Province2", "Sensor2", 7148.25, Unit.ng_m3, 4099)),
-                //Result<AverageProvinceData>.Ok(new AverageProvinceData("Province3", "Sensor3", 6012.50, Unit.µg_m3, 5022)),
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province1", "Sensor1", 3419.25, Unit.mg_m3, 7073)),
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province2", "Sensor2", 7148.25, Unit.ng_m3, 4099)),
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province3", "Sensor3", 6012.50, Unit.µg_m3, 5022))
             };
 
             // Act & Assert

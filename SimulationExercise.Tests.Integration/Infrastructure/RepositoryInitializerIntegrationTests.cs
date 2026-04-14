@@ -21,7 +21,7 @@ namespace SimulationExercise.Tests.Architecture
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException("Null ConnectionString");
 
-            //_contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(_connectionString);
 
             _sut = new RepositoryInitializer();
         }

@@ -32,10 +32,10 @@ namespace SimulationExercise.Tests.Repository
             _testRepositoryCleanup = new TestRepositoryCleanup();
             _testRepositoryObjectInsertion = new TestRepositoryObjectInsertion<ConsistentReadingInsertDTO>();
 
-            //_connectionString = config.GetConnectionString("Default") ?? 
-            //    throw new ArgumentNullException(nameof(_connectionString));
+            _connectionString = config.GetConnectionString("Default") ??
+                throw new ArgumentNullException(nameof(_connectionString));
 
-            //_contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -114,7 +114,7 @@ namespace SimulationExercise.Tests.Repository
             {
                 // Act & Assert
                 var results = _sut.GetByIsExportedAsync(true, context);
-                //Assert.Equal(2, results.Count);
+                Assert.Equal(2, results.Count);
             }
 
             // Teardown

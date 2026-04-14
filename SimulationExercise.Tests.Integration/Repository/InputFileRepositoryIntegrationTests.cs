@@ -35,7 +35,7 @@ namespace SimulationExercise.Tests.Repository
             _connectionString = config.GetConnectionString("Default") ?? 
                 throw new ArgumentNullException(nameof(_connectionString));
 
-            //_contextFactory = new DapperContextFactory(_connectionString);
+            _contextFactory = new DapperContextFactory(_connectionString);
 
             _repositoryInitializer = new RepositoryInitializer();
             _repositoryInitializer.Initialize(_contextFactory.Create());
@@ -117,8 +117,8 @@ namespace SimulationExercise.Tests.Repository
                             FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;",
                     new { expectedReturn.InputFileId });
 
-                //Assert.Single(result);
-                //result.First().Should().BeEquivalentTo(expectedReturn);
+                Assert.Single(result);
+                result.First().Should().BeEquivalentTo(expectedReturn);
             }
 
             // Teardown
@@ -154,24 +154,24 @@ namespace SimulationExercise.Tests.Repository
                             FROM {_tableNameInputFile} WHERE INPUTFILEID = @INPUTFILEID;", 
                     new { expectedReturn.InputFileId });
 
-                //IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
-                //    ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
-                //            FROM INPUTFILE F 
-                //            INNER JOIN {_tableNameInputFileMessage} M
-                //            ON F.INPUTFILEID = M.INPUTFILEID
-                //            WHERE F.INPUTFILEID = @INPUTFILEID;", 
-                //    new { expectedReturn.InputFileId });
+                IList<dynamic> messageResult = assertContext.QueryAsync<dynamic>
+                    ($@"SELECT M.INPUTFILEID, F.STATUSID AS STATUS, M.MESSAGE
+                            FROM INPUTFILE F 
+                            INNER JOIN {_tableNameInputFileMessage} M
+                            ON F.INPUTFILEID = M.INPUTFILEID
+                            WHERE F.INPUTFILEID = @INPUTFILEID;",
+                    new { expectedReturn.InputFileId });
 
-                //Assert.Single(result);
-                //Assert.Single(messageResult);
+                Assert.Single(result);
+                Assert.Single(messageResult);
 
-                //var message = messageResult.First();
-                //Status status = (Status)(int)message.STATUS;
+                var message = messageResult.First();
+                Status status = (Status)(int)message.STATUS;
 
-                //result.First().Should().BeEquivalentTo(expectedReturn);
-                //Assert.Equal((long)message.INPUTFILEID, updateDTO.InputFileId);
-                //Assert.Equal(Status.Error, status);
-                //Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
+                result.First().Should().BeEquivalentTo(expectedReturn);
+                Assert.Equal((long)message.INPUTFILEID, updateDTO.InputFileId);
+                Assert.Equal(Status.Error, status);
+                Assert.Equal((string)message.MESSAGE, updateDTO.Messages.First());
             }
 
             // Teardown

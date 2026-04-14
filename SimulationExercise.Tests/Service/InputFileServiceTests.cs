@@ -55,7 +55,7 @@ namespace SimulationExercise.Tests.Service
             InputFileGenerator(2);
 
             // Act
-            //_sut.ProcessFiles(_inDirectoryPath);
+            _sut.ProcessFiles(_inDirectoryPath);
 
             // Assert
             _loggerMock.Verify(
@@ -90,7 +90,7 @@ namespace SimulationExercise.Tests.Service
             }
 
             // Act & Assert
-            //_sut.ProcessFiles(_inDirectoryPath);
+            _sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -115,7 +115,7 @@ namespace SimulationExercise.Tests.Service
                 .Throws(new Exception("Insert failed"));
 
             // Act & Assert
-            //_sut.ProcessFiles(_inDirectoryPath);
+            _sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -135,7 +135,7 @@ namespace SimulationExercise.Tests.Service
             DirectoryCleanup();
 
             // Act & Assert
-            //_sut.ProcessFiles(_inDirectoryPath);
+            _sut.ProcessFiles(_inDirectoryPath);
 
             _loggerMock.Verify(
                 x => x.Log(
@@ -156,7 +156,7 @@ namespace SimulationExercise.Tests.Service
             if (Directory.Exists(_inDirectoryPath)) Directory.Delete(_inDirectoryPath, true);
 
             // Act
-            //_sut.ProcessFiles(_inDirectoryPath);
+            _sut.ProcessFiles(_inDirectoryPath);
 
             // Assert
             var directories = Directory.GetDirectories(_basePath);
