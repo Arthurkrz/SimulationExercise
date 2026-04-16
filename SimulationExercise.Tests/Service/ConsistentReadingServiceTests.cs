@@ -257,9 +257,10 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<Status>(), It.IsAny<IContext>()))
                 .ReturnsAsync(new List<ReadingGetDTO>());
 
-            // Act & Assert
+            // Act
             await _sut.ProcessReadingsAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -289,17 +290,18 @@ namespace SimulationExercise.Tests.Service
 
             _consistentReadingRepositoryMock.Setup(x => x.InsertAsync(
                 It.IsAny<ConsistentReadingInsertDTO>(), It.IsAny<IContext>()))
-                .Throws(new Exception("Insert failed"));
+                .Throws(new Exception("ERROR"));
 
-            // Act & Assert
+            // Act
             await _sut.ProcessReadingsAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("Unexpected exception was thrown: Insert failed")),
+                                                        .Contains("Unexpected exception was thrown: ERROR")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Exactly(6));
@@ -323,17 +325,18 @@ namespace SimulationExercise.Tests.Service
 
             _readingRepositoryMock.Setup(x => x.UpdateAsync(
                 It.IsAny<ReadingUpdateDTO>(), It.IsAny<IContext>()))
-                .Throws(new Exception("Update failed"));
+                .Throws(new Exception("ERROR"));
 
-            // Act & Assert
+            // Act
             await _sut.ProcessReadingsAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("Unexpected exception was thrown: Update failed")),
+                                                        .Contains("Unexpected exception was thrown: ERROR")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Exactly(6));

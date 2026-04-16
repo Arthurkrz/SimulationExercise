@@ -43,12 +43,14 @@ namespace SimulationExercise.Tests.Service
 
         [Theory]
         [MemberData(nameof(GetValidObjects))]
-        public void CreateOutputFiles_ShouldCreateOutputFiles(IList<object> exportDTOs)
+        public async Task CreateOutputFilesAsync_ShouldCreateOutputFilesAsync(IList<object> exportDTOs)
         {
             // Act
-            _sut.CreateOutputFilesAsync(exportDTOs);
+            var result = await _sut.CreateOutputFilesAsync(exportDTOs);
 
             // Assert
+            Assert.True(result.Success);
+
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -63,40 +65,55 @@ namespace SimulationExercise.Tests.Service
                 Times.Once);
         }
 
-        [Fact]
-        public void CreateOutputFiles_ShouldLogError_WhenNoNonExportedOutputFilesFound()
+        [Theory]
+        [MemberData(nameof(GetValidObjects))]
+        public async Task CreateOutputFilesAsync_ShouldLogError_WhenExceptionIsThrownAsync(IList<object> exportDTOs)
         {
-            throw new NotImplementedException();
-        }
+            // Arrange
+            _outputFileRepositoryMock.Setup(x => x.InsertAsync(
+                It.IsAny<OutputFileInsertDTO>(), It.IsAny<IContext>()))
+                .ThrowsAsync(new Exception("ERROR"));
 
-        [Fact]
-        public void CreateOutputFiles_ShouldLogErrors_WhenOutputFileCreationFails()
-        {
-            throw new NotImplementedException();
-        }
+            // Act
+            await _sut.CreateOutputFilesAsync(exportDTOs);
 
-        [Fact]
-        public void CreateOutputFiles_ShouldLogError_WhenDTOCreationFails()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void Export_ShouldCallOutputFileExportMethod()
-        {
-            throw new NotImplementedException();
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("Unexpected exception was thrown: ERROR")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
         }
 
         public static IEnumerable<object[]> GetValidObjects()
         {
             yield return new object[]
             {
+                new List<ConsistentReadingExportDTO>
+                {
+                    new ConsistentReadingExportDTO(1, "SensorTypeName1", "mg_m3", 1, "Province1", "City", true, 1, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReadingExportDTO(1, "SensorTypeName1", "mg_m3", 1, "Province1", "City", false, 1, 1, 1, "Latitude", "Longitude"),
 
+                    new ConsistentReadingExportDTO(1, "SensorTypeName2", "ng_m3", 1, "Province2", "City", true, 1, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReadingExportDTO(1, "SensorTypeName2", "ng_m3", 1, "Province2", "City", false, 1, 1, 1, "Latitude", "Longitude"),
+
+                    new ConsistentReadingExportDTO(1, "SensorTypeName3", "µg_m3", 1, "Province3", "City", true, 1, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReadingExportDTO(1, "SensorTypeName3", "µg_m3", 1, "Province3", "City", false, 1, 1, 1, "Latitude", "Longitude")
+                }
             };
 
             yield return new object[]
             {
-
+                new List<AverageProvinceDataExportDTO>
+                {
+                    new AverageProvinceDataExportDTO("Province", "SensorTypeName", 1, "mg_m3", 1),
+                    new AverageProvinceDataExportDTO("Province", "SensorTypeName", 1, "ng_m3", 1),
+                    new AverageProvinceDataExportDTO("Province", "SensorTypeName", 1, "µg_m3", 1),
+                }
             };
         }
     }

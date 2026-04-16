@@ -42,8 +42,10 @@ namespace SimulationExercise.Tests.Factories
                 new ReadingInsertDTO(1, 1, "SensorTypeName", "µg/m³", 1, "StationName", 1, "Province", "City", true, DateTime.Now.AddYears(-1).Date, DateTime.Now.Date, 1, 1, "Latitude", "Longitude", Status.New)
             };
 
-            // Act & Assert
+            // Act
             var result = _sut.CreateReadingInsertDTOList(readings, 1);
+
+            // Assert
             expectedInsertDTOList.Should().BeEquivalentTo(result);
         }
     }

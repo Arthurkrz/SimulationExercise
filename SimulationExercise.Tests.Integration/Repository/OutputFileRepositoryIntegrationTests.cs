@@ -90,8 +90,10 @@ namespace SimulationExercise.Tests.Integration.Repository
 
             using (IContext context = _contextFactory.Create())
             {
-                // Act & Assert
+                // Act
                 var results = await _sut.GetByIsExportedAsync(true, "ConsistentReading", context);
+
+                // Assert
                 Assert.Equal(2, results.Count);
             }
 

@@ -19,8 +19,10 @@ namespace SimulationExercise.Tests.Factories
         [MemberData(nameof(GetConsistentReadings))]
         public void CreateConsistentReadingInsertDTO_ShouldReturnCorrectObject(ConsistentReading consistentReading, ConsistentReadingInsertDTO crInsertDTO)
         {
-            // Act & Assert
+            // Act
             var result = _sut.CreateConsistentReadingInsertDTO(consistentReading, 1);
+
+            // Assert
             Assert.Equal(crInsertDTO.ReadingId, result.ReadingId);
             Assert.Equal(crInsertDTO.SensorId, result.SensorId);
             Assert.Equal(crInsertDTO.SensorTypeName, result.SensorTypeName);

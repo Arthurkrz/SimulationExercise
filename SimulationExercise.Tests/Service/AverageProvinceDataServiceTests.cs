@@ -5,6 +5,9 @@ using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
+using SimulationExercise.Core.Entities;
+using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 
 namespace SimulationExercise.Tests.Service
@@ -48,27 +51,151 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void ProcessConsistentReadings_ShouldProcessConsistentReadings()
+        public async Task ProcessConsistentReadingsAsync_ShouldProcessConsistentReadingsAsync()
         {
-            throw new NotImplementedException();
+            // Arrange
+            var consistentReadingGetDTOs = new List<ConsistentReadingGetDTO>
+            {
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", false, 1, 1, 1, "Latitude", "Longitude", false)
+            };
+
+            var apdCreationResults = new List<Result<AverageProvinceData>>
+            {
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province1", "SensorTypeName1", 1, Unit.mg_m3, 1)),
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province2", "SensorTypeName2", 1, Unit.ng_m3, 1)),
+                Result<AverageProvinceData>.Ok(new AverageProvinceData("Province3", "SensorTypeName3", 1, Unit.µg_m3, 1))
+            };
+
+            _consistentReadingRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+                false, It.IsAny<IContext>())).ReturnsAsync(consistentReadingGetDTOs);
+
+            _apdFactoryMock.Setup(x => x.CreateAverageProvinceData(
+                It.IsAny<List<ConsistentReading>>())).Returns(apdCreationResults);
+
+            // Act
+            await _sut.ProcessConsistentReadingsAsync();
+
+            // Assert
+            _apdRepositoryMock.Verify(x => x.InsertAsync(
+                It.IsAny<AverageProvinceDataInsertDTO>(), 
+                It.IsAny<IContext>()), Times.Exactly(3));
+
+            _contextFactoryMock.Verify(x => x.Create(),
+                Times.Exactly(2));
         }
 
         [Fact]
-        public void ProcessConsistentReadings_ShouldLogError_WhenNoOutputFileFound()
+        public async Task ProcessConsistentReadingsAsync_ShouldLogError_WhenNoNonExportedCRsFoundAsync()
         {
-            throw new NotImplementedException();
+            // Arrange
+            _consistentReadingRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+                false, It.IsAny<IContext>())).ReturnsAsync(new List<ConsistentReadingGetDTO>());
+
+            // Act
+            await _sut.ProcessConsistentReadingsAsync();
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("No non-exported ConsistentReadings have been found!")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once());
         }
 
         [Fact]
-        public void ProcessConsistentReadings_ShouldLogErrors_WhenAPDCreationFails()
+        public async Task ProcessConsistentReadingsAsync_ShouldLogErrors_WhenAPDCreationFailsAsync()
         {
-            throw new NotImplementedException();
+            // Arrange
+            var consistentReadinGetDTOs = new List<ConsistentReadingGetDTO>
+            {
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", false, 1, 1, 1, "Latitude", "Longitude", false)
+            };
+
+            var failedCreation = new List<Result<AverageProvinceData>>
+            { Result<AverageProvinceData>.Ko(["ERROR"]) };
+
+            _consistentReadingRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+                false, It.IsAny<IContext>())).ReturnsAsync(consistentReadinGetDTOs);
+
+            _apdFactoryMock.Setup(x => x.CreateAverageProvinceData(
+                It.IsAny<List<ConsistentReading>>())).Returns(failedCreation);
+
+            // Act
+            await _sut.ProcessConsistentReadingsAsync();
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("ERROR")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once());
+
+            _apdRepositoryMock.Verify(x => x.InsertAsync(
+                It.IsAny<AverageProvinceDataInsertDTO>(),
+                It.IsAny<IContext>()), Times.Never());
         }
 
         [Fact]
-        public void ProcessConsistentReadings_ShouldLogError_WhenAPDCreationReturnsException()
+        public void ProcessConsistentReadingsAsync_ShouldLogError_WhenAPDCreationReturnsExceptionAsync()
         {
-            throw new NotImplementedException();
+            // Arrange
+            var consistentReadingGetDTOs = new List<ConsistentReadingGetDTO>
+            {
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName1", Unit.mg_m3, 1, "Province1", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName2", Unit.ng_m3, 1, "Province2", "City", false, 1, 1, 1, "Latitude", "Longitude", false),
+
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", true, 1, 1, 1, "Latitude", "Longitude", false),
+                new ConsistentReadingGetDTO(1, 1, 1, "SensorTypeName3", Unit.µg_m3, 1, "Province3", "City", false, 1, 1, 1, "Latitude", "Longitude", false)
+            };
+
+            _consistentReadingRepositoryMock.Setup(x => x.GetByIsExportedAsync(
+                false, It.IsAny<IContext>())).ReturnsAsync(consistentReadingGetDTOs);
+
+            _apdFactoryMock.Setup(x => x.CreateAverageProvinceData(
+                It.IsAny<List<ConsistentReading>>())).Throws(new Exception("ERROR"));
+
+            // Act
+            _sut.ProcessConsistentReadingsAsync();
+
+            // Assert
+            _loggerMock.Verify(
+                x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => state.ToString()!
+                                                        .Contains("Unexpected exception was thrown: ERROR")),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once());
+
+            _apdRepositoryMock.Verify(x => x.InsertAsync(
+                It.IsAny<AverageProvinceDataInsertDTO>(),
+                It.IsAny<IContext>()), Times.Never());
         }
     }
 }

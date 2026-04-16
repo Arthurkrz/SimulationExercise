@@ -89,9 +89,10 @@ namespace SimulationExercise.Tests.Service
                 inputStream.CopyTo(fileStream);
             }
 
-            // Act & Assert
+            // Act
             await _sut.ProcessFilesAsync(_inDirectoryPath);
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -112,17 +113,18 @@ namespace SimulationExercise.Tests.Service
 
             _inputFileRepositoryMock.Setup(x => x.InsertAsync(
                 It.IsAny<InputFileInsertDTO>(), It.IsAny<IContext>()))
-                .Throws(new Exception("Insert failed"));
+                .Throws(new Exception("ERROR"));
 
-            // Act & Assert
+            // Act
             await _sut.ProcessFilesAsync(_inDirectoryPath);
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("Unexpected exception was thrown: Insert failed")),
+                                                        .Contains("Unexpected exception was thrown: ERROR")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
@@ -134,9 +136,10 @@ namespace SimulationExercise.Tests.Service
             // Arrange
             DirectoryCleanup();
 
-            // Act & Assert
+            // Act
             await _sut.ProcessFilesAsync(_inDirectoryPath);
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,

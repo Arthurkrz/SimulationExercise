@@ -10,7 +10,6 @@ using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
-using System.Text;
 
 namespace SimulationExercise.Tests.Service
 {
@@ -57,7 +56,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public async Task CreateOutputFiles_ShouldCallOutputFileCreateMethodAsync()
+        public async Task CreateOutputFilesAsync_ShouldCallOutputFileCreateMethodAsync()
         {
             // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
@@ -74,20 +73,21 @@ namespace SimulationExercise.Tests.Service
             // Act & Assert
             await _sut.CreateOutputFilesAsync();
 
-            _outputFileServiceMock.Verify(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
+            _outputFileServiceMock.Verify(x => x.CreateOutputFilesAsync(
                 new List<AverageProvinceDataExportDTO> { apdExportDTO }), Times.Once);
         }
 
         [Fact]
-        public void CreateOutputFiles_ShouldLogError_WhenNoAPDsFound()
+        public async Task CreateOutputFilesAsync_ShouldLogError_WhenNoAPDsFoundAsync()
         {
             // Arrange
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(false, It.IsAny<IContext>()))
-                                  .ReturnsAsync(new List<AverageProvinceDataGetDTO>());
+                .ReturnsAsync(new List<AverageProvinceDataGetDTO>());
 
-            // Act & Assert
-            _sut.CreateOutputFilesAsync();
+            // Act
+            await _sut.CreateOutputFilesAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -100,8 +100,9 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public async Task CreateOutputFiles_ShouldLogErrors_WhenOutputFileCreationFailsAsync()
+        public async Task CreateOutputFilesAsync_ShouldLogErrors_WhenOutputFileCreationFailsAsync()
         {
+            // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
 
             _apdRepositoryMock.Setup(x => x.GetByIsExportedAsync(
@@ -112,8 +113,10 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<IList<AverageProvinceDataExportDTO>>()))
                 .ReturnsAsync(Result<OutputFileInsertDTO>.Ko(new List<string> { "ERROR" }));
 
+            // Act
             await _sut.CreateOutputFilesAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -126,7 +129,7 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void CreateOutputFiles_ShouldLogError_WhenUpdateFails()
+        public async Task CreateOutputFilesAsync_ShouldLogError_WhenUpdateFailsAsync()
         {
             // Arrange
             var apdGetDTO = new AverageProvinceDataGetDTO(1, "Province1", "Sensor1", 10, Unit.mg_m3, 20, false);
@@ -141,7 +144,7 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<IList<AverageProvinceDataGetDTO>>()))
                 .Returns(new List<AverageProvinceDataExportDTO> { apdExportDTO });
 
-            _outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync<AverageProvinceDataExportDTO>(
+            _outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync(
                 It.IsAny<IList<AverageProvinceDataExportDTO>>()))
                 .ReturnsAsync(outputFileCreationResult);
 
@@ -149,9 +152,10 @@ namespace SimulationExercise.Tests.Service
                 It.IsAny<AverageProvinceDataUpdateDTO>(), It.IsAny<IContext>()))
                 .Throws(new Exception("Update failed"));
 
-            // Act & Assert
-            _sut.CreateOutputFilesAsync();
+            // Act
+            await _sut.CreateOutputFilesAsync();
 
+            // Assert
             _loggerMock.Verify(
                 x => x.Log(
                 LogLevel.Error,
@@ -164,15 +168,15 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void Export_ShouldLogError_WhenNoOutputFilesFound()
+        public async Task ExportAsync_ShouldLogError_WhenNoOutputFilesFoundAsync()
         {
             // Arrange
             _outputFileRepositoryMock.Setup(x => x.GetByIsExportedAsync(
-                true, "AverageProvinceData", It.IsAny<IContext>())).
+                false, "AverageProvinceData", It.IsAny<IContext>())).
                 ReturnsAsync(new List<OutputFileGetDTO>());
 
             // Act
-            _sut.ExportAsync("OutputFilePath");
+            await _sut.ExportAsync("OutputFilePath");
 
             // Assert
             _loggerMock.Verify(
@@ -187,10 +191,10 @@ namespace SimulationExercise.Tests.Service
         }
 
         [Fact]
-        public void Export_ShouldLogError_WhenNoOutDirectoryFound()
+        public async Task ExportAsync_ShouldLogError_WhenNoOutDirectoryFoundAsync()
         {
             // Act
-            _sut.ExportAsync("");
+            await _sut.ExportAsync("OutDirectoryPath");
 
             // Assert
             _loggerMock.Verify(

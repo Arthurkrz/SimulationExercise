@@ -1,5 +1,4 @@
-﻿using FileHelpers;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Contracts.Infrastructure;
@@ -7,7 +6,6 @@ using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
 using SimulationExercise.Core.DTOs.CSVDTOs;
 using SimulationExercise.Core.DTOs.DatabaseDTOs;
-using System.Text;
 
 namespace SimulationExercise.Services
 {
@@ -37,26 +35,26 @@ namespace SimulationExercise.Services
 
         public async Task CreateOutputFilesAsync()
         {
-            IList<ConsistentReadingGetDTO> crGetDTOs;
-            using (IContext searchContext = _contextFactory.Create())
-                crGetDTOs = await _consistentReadingRepository.GetByIsExportedAsync(false, searchContext);
-
-            if (crGetDTOs.Count == 0)
-            {
-                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
-                return;
-            }
-
             try
             {
-                var records = _consistentReadingExportDTOFactory.CreateExportDTOList(crGetDTOs);
-                var result = _outputFileService.CreateOutputFilesAsync<ConsistentReadingExportDTO>(records);
+                IList<ConsistentReadingGetDTO> crGetDTOs;
+                using (IContext searchContext = _contextFactory.Create())
+                    crGetDTOs = await _consistentReadingRepository.GetByIsExportedAsync(false, searchContext);
 
-                //if (!result.Success)
-                //{
-                //    _logger.LogError(LogMessages.ERRORSFOUND, "Consistent Reading list", 0);
-                //    foreach (var error in result.Errors!) _logger.LogError(error);
-                //}
+                if (crGetDTOs.Count == 0)
+                {
+                    _logger.LogError(LogMessages.NONONEXPORTEDOBJECTSFOUND, "Consistent Reading");
+                    return;
+                }
+
+                var records = _consistentReadingExportDTOFactory.CreateExportDTOList(crGetDTOs);
+                var result = await _outputFileService.CreateOutputFilesAsync(records);
+
+                if (!result.Success)
+                {
+                    _logger.LogError(LogMessages.ERRORSFOUND, "Consistent Reading list", 0);
+                    foreach (var error in result.Errors!) _logger.LogError(error);
+                }
 
                 foreach (var consistentReading in crGetDTOs)
                 {
@@ -86,7 +84,7 @@ namespace SimulationExercise.Services
 
                 if (outputFiles.Count == 0)
                 {
-                    _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Output File");
+                    _logger.LogError(LogMessages.NONONEXPORTEDOBJECTSFOUND, "Output File");
                     return;
                 }
 

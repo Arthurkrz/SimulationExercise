@@ -39,7 +39,7 @@ namespace SimulationExercise.Services
 
             if (crGetDTOs.Count == 0)
             {
-                _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "OutputFile");
+                _logger.LogError(LogMessages.NONONEXPORTEDOBJECTSFOUND, "ConsistentReading");
                 return;
             }
 

@@ -57,8 +57,10 @@ namespace SimulationExercise.Tests.Factories
                 Result<AverageProvinceData>.Ok(new AverageProvinceData("Province3", "Sensor3", 6012.50, Unit.µg_m3, 5022))
             };
 
-            // Act & Assert
+            // Act
             var result = _sut.CreateAverageProvinceData(consistentReadings);
+
+            // Assert
             result.Should().BeEquivalentTo(expectedResults);
         }
 
@@ -78,8 +80,10 @@ namespace SimulationExercise.Tests.Factories
                 new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude"),
             };
 
-            // Act & Assert
+            // Act
             var result = _sut.CreateAverageProvinceData(consistentReadings);
+
+            // Assert
             Assert.False(result.First().Success);
             Assert.Single(result.First().Errors!);
             Assert.Equal("ERROR", result.First().Errors?.First());
@@ -88,8 +92,10 @@ namespace SimulationExercise.Tests.Factories
         [Fact]
         public void CreateAverageProvinceData_ShouldReturnError_WhenNullConsistentReadingList()
         {
-            // Act & Assert
+            // Act
             var result = _sut.CreateAverageProvinceData(null!);
+
+            // Assert
             Assert.False(result.First().Success);
             Assert.Single(result.First().Errors!);
             Assert.Equal("Null or empty consistent reading list", result.First().Errors?.First());
@@ -98,8 +104,10 @@ namespace SimulationExercise.Tests.Factories
         [Fact]
         public void CreateAverageProvinceData_ShouldReturnError_WhenEmptyConsistentReadingList()
         {
-            // Act & Assert
+            // Act
             var result = _sut.CreateAverageProvinceData(new List<ConsistentReading>());
+
+            // Assert
             Assert.False(result.First().Success);
             Assert.Single(result.First().Errors!);
             Assert.Equal("Null or empty consistent reading list", result.First().Errors?.First());

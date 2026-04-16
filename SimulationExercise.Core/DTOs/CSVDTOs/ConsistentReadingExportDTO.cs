@@ -1,5 +1,4 @@
 ﻿using FileHelpers;
-using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Core.DTOs.CSVDTOs
 {
@@ -8,7 +7,7 @@ namespace SimulationExercise.Core.DTOs.CSVDTOs
     {
         public ConsistentReadingExportDTO() { }
 
-        public ConsistentReadingExportDTO(long sensorId, string sensorTypeName, Unit unit, int value, string province, 
+        public ConsistentReadingExportDTO(long sensorId, string sensorTypeName, string unit, int value, string province, 
                                           string city, bool isHistoric, int daysOfMeasure, int utmNord, int utmEst, 
                                           string latitude, string longitude)
         {
@@ -28,7 +27,7 @@ namespace SimulationExercise.Core.DTOs.CSVDTOs
 
         public long SensorId { get; set; }
         public string? SensorTypeName { get; set; }
-        public Unit Unit { get; set; }
+        public string? Unit { get; set; }
         public int Value { get; set; }
         public string? Province { get; set; }
         public string? City { get; set; }

@@ -212,8 +212,10 @@ namespace SimulationExercise.Tests.Integration.Repository
 
             using (IContext context = _contextFactory.Create())
             {
-                // Act & Assert
+                // Act
                 var results = await _sut.GetByStatusAsync(Status.Success, context);
+
+                // Assert
                 Assert.Equal(2, results.Count);
             }
 
