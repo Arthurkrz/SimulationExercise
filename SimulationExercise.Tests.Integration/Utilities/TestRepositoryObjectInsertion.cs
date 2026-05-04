@@ -247,16 +247,17 @@ namespace SimulationExercise.Tests.Integration.Utilities
                 {
                     await context.ExecuteAsync
                         ($@"INSERT INTO {_tableNameOutputFile}
-                        (NAME, BYTES, EXTENSION, CREATIONTIME, 
+                        (NAME, BYTES, EXTENSION, OBJECTTYPE, CREATIONTIME, 
                         LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED)
-                            VALUES(@NAME, @BYTES, @EXTENSION, @CREATIONTIME, 
-                                   @LASTUPDATETIME, @LASTUPDATEUSER, 
-                                   @ISEXPORTED);",
+                            VALUES(@NAME, @BYTES, @EXTENSION, @OBJECTTYPE, 
+                                   @CREATIONTIME, @LASTUPDATETIME, 
+                                   @LASTUPDATEUSER, @ISEXPORTED);",
                         new
                         {
                             Name = $"OutputFileName{objectNumber}",
                             Bytes = new byte[] { 1, 2, 3 },
                             Extension = $"Ext{objectNumber}",
+                            ObjectType = "ConsistentReading",
                             creationTime,
                             lastUpdateTime,
                             lastUpdateUser,

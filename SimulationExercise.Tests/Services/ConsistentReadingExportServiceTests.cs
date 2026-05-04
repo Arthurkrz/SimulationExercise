@@ -11,7 +11,7 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Services
 {
     public class ConsistentReadingExportServiceTests
     {
@@ -83,6 +83,10 @@ namespace SimulationExercise.Tests.Service
                 new ConsistentReadingExportDTO(1, "SensorTypeName3", "µg_m3", 1, "Province3", "City", false, 1, 1, 1, "Latitude", "Longitude")
             };
 
+            var outputFile = new OutputFileInsertDTO("Name", [1, 2, 3], "Extension", "ObjectType", false);
+
+            var outputFileResult = Result<OutputFileInsertDTO>.Ok(outputFile);
+
             _crRepositoryMock.Setup(x => x.GetByIsExportedAsync(
                 false, It.IsAny<IContext>())).ReturnsAsync(consistentReadingGetDTOs);
 
@@ -90,7 +94,7 @@ namespace SimulationExercise.Tests.Service
                 consistentReadingGetDTOs)).Returns(exportDTOList);
 
             _outputFileServiceMock.Setup(x => x.CreateOutputFilesAsync(
-                exportDTOList)).ReturnsAsync(It.IsAny<Result<OutputFileInsertDTO>>());
+                exportDTOList)).ReturnsAsync(outputFileResult);
 
             // Act
             await _sut.CreateOutputFilesAsync();
@@ -258,7 +262,7 @@ namespace SimulationExercise.Tests.Service
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => state.ToString()!
-                                                        .Contains("No non-exported OutputFiles have been found!")),
+                                                        .Contains("No non-exported Output Files have been found!")),
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once());

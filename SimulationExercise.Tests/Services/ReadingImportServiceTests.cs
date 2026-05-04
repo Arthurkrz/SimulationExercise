@@ -4,7 +4,7 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Services;
 using System.Text;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Services
 {
     public class ReadingImportServiceTests
     {

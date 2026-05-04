@@ -11,7 +11,7 @@ using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 using System.Text;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Services
 {
     public class ReadingServiceTests
     {

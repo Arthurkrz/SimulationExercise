@@ -69,7 +69,7 @@ namespace SimulationExercise.Tests.Integration.Repository
                         UNIT, VALUE, PROVINCE, CITY, ISHISTORIC, 
                         DAYSOFMEASURE, UTMNORD, UTMEST, LATITUDE, 
                         LONGITUDE, LASTUPDATETIME, CREATIONTIME, 
-                        LASTUPDATEUSER, ISEXPORTED, STATUSID FROM 
+                        LASTUPDATEUSER, ISEXPORTED FROM 
                         {_tableNameConsistentReading};");
 
                 Assert.Single(items);

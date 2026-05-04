@@ -11,7 +11,7 @@ using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Services;
 
-namespace SimulationExercise.Tests.Service
+namespace SimulationExercise.Tests.Services
 {
     public class AverageProvinceDataExportServiceTests
     {

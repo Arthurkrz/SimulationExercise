@@ -56,14 +56,17 @@ namespace SimulationExercise.Services
                     foreach (var error in result.Errors!) _logger.LogError(error);
                 }
 
-                foreach (var consistentReading in crGetDTOs)
+                else
                 {
-                    var updateDTO = new ConsistentReadingUpdateDTO(consistentReading.ConsistentReadingId, true);
-
-                    using (IContext updateContext = _contextFactory.Create())
+                    foreach (var consistentReading in crGetDTOs)
                     {
-                        await _consistentReadingRepository.UpdateAsync(updateDTO, updateContext);
-                        updateContext.Commit();
+                        var updateDTO = new ConsistentReadingUpdateDTO(consistentReading.ConsistentReadingId, true);
+
+                        using (IContext updateContext = _contextFactory.Create())
+                        {
+                            await _consistentReadingRepository.UpdateAsync(updateDTO, updateContext);
+                            updateContext.Commit();
+                        }
                     }
                 }
             }

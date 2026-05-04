@@ -35,7 +35,7 @@ namespace SimulationExercise.Tests.Factories
             var consistentReadings = new List<ConsistentReading>
             {
                 new ConsistentReading(123, "Sensor1", Unit.mg_m3, 2927, "Province1", "City1", true, 9471, 123, 123, "Latitude", "Longitude"),
-                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 3054, "Province1", "City1", true, 8828, 123, 123, "Latitude", "Longitude")    ,
+                new ConsistentReading(123, "Sensor1", Unit.mg_m3, 3054, "Province1", "City1", true, 8828, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor1", Unit.mg_m3, 1663, "Province1", "City1", false, 2863, 123, 123, "Latitude", "Longitude"),
                 new ConsistentReading(123, "Sensor1", Unit.mg_m3, 6033, "Province1", "City1", false, 7130, 123, 123, "Latitude", "Longitude"),
 
@@ -77,7 +77,7 @@ namespace SimulationExercise.Tests.Factories
             var consistentReadings = new List<ConsistentReading>
             {
                 new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude"),
-                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude"),
+                new ConsistentReading(123, "Sensor1", Unit.ng_m3, 123, "Province1", "City1", true, 123, 123, 123, "Latitude", "Longitude")
             };
 
             // Act
