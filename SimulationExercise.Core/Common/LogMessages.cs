@@ -6,6 +6,7 @@
         public const string EMPTYFILE = "File is empty!";
         public const string NOREADINGSFOUND = "No readings found in file!";
         public const string NONEWOBJECTSFOUND = "No new {object}s have been found!";
+        public const string NONONEXPORTEDOBJECTSFOUND = "No non-exported {object}s have been found!";
 
         public const string UNEXPECTEDEXCEPTION = "Unexpected exception was thrown: {exceptionMessage}";
         public const string CONTINUETONEXTFILE = "Continuing to next file (if exists)...\n";

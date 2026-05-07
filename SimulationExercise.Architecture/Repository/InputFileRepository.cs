@@ -1,5 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
@@ -10,19 +11,19 @@ namespace SimulationExercise.Infrastructure.Repository
         private readonly string _mainTableName = "InputFile";
         private readonly string _messageTableName = "InputFileMessage";
 
-        public void Insert(InputFileInsertDTO dto, IContext context)
+        public async Task InsertAsync(InputFileInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (NAME, BYTES, EXTENSION, CREATIONTIME,
                             LASTUPDATETIME, LASTUPDATEUSER, STATUSID) 
-                                VALUES (@Name, @Bytes, @Extension,
-                                        @CreationTime, @LastUpdateTime, 
-                                        @LastUpdateUser, @Status);";
+                                VALUES (@NAME, @BYTES, @EXTENSION,
+                                        @CREATIONTIME, @LASTUPDATETIME, 
+                                        @LASTUPDATEUSER, @STATUS);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
                 dto.Name, dto.Extension, dto.Bytes,
                 CreationTime = SystemTime.Now(),
@@ -32,14 +33,14 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public void Update(InputFileUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(InputFileUpdateDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
-                                   WHERE INPUTFILEID = @InputFileId;", 
-                            new { dto.Status, dto.InputFileId });
+            await context.ExecuteAsync($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
+                                          WHERE INPUTFILEID = @INPUTFILEID;", 
+                                       new { dto.Status, dto.InputFileId });
 
             if (dto.Messages.Any() && dto.Status == Status.Error)
             {
@@ -47,10 +48,10 @@ namespace SimulationExercise.Infrastructure.Repository
                 {
                     string sql = $@"INSERT INTO {_messageTableName}(INPUTFILEID, 
                                     CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE)
-                                        VALUES (@InputFileId, @CreationDate, @LastUpdateDate,
-                                        @LastUpdateUser, @message);";
+                                        VALUES (@INPUTFILEID, @CREATIONDATE, @LASTUPDATEDATE,
+                                        @LASTUPDATEUSER, @MESSAGE);";
 
-                    context.Execute(sql, new 
+                    await context.ExecuteAsync(sql, new 
                     { 
                         dto.InputFileId, 
                         CreationDate = SystemTime.Now(), 
@@ -62,17 +63,16 @@ namespace SimulationExercise.Infrastructure.Repository
             }
         }
 
-        public IList<InputFileGetDTO> GetByStatus(Status status, IContext context)
+        public async Task<IList<InputFileGetDTO>> GetByStatusAsync(Status status, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             int statusId = (int)status;
             var sql = $@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_mainTableName} WHERE STATUSID = @statusId 
+                            FROM {_mainTableName} WHERE STATUSID = @STATUSID 
                                 ORDER BY CreationTime DESC";
 
-            var result = context.Query<InputFileGetDTO>(sql, new { statusId });
-            return result;
+            return await context.QueryAsync<InputFileGetDTO>(sql, new { statusId });
         }
     }
 }

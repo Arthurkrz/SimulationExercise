@@ -2,6 +2,6 @@
 {
     public interface IInputFileService
     {
-        void ProcessFiles(string inDirectoryPath);
+        Task ProcessFilesAsync(string inDirectoryPath);
     }
 }

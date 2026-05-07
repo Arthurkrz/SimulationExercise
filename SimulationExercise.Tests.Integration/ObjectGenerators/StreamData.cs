@@ -1,5 +1,6 @@
 ﻿using FileHelpers;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using System.Text;
@@ -10,6 +11,7 @@ namespace SimulationExercise.Tests.Integration.ObjectGenerators
     {
         public static IEnumerable<object[]> ValidStreamGenerator()
         {
+            SystemTime.Now = () => new DateTime(2026, 05, 07);
             var engine = new FileHelperEngine<ConsistentReadingExportDTO>();
 
             string inputText = @"IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
@@ -76,36 +78,51 @@ namespace SimulationExercise.Tests.Integration.ObjectGenerators
 
                 new List<ConsistentReadingGetDTO>
                 {
-                    new ConsistentReadingGetDTO(10, 1, 12691, "Arsenico", Unit.ng_m3, 383, "VA", "Varese", false, (int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays, 5073728, 486035, "45.8169745", "8.82024911", Status.Success),
-                    new ConsistentReadingGetDTO(9, 2, 5712, "Ozono", Unit.µg_m3, 138, "MI", "Inzago", true, (int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays, 5043030, 538012, "45.53976956", "9.48689669", Status.Success),
-                    new ConsistentReadingGetDTO(8, 6, 6665, "Ossidi di Azoto", Unit.mg_m3, 369, "BS", "Cantù", false, (int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays, 5064150, 509783, "45.73083728", "9.12573936", Status.Success),
-                    new ConsistentReadingGetDTO(7, 5, 6342, "Ossidi di Azoto", Unit.mg_m3, 141, "BS", "Pero", true, (int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays, 5039595, 507028, "45.50985564", "9.08997419", Status.Success),
-                    new ConsistentReadingGetDTO(6, 4, 10043, "Arsenico", Unit.ng_m3, 215, "VA", "Ferno", false, (int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays, 5051773, 481053, "45.61924753", "8.75697656", Status.Success),
-                    new ConsistentReadingGetDTO(5, 3, 20488, "Ozono", Unit.µg_m3, 279, "MI", "Erba", false, (int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays, 5072803, 517232, "45.8085738", "9.2217792", Status.Success),
-                    new ConsistentReadingGetDTO(4, 10, 6831, "Ossidi di Azoto", Unit.mg_m3, 180, "BS", "Lonato del Garda", false, (int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays, 5035536, 615762, "45.46375819", "10.48078183", Status.Success),
-                    new ConsistentReadingGetDTO(3, 9, 10035, "Benzene", Unit.µg_m3, 74, "CO", "Cornale", false, (int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays, 4987406, 493238, "45.04008561", "8.91415717", Status.Success),
-                    new ConsistentReadingGetDTO(2, 8, 5507, "Biossido di Azoto", Unit.µg_m3, 139, "CO", "Sesto San Giovanni", false, (int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays, 5042386, 518435, "45.53476819", "9.23610903", Status.Success),
-                    new ConsistentReadingGetDTO(1, 7, 10270, "Ozono", Unit.µg_m3, 221, "MI", "Darfo Boario Terme", true, (int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays, 5080789, 591371, "45.87460256", "10.17736553", Status.Success)
+                    new ConsistentReadingGetDTO(10, 1, 12691, "Arsenico", Unit.ng_m3, 383, "VA", "Varese", false, (int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays, 5073728, 486035, "45.8169745", "8.82024911", true),
+                    new ConsistentReadingGetDTO(9, 2, 5712, "Ozono", Unit.µg_m3, 138, "MI", "Inzago", true, (int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays, 5043030, 538012, "45.53976956", "9.48689669", true),
+                    new ConsistentReadingGetDTO(8, 6, 6665, "Ossidi di Azoto", Unit.mg_m3, 369, "BS", "Cantù", false, (int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays, 5064150, 509783, "45.73083728", "9.12573936", true),
+                    new ConsistentReadingGetDTO(7, 5, 6342, "Ossidi di Azoto", Unit.mg_m3, 141, "BS", "Pero", true, (int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays, 5039595, 507028, "45.50985564", "9.08997419", true),
+                    new ConsistentReadingGetDTO(6, 4, 10043, "Arsenico", Unit.ng_m3, 215, "VA", "Ferno", false, (int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays, 5051773, 481053, "45.61924753", "8.75697656", true),
+                    new ConsistentReadingGetDTO(5, 3, 20488, "Ozono", Unit.µg_m3, 279, "MI", "Erba", false, (int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays, 5072803, 517232, "45.8085738", "9.2217792", true),
+                    new ConsistentReadingGetDTO(4, 10, 6831, "Ossidi di Azoto", Unit.mg_m3, 180, "BS", "Lonato del Garda", false, (int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays, 5035536, 615762, "45.46375819", "10.48078183", true),
+                    new ConsistentReadingGetDTO(3, 9, 10035, "Benzene", Unit.µg_m3, 74, "CO", "Cornale", false, (int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays, 4987406, 493238, "45.04008561", "8.91415717", true),
+                    new ConsistentReadingGetDTO(2, 8, 5507, "Biossido di Azoto", Unit.µg_m3, 139, "CO", "Sesto San Giovanni", false, (int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays, 5042386, 518435, "45.53476819", "9.23610903", true),
+                    new ConsistentReadingGetDTO(1, 7, 10270, "Ozono", Unit.µg_m3, 221, "MI", "Darfo Boario Terme", true, (int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays, 5080789, 591371, "45.87460256", "10.17736553", true)
+                },
+
+                new List<AverageProvinceDataGetDTO>
+                {
+                    new AverageProvinceDataGetDTO(5, "CO", "Benzene", 74, Unit.µg_m3, 7399, true),
+                    new AverageProvinceDataGetDTO(4, "CO", "Biossido di Azoto", 139, Unit.µg_m3, 16576, true),
+                    new AverageProvinceDataGetDTO(3, "BS", "Ossidi di Azoto", 230, Unit.mg_m3, 10870, true),
+                    new AverageProvinceDataGetDTO(1, "VA", "Arsenico", 299, Unit.ng_m3, 6854, true),
+                    new AverageProvinceDataGetDTO(2, "MI", "Ozono", 212.66999816894531, Unit.µg_m3, 4738, true)
                 },
 
                 new List<string>
                 {
-                    $"SensorId,SensorTypeName,Unit,Value,Province,City,IsHistoric,DaysOfMeasure,UtmNord,UtmEst,Latitude,Longitude",
-                    $"12691,Arsenico,ng_m3,383,VA,Varese,False,{(int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays},5073728,486035,45.8169745,8.82024911",
-                    $"5712,Ozono,µg_m3,138,MI,Inzago,True,{(int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays},5043030,538012,45.53976956,9.48689669",
-                    $"20488,Ozono,µg_m3,279,MI,Erba,False,{(int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays},5072803,517232,45.8085738,9.2217792",
-                    $"10043,Arsenico,ng_m3,215,VA,Ferno,False,{(int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays},5051773,481053,45.61924753,8.75697656",
-                    $"6342,Ossidi di Azoto,mg_m3,141,BS,Pero,True,{(int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays},5039595,507028,45.50985564,9.08997419",
-                    $"6665,Ossidi di Azoto,mg_m3,369,BS,Cantù,False,{(int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays},5064150,509783,45.73083728,9.12573936",
-                    $"10270,Ozono,µg_m3,221,MI,Darfo Boario Terme,True,{(int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays},5080789,591371,45.87460256,10.17736553",
-                    $"5507,Biossido di Azoto,µg_m3,139,CO,Sesto San Giovanni,False,{(int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays},5042386,518435,45.53476819,9.23610903",
-                    $"10035,Benzene,µg_m3,74,CO,Cornale,False,{(int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays},4987406,493238,45.04008561,8.91415717",
-                    $"6831,Ossidi di Azoto,mg_m3,180,BS,Lonato del Garda,False,{(int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays},5035536,615762,45.46375819,10.48078183"
+                    $"SensorId;SensorTypeName;Unit;Value;Province;City;IsHistoric;DaysOfMeasure;UtmNord;UtmEst;Latitude;Longitude",
+                    $"12691;Arsenico;ng_m3;383;VA;Varese;False;{(int)(SystemTime.Now().Date - new DateTime(2008,4,1).Date).TotalDays};5073728;486035;45.8169745;8.82024911",
+                    $"5712;Ozono;µg_m3;138;MI;Inzago;True;{(int)(new DateTime(2018,1,1).Date - new DateTime(2001,02,24).Date).TotalDays};5043030;538012;45.53976956;9.48689669",
+                    $"20488;Ozono;µg_m3;279;MI;Erba;False;{(int)(SystemTime.Now().Date - new DateTime(2020,10,22).Date).TotalDays};5072803;517232;45.8085738;9.2217792",
+                    $"10043;Arsenico;ng_m3;215;VA;Ferno;False;{(int)(SystemTime.Now().Date - new DateTime(2006,11,29).Date).TotalDays};5051773;481053;45.61924753;8.75697656",
+                    $"6342;Ossidi di Azoto;mg_m3;141;BS;Pero;True;{(int)(new DateTime(2018,07,30).Date - new DateTime(1986,12,10).Date).TotalDays};5039595;507028;45.50985564;9.08997419",
+                    $"6665;Ossidi di Azoto;mg_m3;369;BS;Cantù;False;{(int)(SystemTime.Now().Date - new DateTime(2005,01,17).Date).TotalDays};5064150;509783;45.73083728;9.12573936",
+                    $"10270;Ozono;µg_m3;221;MI;Darfo Boario Terme;True;{(int)(new DateTime(2023,07,12).Date - new DateTime(2007,1,1).Date).TotalDays};5080789;591371;45.87460256;10.17736553",
+                    $"5507;Biossido di Azoto;µg_m3;139;CO;Sesto San Giovanni;False;{(int)(SystemTime.Now().Date - new DateTime(1980,12,18).Date).TotalDays};5042386;518435;45.53476819;9.23610903",
+                    $"10035;Benzene;µg_m3;74;CO;Cornale;False;{(int)(SystemTime.Now().Date - new DateTime(2006,2,2).Date).TotalDays};4987406;493238;45.04008561;8.91415717",
+                    $"6831;Ossidi di Azoto;mg_m3;180;BS;Lonato del Garda;False;{(int)(SystemTime.Now().Date - new DateTime(1990,1,1).Date).TotalDays};5035536;615762;45.46375819;10.48078183",
+                    $"Province;SensorTypeName;AverageValue;Unit;AverageDaysOfMeasure",
+                    $"VA;Arsenico;299;ng_m3;6854",
+                    $"MI;Ozono;212.6699981689453;µg_m3;4738",
+                    $"BS;Ossidi di Azoto;230;mg_m3;10870",
+                    $"CO;Biossido di Azoto;139;µg_m3;16576",
+                    $"CO;Benzene;74;µg_m3;7399"
                 }
             };
         }
 
-        public static IEnumerable<object[]> InvalidStreamGenerator()
+        public static IEnumerable<object[]> InvalidConsistentReadingStreamGenerator()
         {
             string inputWithErrorsText = $@"IdSensore,NomeTipoSensore,UnitaMisura,Idstazione,NomeStazione,Quota,Provincia,Comune,Storico,DataStart,DataStop,Utm_Nord,UTM_Est,lat,lng,Location
 12691,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,486035,45.8169745,8.82024911,POINT (8.82024911 45.8169745)
@@ -189,11 +206,8 @@ ERROR,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,4
                 "[ERR] UTMEst less or equal to 0.",
                 "[ERR] Errors found in Reading! (18)",
                 "[ERR] UTMEst less or equal to 0.",
-                "[ERR] Errors found in Reading! (20)",
                 "[ERR] Null or empty latitude.",
-                "[ERR] Errors found in Reading! (22)",
                 "[ERR] Null or empty longitude.",
-                "[ERR] Errors found in Reading! (23)",
                 "[ERR] Sensor ID less or equal to 0.",
                 "[ERR] Null or empty sensor name.",
                 "[ERR] Unit not supported.",
@@ -208,7 +222,6 @@ ERROR,Arsenico,ng/m³,560,Varese v.Copelli,383,VA,Varese,N,01/04/2008,,5073728,4
                 "[ERR] UTMEst less or equal to 0.",
                 "[ERR] Null or empty latitude.",
                 "[ERR] Null or empty longitude.",
-                "[ERR] Errors found in Reading! (24)",
                 "[ERR] Sensor ID less or equal to 0.",
                 "[ERR] Null or empty sensor name.",
                 "[ERR] Unit not supported.",

@@ -22,9 +22,10 @@ namespace SimulationExercise.Tests.Factories
         [MemberData(nameof(ReadingData.GetValidReadings), MemberType = typeof(ReadingData))]
         public void CreateConsistentReading_ShouldCreateObject_WhenCorrectReadings(Reading reading)
         {
-            // Act & Assert
+            // Act
             var result = _sut.CreateConsistentReading(reading);
 
+            // Assert
             Assert.NotNull(result);
             Assert.NotNull(result.Value);
             Assert.True(result.Success);
@@ -35,9 +36,10 @@ namespace SimulationExercise.Tests.Factories
         [MemberData(nameof(ReadingData.GetInvalidReadings), MemberType = typeof(ReadingData))]
         public void CreateConsistentReading_ShouldReturnErrors_WhenWrongReadings(Reading reading, List<string> errors)
         {
-            // Act & Assert
+            // Act
             var result = _sut.CreateConsistentReading(reading);
 
+            // Assert
             Assert.NotNull(result);
             Assert.Equal(errors, result.Errors);
         }

@@ -1,5 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DTOS;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 
@@ -10,10 +11,10 @@ namespace SimulationExercise.Infrastructure.Repository
         private readonly string _mainTableName = "Reading";
         private readonly string _messageTableName = "ReadingMessage";
 
-        public void Insert(ReadingInsertDTO dto, IContext context)
+        public async Task InsertAsync(ReadingInsertDTO dto, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(dto);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (INPUTFILEID, SENSORID, SENSORTYPENAME, UNIT, STATIONID, 
@@ -26,7 +27,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                         @LATITUDE, @LONGITUDE, @CREATIONTIME, @LASTUPDATETIME, 
                                         @LASTUPDATEUSER, @STATUSID)";
 
-            context.Execute(sql, new 
+            await context.ExecuteAsync(sql, new 
             { 
                 dto.InputFileId, dto.SensorId, dto.SensorTypeName, dto.Unit, 
                 dto.StationId, dto.StationName, dto.Value, dto.Province, 
@@ -39,12 +40,12 @@ namespace SimulationExercise.Infrastructure.Repository
             });
         }
 
-        public void Update(ReadingUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(ReadingUpdateDTO dto, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(dto);
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @STATUSID 
+            await context.ExecuteAsync($@"UPDATE {_mainTableName} SET STATUSID = @STATUSID 
                                WHERE READINGID = @READINGID;",
                             new { StatusId = dto.Status, ReadingId = dto.ReadingId });
 
@@ -57,7 +58,7 @@ namespace SimulationExercise.Infrastructure.Repository
                                         VALUES (@READINGID, @CREATIONDATE, @LASTUPDATEDATE, 
                                                 @LASTUPDATEUSER, @MESSAGE);";
 
-                    context.Execute(sql, new 
+                    await context.ExecuteAsync(sql, new 
                     { 
                         dto.ReadingId,
                         CreationDate = SystemTime.Now(),
@@ -69,9 +70,9 @@ namespace SimulationExercise.Infrastructure.Repository
             }
         }
 
-        public IList<ReadingGetDTO> GetByStatus(Status status, IContext context)
+        public async Task<IList<ReadingGetDTO>> GetByStatusAsync(Status status, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             int statusId = (int)status;
             var sql = $@"SELECT READINGID, INPUTFILEID, SENSORID, SENSORTYPENAME, 
@@ -81,8 +82,7 @@ namespace SimulationExercise.Infrastructure.Repository
                             FROM {_mainTableName} WHERE STATUSID = @STATUSID
                                 ORDER BY CREATIONTIME DESC";
 
-            var result = context.Query<ReadingGetDTO>(sql, new { StatusId = statusId });
-            return result;
+            return await context.QueryAsync<ReadingGetDTO>(sql, new { StatusId = statusId });
         }
     }
 }

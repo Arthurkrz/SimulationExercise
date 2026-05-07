@@ -1,7 +1,6 @@
 ﻿using SimulationExercise.Core.Contracts.Factories;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.Enum;
 
 namespace SimulationExercise.Services.Factories
 {
@@ -13,7 +12,7 @@ namespace SimulationExercise.Services.Factories
                                                   cr.Unit, cr.Value, cr.Province, cr.City,
                                                   cr.IsHistoric, cr.DaysOfMeasure, 
                                                   cr.UtmNord, cr.UtmEst, cr.Latitude, 
-                                                  cr.Longitude, Status.New);
+                                                  cr.Longitude, false);
         }
     }
 }

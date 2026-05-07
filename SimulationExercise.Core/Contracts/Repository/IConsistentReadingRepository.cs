@@ -1,12 +1,12 @@
-﻿using SimulationExercise.Core.DTOS;
-using SimulationExercise.Core.Enum;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 
 namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IConsistentReadingRepository
     {
-        void Insert(ConsistentReadingInsertDTO dto, IContext context);
-        void Update(ConsistentReadingUpdateDTO dto, IContext context);
-        IList<ConsistentReadingGetDTO> GetByStatus(Status status, IContext context);
+        Task InsertAsync(ConsistentReadingInsertDTO dto, IContext context);
+        Task UpdateAsync(ConsistentReadingUpdateDTO dto, IContext context);
+        Task<IList<ConsistentReadingGetDTO>> GetByIsExportedAsync(bool isExported, IContext context);
     }
 }

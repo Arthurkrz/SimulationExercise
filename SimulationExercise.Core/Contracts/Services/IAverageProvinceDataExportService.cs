@@ -1,9 +1,7 @@
-﻿using SimulationExercise.Core.Entities;
-
-namespace SimulationExercise.Core.Contracts.Services
+﻿namespace SimulationExercise.Core.Contracts.Services
 {
-    public interface IAverageProvinceDataExportService
+    public interface IAverageProvinceDataExportService : IBaseExport
     {
-        void Export(IList<AverageProvinceData> averageProvinceData, Stream outputStream);
+        Task CreateOutputFilesAsync();
     }
 }

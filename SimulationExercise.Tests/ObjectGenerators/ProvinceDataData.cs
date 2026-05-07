@@ -2,7 +2,7 @@
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
-namespace SimulationExercise.Tests.ObjectGeneration
+namespace SimulationExercise.Tests.ObjectGenerators
 {
     public static class ProvinceDataData
     {
@@ -12,8 +12,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(1, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(2, "Sensor2", Unit.mg_m3, 110, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(1, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(2, "Sensor2", Unit.mg_m3, 110, "Province1", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List<string> { "Inconsistent sensor names in readings." }
@@ -23,8 +23,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(3, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(4, "Sensor1", Unit.ng_m3, 110, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(3, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(4, "Sensor1", Unit.ng_m3, 110, "Province1", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List<string> { "Inconsistent units in readings." }
@@ -34,8 +34,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(5, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(6, "Sensor1", Unit.mg_m3, 110, "Province2", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(5, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(6, "Sensor1", Unit.mg_m3, 110, "Province2", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List <string> { "Inconsistent provinces in readings." }
@@ -46,8 +46,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(7, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(8, "Sensor2", Unit.ng_m3, 110, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(7, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(8, "Sensor2", Unit.ng_m3, 110, "Province1", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List <string>
@@ -59,8 +59,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(9, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(10, "Sensor2", Unit.mg_m3, 110, "Province2", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(9, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(10, "Sensor2", Unit.mg_m3, 110, "Province2", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List <string>
@@ -72,8 +72,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(11, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(12, "Sensor1", Unit.ng_m3, 110, "Province2", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(11, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(12, "Sensor1", Unit.ng_m3, 110, "Province2", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List <string>
@@ -85,8 +85,8 @@ namespace SimulationExercise.Tests.ObjectGeneration
             {
                 new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
                 {
-                    new ConsistentReading(13, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 10 },
-                    new ConsistentReading(14, "Sensor2", Unit.ng_m3, 110, "Province2", "City", false, 1, 1, "Latitude", "Longitude") { DaysOfMeasure = 15 }
+                    new ConsistentReading(13, "Sensor1", Unit.mg_m3, 100, "Province1", "City", false, 10, 1, 1, "Latitude", "Longitude"),
+                    new ConsistentReading(14, "Sensor2", Unit.ng_m3, 110, "Province2", "City", false, 15, 1, 1, "Latitude", "Longitude")
                 }),
 
                 new List <string>
@@ -113,201 +113,95 @@ namespace SimulationExercise.Tests.ObjectGeneration
                 faker.Random.Int(1, 1000)
             };
 
-            double averageValue = Math.Round(randomValues.Average(), 2);
-            int averageDaysOfMeasure = (int)randomDaysOfMeasure.Average();
-
             yield return new object[]
             {
-               new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(1, "Sensor1", Unit.mg_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(2, "Sensor1", Unit.mg_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(3, "Sensor1", Unit.mg_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
+                new List<ProvinceData>
+                {
+                    new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
+                    {
+                       new ConsistentReading(1, "Sensor1", Unit.mg_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(2, "Sensor1", Unit.mg_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(3, "Sensor1", Unit.mg_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                    }),
 
-               averageValue,
+                    new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
+                    {
+                       new ConsistentReading(3, "Sensor1", Unit.ng_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(4, "Sensor1", Unit.ng_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(5, "Sensor1", Unit.ng_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                    }),
 
-               Unit.mg_m3,
+                   new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(5, "Sensor1", Unit.µg_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(6, "Sensor1", Unit.µg_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(7, "Sensor1", Unit.µg_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               averageDaysOfMeasure
-            };
+                   new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(7, "Sensor2", Unit.mg_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(8, "Sensor2", Unit.mg_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(9, "Sensor2", Unit.mg_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-            yield return new object[]
-            {
-               new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(3, "Sensor1", Unit.ng_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(4, "Sensor1", Unit.ng_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(5, "Sensor1", Unit.ng_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
+                   new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(9, "Sensor2", Unit.ng_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(10, "Sensor2", Unit.ng_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(11, "Sensor2", Unit.ng_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               averageValue,
+                   new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(11, "Sensor2", Unit.µg_m3, randomValues[0], "Province1", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(12, "Sensor2", Unit.µg_m3, randomValues[1], "Province1", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(13, "Sensor2", Unit.µg_m3, randomValues[2], "Province1", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               Unit.ng_m3,
+                   new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(13, "Sensor1", Unit.mg_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(14, "Sensor1", Unit.mg_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(15, "Sensor1", Unit.mg_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               averageDaysOfMeasure
-            };
+                   new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(15, "Sensor1", Unit.ng_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(16, "Sensor1", Unit.ng_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(17, "Sensor1", Unit.ng_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-            yield return new object[]
-            {
-               new ProvinceData("Province1", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(5, "Sensor1", Unit.µg_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(6, "Sensor1", Unit.µg_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(7, "Sensor1", Unit.µg_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
+                   new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(17, "Sensor1", Unit.µg_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0")  ,
+                       new ConsistentReading(18, "Sensor1", Unit.µg_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(19, "Sensor1", Unit.µg_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               averageValue,
+                   new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(19, "Sensor2", Unit.mg_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(20, "Sensor2", Unit.mg_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(21, "Sensor2", Unit.mg_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               Unit.µg_m3,
+                   new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(21, "Sensor2", Unit.ng_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(22, "Sensor2", Unit.ng_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(23, "Sensor2", Unit.ng_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   }),
 
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(7, "Sensor2", Unit.mg_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(8, "Sensor2", Unit.mg_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(9, "Sensor2", Unit.mg_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.mg_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(9, "Sensor2", Unit.ng_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(10, "Sensor2", Unit.ng_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(11, "Sensor2", Unit.ng_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.ng_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province1", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(11, "Sensor2", Unit.µg_m3, randomValues[0], "Province1", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(12, "Sensor2", Unit.µg_m3, randomValues[1], "Province1", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(13, "Sensor2", Unit.µg_m3, randomValues[2], "Province1", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.µg_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(13, "Sensor1", Unit.mg_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(14, "Sensor1", Unit.mg_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(15, "Sensor1", Unit.mg_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.mg_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(15, "Sensor1", Unit.ng_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(16, "Sensor1", Unit.ng_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(17, "Sensor1", Unit.ng_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.ng_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor1", new List<ConsistentReading>
-               {
-                   new ConsistentReading(17, "Sensor1", Unit.µg_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(18, "Sensor1", Unit.µg_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(19, "Sensor1", Unit.µg_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.µg_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(19, "Sensor2", Unit.mg_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(20, "Sensor2", Unit.mg_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(21, "Sensor2", Unit.mg_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.mg_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(21, "Sensor2", Unit.ng_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(22, "Sensor2", Unit.ng_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(23, "Sensor2", Unit.ng_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.ng_m3,
-
-               averageDaysOfMeasure
-            };
-
-            yield return new object[]
-            {
-               new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
-               {
-                   new ConsistentReading(23, "Sensor2", Unit.µg_m3, randomValues[0], "Province2", "City1", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[0] },
-                   new ConsistentReading(24, "Sensor2", Unit.µg_m3, randomValues[1], "Province2", "City2", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[1] },
-                   new ConsistentReading(25, "Sensor2", Unit.µg_m3, randomValues[2], "Province2", "City3", false, 123, 456, "45.0", "9.0") { DaysOfMeasure = randomDaysOfMeasure[2] }
-               }),
-
-               averageValue,
-
-               Unit.µg_m3,
-
-               averageDaysOfMeasure
+                   new ProvinceData("Province2", "Sensor2", new List<ConsistentReading>
+                   {
+                       new ConsistentReading(23, "Sensor2", Unit.µg_m3, randomValues[0], "Province2", "City1", false, randomDaysOfMeasure[0], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(24, "Sensor2", Unit.µg_m3, randomValues[1], "Province2", "City2", false, randomDaysOfMeasure[1], 123, 456, "45.0", "9.0"),
+                       new ConsistentReading(25, "Sensor2", Unit.µg_m3, randomValues[2], "Province2", "City3", false, randomDaysOfMeasure[2], 123, 456, "45.0", "9.0")
+                   })
+                }
             };
         }
-
     }
 }

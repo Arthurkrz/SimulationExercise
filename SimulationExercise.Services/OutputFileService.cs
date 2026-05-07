@@ -1,12 +1,11 @@
 ﻿using FileHelpers;
 using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
-using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
-using SimulationExercise.Core.Enum;
 using SimulationExercise.Core.Utilities;
 using System.Text;
 
@@ -15,54 +14,37 @@ namespace SimulationExercise.Services
     public class OutputFileService : IOutputFileService
     {
         private readonly IContextFactory _contextFactory;
-        private readonly IConsistentReadingRepository _consistentReadingRepository;
         private readonly IOutputFileRepository _outputFileRepository;
-        private readonly IConsistentReadingExportDTOFactory _consistentReadingExportDTOFactory;
         private readonly ILogger<OutputFileService> _logger;
 
-        public OutputFileService(IContextFactory contextFactory,
-                                 IConsistentReadingRepository consistentReadingRepository,
-                                 IOutputFileRepository outputFileRepository,
-                                 IConsistentReadingExportDTOFactory consistentReadingExportDTOFactory,
-                                 ILogger<OutputFileService> logger)
+        public OutputFileService(IContextFactory contextFactory, IOutputFileRepository outputFileRepository, ILogger<OutputFileService> logger)
         {
             _contextFactory = contextFactory;
-            _consistentReadingRepository = consistentReadingRepository;
             _outputFileRepository = outputFileRepository;
-            _consistentReadingExportDTOFactory = consistentReadingExportDTOFactory;
             _logger = logger;
         }
 
-        public void ProcessConsistentReadings()
+        public async Task<Result<OutputFileInsertDTO>> CreateOutputFilesAsync<T>(IList<T> objs) where T : class
         {
-            using (IContext context = _contextFactory.Create())
+            Type type = typeof(T);
+            var engine = new FileHelperEngine<T>();
+
+            string fileHeader = string.Join(";", typeof(T).GetProperties().Select(p => p.Name));
+
+            var typeName = type.Name.Replace("ExportDTO", "");
+            var csvFile = fileHeader + Environment.NewLine + engine.WriteString(objs);
+            var csvBytes = Encoding.UTF8.GetBytes(csvFile);
+            var fileName = $"{typeName}{SystemTime.Now():dd_MM_yyyy}";
+            var fileExtension = ".csv";
+
+            var insertDTO = new OutputFileInsertDTO(fileName, csvBytes, fileExtension, typeName, false);
+
+            using (IContext insertContext = _contextFactory.Create())
             {
                 try
                 {
-                    IList<ConsistentReadingGetDTO>? crGetDTOs = null;
-                    crGetDTOs = _consistentReadingRepository.GetByStatus(Status.New, context);
-
-                    if (crGetDTOs.Count == 0)
-                    {
-                        _logger.LogError(LogMessages.NONEWOBJECTSFOUND, "Consistent Reading");
-                        return;
-                    }
-
-                    var records = _consistentReadingExportDTOFactory
-                                    .CreateExportDTOList(crGetDTOs);
-
-                    var exportFile = CreateExportFile(records);
-
-                    _outputFileRepository.Insert(exportFile, context);
-                    foreach (var crGetDTO in crGetDTOs)
-                    {
-                        var crUpdateDTO = new ConsistentReadingUpdateDTO
-                        (crGetDTO.ConsistentReadingId, Status.Success);
-
-                        _consistentReadingRepository.Update(crUpdateDTO, context);
-                    }
-
-                    context.Commit();
+                    await _outputFileRepository.InsertAsync(insertDTO, insertContext);
+                    insertContext.Commit();
                 }
                 catch (Exception ex)
                 {
@@ -70,24 +52,11 @@ namespace SimulationExercise.Services
                 }
                 finally
                 {
-                    context.Dispose();
+                    insertContext.Dispose();
                 }
             }
-        }
 
-        private OutputFileInsertDTO CreateExportFile(IList<ConsistentReadingExportDTO> records)
-        {
-            var engine = new FileHelperEngine<ConsistentReadingExportDTO>();
-
-            string fileHeader = string.Join(",", typeof(ConsistentReadingExportDTO)
-                                      .GetProperties().Select(p => p.Name));
-
-            var csvFile = fileHeader + Environment.NewLine + engine.WriteString(records);
-            var csvBytes = Encoding.UTF8.GetBytes(csvFile);
-            var fileName = $"Readings{SystemTime.Now():dd_MM_yyyy}";
-            var fileExtension = ".csv";
-
-            return new OutputFileInsertDTO(fileName, csvBytes, fileExtension, Status.Success);
+            return Result<OutputFileInsertDTO>.Ok(insertDTO);
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using SimulationExercise.Core.Contracts.Repository;
-using SimulationExercise.Core.DTOS;
-using SimulationExercise.Core.Enum;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.Contracts.Repository;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Utilities;
 
 namespace SimulationExercise.Infrastructure.Repository
@@ -8,71 +8,60 @@ namespace SimulationExercise.Infrastructure.Repository
     public class OutputFileRepository : IOutputFileRepository
     {
         private readonly string _mainTableName = "OutputFile";
-        private readonly string _messageTableName = "OutputFileMessage";
 
-        public void Insert(OutputFileInsertDTO dto, IContext context)
+        public async Task InsertAsync(OutputFileInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName}
-                            (NAME, BYTES, EXTENSION, CREATIONTIME, 
-                            LASTUPDATETIME, LASTUPDATEUSER, STATUSID)
-                                VALUES (@Name, @Bytes, @Extension, 
-                                        @CreationTime, @LastUpdateTime, 
-                                        @LastUpdateUser, @Status);";
+                            (NAME, BYTES, EXTENSION, OBJECTTYPE, CREATIONTIME, 
+                             LASTUPDATETIME, LASTUPDATEUSER, ISEXPORTED) 
+                                 VALUES (@NAME, @BYTES, @EXTENSION, @OBJECTTYPE, 
+                                         @CREATIONTIME, @LASTUPDATETIME, 
+                                         @LASTUPDATEUSER, @ISEXPORTED);";
 
-            context.Execute(sql, new
+            await context.ExecuteAsync(sql, new
             {
-                dto.Name, dto.Extension, dto.Bytes,
+                dto.Name, dto.Bytes, dto.Extension,
+                dto.ObjectType, 
                 CreationTime = SystemTime.Now(),
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
-                dto.Status
+                dto.IsExported
             });
         }
 
-        public void Update(OutputFileUpdateDTO dto, IContext context)
+        public async Task UpdateAsync(OutputFileUpdateDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
-            context.Execute($@"UPDATE {_mainTableName} SET STATUSID = @Status 
-                                   WHERE OUTPUTFILEID = @OutputFileId;",
-                            new { dto.Status, dto.OutputFileId });
+            string sql = $@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED, 
+                            LASTUPDATETIME = @LASTUPDATETIME, LASTUPDATEUSER = @LASTUPDATEUSER 
+                                WHERE OUTPUTFILEID = @OUTPUTFILEID;";
 
-            if (dto.Messages.Any() && dto.Status == Status.Error)
+            await context.ExecuteAsync(sql, new
             {
-                foreach (var message in dto.Messages)
-                {
-                    string sql = $@"INSERT INTO {_messageTableName}(OUTPUTFILEID, 
-                                    CREATIONDATE, LASTUPDATEDATE, LASTUPDATEUSER, MESSAGE) 
-                                        VALUES (@OutputFileId, @CreationDate, @LastUpdateDate, 
-                                                @LastUpdateUser, @Message);";
-
-                    context.Execute(sql, new
-                    {
-                        dto.OutputFileId,
-                        CreationDate = SystemTime.Now(),
-                        LastUpdateDate = SystemTime.Now(),
-                        LastUpdateUser = SystemIdentity.CurrentName(),
-                        message
-                    });
-                }
-            }
+                dto.OutputFileId,
+                dto.IsExported,
+                LastUpdateTime = SystemTime.Now(),
+                LastUpdateUser = SystemIdentity.CurrentName()
+            });
         }
 
-        public IList<OutputFileGetDTO> GetByStatus(Status status, IContext context)
+        public async Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, string objectType, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(nameof(context));
+            ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
-            int statusId = (int)status;
-            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 
-                            FROM {_mainTableName} WHERE STATUSID = @statusId
-                                ORDER BY CreationTime DESC";
+            var sql = $@"SELECT OUTPUTFILEID, NAME, BYTES, EXTENSION, 
+                         OBJECTTYPE, ISEXPORTED FROM {_mainTableName} 
+                            WHERE ISEXPORTED = @ISEXPORTED 
+                            AND OBJECTTYPE = @OBJECTTYPE 
+                                ORDER BY CREATIONTIME DESC;";
 
-            var result = context.Query<OutputFileGetDTO>(sql, new { statusId });
-            return result;
+            return await context.QueryAsync<OutputFileGetDTO>(sql, new { isExported, objectType });
         }
     }
 }

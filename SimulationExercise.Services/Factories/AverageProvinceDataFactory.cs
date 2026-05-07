@@ -1,61 +1,67 @@
-﻿using SimulationExercise.Core.Contracts.Factories;
+﻿using FluentValidation;
+using SimulationExercise.Core.Contracts.Factories;
 using SimulationExercise.Core.Entities;
 
 namespace SimulationExercise.Services.Factory
 {
     public class AverageProvinceDataFactory : IAverageProvinceDataFactory
     {
-        public Result<AverageProvinceData> CreateAverageProvinceData(ProvinceData provinceData)
+        private readonly IValidator<ProvinceData> _validator;
+
+        public AverageProvinceDataFactory(IValidator<ProvinceData> validator)
         {
-            List<string> errors = IsEachReadingEqual(provinceData);
-            if (errors.Count == 0)
-            {
-                double averageValue = Math.Round(provinceData
-                    .ConsistentReadings.Average(r => r.Value), 2);
-                int averageDaysOfMeasure = (int)provinceData
-                    .ConsistentReadings.Average(r => r.DaysOfMeasure);
-                var unit = provinceData.ConsistentReadings[0].Unit;
-
-                var averageProvinceData = new AverageProvinceData(
-                    provinceData.Province, provinceData.SensorTypeName,
-                    averageValue, unit, averageDaysOfMeasure);
-
-                return Result<AverageProvinceData>.Ok(averageProvinceData);
-            }
-
-            return Result<AverageProvinceData>.Ko(errors);
+            _validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        private List<string> IsEachReadingEqual(ProvinceData provinceData)
+        public IList<Result<AverageProvinceData>> CreateAverageProvinceData(IList<ConsistentReading> consistentReadings)
         {
-            List<string> errors = new List<string>();
+            if (consistentReadings == null || consistentReadings.Count == 0)
+                return new List<Result<AverageProvinceData>>
+                    { Result<AverageProvinceData>.Ko(
+                      new List<string> { "Null or empty consistent reading list" }) };
 
-            if (provinceData.ConsistentReadings.Count == 1)
-                return errors;
+            var apdCreationResult = new List<Result<AverageProvinceData>>();
+            List<ProvinceData> provinceDatas = new();
 
-            if (provinceData.ConsistentReadings.Count == 0)
+            var groupedReadings = consistentReadings
+                .GroupBy(cr => new { cr.Province,
+                                     cr.SensorTypeName,
+                                     cr.Unit }).ToList();
+
+            provinceDatas = groupedReadings.Select(cr => new ProvinceData
+                                                    (cr.Key.Province,
+                                                    cr.Key.SensorTypeName,
+                                                    cr.ToList())).ToList();
+
+            foreach (var provinceData in provinceDatas)
             {
-                errors.Add("ProvinceData contains no readings.");
-                return errors;
+                var validationResult = _validator.Validate(provinceData);
+
+                if (!validationResult.IsValid)
+                    return new List<Result<AverageProvinceData>>
+                { Result<AverageProvinceData>.Ko(
+                    validationResult.Errors.Select(e => e.ErrorMessage).ToList()) };
+
+                float averageValue = (float)Math.Round(provinceData
+                    .ConsistentReadings.Average(r => r.Value), 2);
+
+                int averageDaysOfMeasure = (int)provinceData
+                    .ConsistentReadings.Average(r => r.DaysOfMeasure);
+
+                var unit = provinceData.ConsistentReadings[0].Unit;
+
+                var averageProvinceData = new AverageProvinceData
+                (
+                    provinceData.Province,
+                    provinceData.SensorTypeName,
+                    averageValue, unit,
+                    averageDaysOfMeasure
+                );
+
+                apdCreationResult.Add(Result<AverageProvinceData>.Ok(averageProvinceData));
             }
 
-            if (!provinceData.ConsistentReadings.All
-               (r => r.Province == provinceData.ConsistentReadings
-                                               .First().Province)) 
-                errors.Add("Inconsistent provinces in readings.");
-
-            if (!provinceData.ConsistentReadings.All
-               (r => r.Unit == provinceData.ConsistentReadings
-                                           .First().Unit))
-                errors.Add("Inconsistent units in readings.");
-
-            if (!provinceData.ConsistentReadings.All
-               (r => r.SensorTypeName == provinceData.ConsistentReadings
-                                                     .First()
-                                                     .SensorTypeName))
-                errors.Add("Inconsistent sensor names in readings.");
-
-            return errors;
+            return apdCreationResult;
         }
     }
 }

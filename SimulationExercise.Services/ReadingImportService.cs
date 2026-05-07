@@ -1,6 +1,6 @@
 ﻿using FileHelpers;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.CSVDTOs;
 using SimulationExercise.Core.Entities;
 
 namespace SimulationExercise.Services
@@ -34,7 +34,7 @@ namespace SimulationExercise.Services
                                                          r.UnitaMisura, r.Idstazione,
                                                          r.NomeStazione, r.Quota,
                                                          r.Provincia, r.Comune,
-                                                         IsHistoric(r.Storico),
+                                                         IsHistoric(r.Storico!),
                                                          r.DataStart, r.DataStop,
                                                          r.Utm_Nord, r.UTM_Est,
                                                          r.lat, r.lng)).ToList();
@@ -43,9 +43,7 @@ namespace SimulationExercise.Services
             }
         }
 
-        private bool IsHistoric(string storico)
-        {
-            return storico.Equals("S", StringComparison.OrdinalIgnoreCase);
-        }
+        private bool IsHistoric(string storico) => 
+            storico.Equals("S", StringComparison.OrdinalIgnoreCase);
     }
 }

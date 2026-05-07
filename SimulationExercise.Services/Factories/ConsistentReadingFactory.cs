@@ -47,8 +47,8 @@ namespace SimulationExercise.Services.Factory
                 new ConsistentReading(reading.SensorId,
                 reading.SensorTypeName!, unit, reading.Value,
                 reading.Province!, reading.City!, reading.IsHistoric,
-                reading.UtmNord, reading.UtmEst, reading.Latitude!,
-                reading.Longitude!)
+                daysOfMeasure, reading.UtmNord, reading.UtmEst, 
+                reading.Latitude!, reading.Longitude!)
                 { DaysOfMeasure = daysOfMeasure };
 
             return Result<ConsistentReading>.Ok(consistentReading);

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
@@ -34,11 +35,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessInputFiles()
+        public async Task ProcessInputFilesAsync()
         {
             IList<InputFileGetDTO>? inputFiles = null;
             using (IContext searchContext = _contextFactory.Create())
-                inputFiles = _inputFileRepository.GetByStatus(Status.New, searchContext);
+                inputFiles = await _inputFileRepository.GetByStatusAsync(Status.New, searchContext);
 
             if (inputFiles.Count == 0)
             {
@@ -66,7 +67,7 @@ namespace SimulationExercise.Services
                                                                          Status.Error,
                                                                          importResult.Errors);
 
-                            _inputFileRepository.Update(inputFileUpdate, context);
+                            await _inputFileRepository.UpdateAsync(inputFileUpdate, context);
                             _errorGroupNumber++;
                         }
                         else
@@ -74,7 +75,7 @@ namespace SimulationExercise.Services
                             var inputFileUpdate = new InputFileUpdateDTO(inputFile.InputFileId,
                                                                          Status.Success);
 
-                            _inputFileRepository.Update(inputFileUpdate, context);
+                            await _inputFileRepository.UpdateAsync(inputFileUpdate, context);
                         }
 
                         if (importResult.Readings.Any())
@@ -83,7 +84,7 @@ namespace SimulationExercise.Services
                                                    (importResult.Readings, inputFile.InputFileId);
 
                             foreach (var insertDTO in insertDTOs)
-                                _readingRepository.Insert(insertDTO, context);
+                                await _readingRepository.InsertAsync(insertDTO, context);
                         }
 
                         context.Commit();

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using SimulationExercise.Core.Common;
 using SimulationExercise.Core.Contracts.Factories;
+using SimulationExercise.Core.Contracts.Infrastructure;
 using SimulationExercise.Core.Contracts.Repository;
 using SimulationExercise.Core.Contracts.Services;
-using SimulationExercise.Core.DTOS;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 using SimulationExercise.Core.Entities;
 using SimulationExercise.Core.Enum;
 
@@ -34,11 +35,11 @@ namespace SimulationExercise.Services
             _logger = logger;
         }
 
-        public void ProcessReadings()
+        public async Task ProcessReadingsAsync()
         {
             IList<ReadingGetDTO>? readingDTOs = null;
             using (IContext searchContext = _contextFactory.Create())
-                readingDTOs = _readingRepository.GetByStatus(Status.New, searchContext);
+                readingDTOs = await _readingRepository.GetByStatusAsync(Status.New, searchContext);
 
             if (readingDTOs.Count == 0)
             {
@@ -65,8 +66,8 @@ namespace SimulationExercise.Services
 
                             var successDTO = new ReadingUpdateDTO(readingDTO.ReadingId, Status.Success);
 
-                            _consistentReadingRepository.Insert(insertDTO, context);
-                            _readingRepository.Update(successDTO, context);
+                            await _consistentReadingRepository.InsertAsync(insertDTO, context);
+                            await _readingRepository.UpdateAsync(successDTO, context);
                         }
                         else
                         {
@@ -77,7 +78,7 @@ namespace SimulationExercise.Services
                                                                         Status.Error,
                                                                         creationResult.Errors);
 
-                            _readingRepository.Update(updateErrorDTO, context);
+                            await _readingRepository.UpdateAsync(updateErrorDTO, context);
                             _errorGroupNumber++;
                         }
 
@@ -95,16 +96,14 @@ namespace SimulationExercise.Services
             }
         }
 
-        private Reading ReadingGenerator(ReadingGetDTO readingDTO)
-        {
-            return new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
-                               readingDTO.Unit, readingDTO.StationId,
-                               readingDTO.StationName, readingDTO.Value,
-                               readingDTO.Province, readingDTO.City,
-                               readingDTO.IsHistoric, readingDTO.StartDate,
-                               readingDTO.StopDate, readingDTO.UtmNord,
-                               readingDTO.UtmEst, readingDTO.Latitude,
-                               readingDTO.Longitude);
-        }
+        private Reading ReadingGenerator(ReadingGetDTO readingDTO) => 
+            new Reading(readingDTO.SensorId, readingDTO.SensorTypeName,
+                        readingDTO.Unit, readingDTO.StationId,
+                        readingDTO.StationName, readingDTO.Value,
+                        readingDTO.Province, readingDTO.City,
+                        readingDTO.IsHistoric, readingDTO.StartDate,
+                        readingDTO.StopDate, readingDTO.UtmNord,
+                        readingDTO.UtmEst, readingDTO.Latitude,
+                        readingDTO.Longitude);
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace SimulationExercise.Core.Contracts.Services
+﻿using SimulationExercise.Core.DTOs.DatabaseDTOs;
+using SimulationExercise.Core.Entities;
+
+namespace SimulationExercise.Core.Contracts.Services
 {
     public interface IOutputFileService
     {
-        void ProcessConsistentReadings();
+        Task<Result<OutputFileInsertDTO>> CreateOutputFilesAsync<T>(IList<T> objs) where T : class;
     }
 }

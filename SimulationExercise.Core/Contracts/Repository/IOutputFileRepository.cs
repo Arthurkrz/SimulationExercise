@@ -1,12 +1,14 @@
-﻿using SimulationExercise.Core.DTOS;
-using SimulationExercise.Core.Enum;
+﻿using SimulationExercise.Core.Contracts.Infrastructure;
+using SimulationExercise.Core.DTOs.DatabaseDTOs;
 
 namespace SimulationExercise.Core.Contracts.Repository
 {
     public interface IOutputFileRepository
     {
-        void Insert(OutputFileInsertDTO dto, IContext context);
-        void Update(OutputFileUpdateDTO dto, IContext context);
-        IList<OutputFileGetDTO> GetByStatus(Status status, IContext context);
+        Task InsertAsync(OutputFileInsertDTO dto, IContext context);
+
+        Task UpdateAsync(OutputFileUpdateDTO dto, IContext context);
+
+        Task<IList<OutputFileGetDTO>> GetByIsExportedAsync(bool isExported, string objectType, IContext context);
     }
 }
