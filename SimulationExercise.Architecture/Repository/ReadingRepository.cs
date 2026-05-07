@@ -13,8 +13,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task InsertAsync(ReadingInsertDTO dto, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(dto);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (INPUTFILEID, SENSORID, SENSORTYPENAME, UNIT, STATIONID, 
@@ -42,8 +42,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task UpdateAsync(ReadingUpdateDTO dto, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(dto);
 
             await context.ExecuteAsync($@"UPDATE {_mainTableName} SET STATUSID = @STATUSID 
                                WHERE READINGID = @READINGID;",
@@ -72,7 +72,7 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task<IList<ReadingGetDTO>> GetByStatusAsync(Status status, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             int statusId = (int)status;
             var sql = $@"SELECT READINGID, INPUTFILEID, SENSORID, SENSORTYPENAME, 

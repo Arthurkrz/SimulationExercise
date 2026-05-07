@@ -11,8 +11,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task InsertAsync(OutputFileInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (NAME, BYTES, EXTENSION, OBJECTTYPE, CREATIONTIME, 
@@ -29,6 +29,24 @@ namespace SimulationExercise.Infrastructure.Repository
                 LastUpdateTime = SystemTime.Now(),
                 LastUpdateUser = SystemIdentity.CurrentName(),
                 dto.IsExported
+            });
+        }
+
+        public async Task UpdateAsync(OutputFileUpdateDTO dto, IContext context)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
+
+            string sql = $@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED, 
+                            LASTUPDATETIME = @LASTUPDATETIME, LASTUPDATEUSER = @LASTUPDATEUSER 
+                                WHERE OUTPUTFILEID = @OUTPUTFILEID;";
+
+            await context.ExecuteAsync(sql, new
+            {
+                dto.OutputFileId,
+                dto.IsExported,
+                LastUpdateTime = SystemTime.Now(),
+                LastUpdateUser = SystemIdentity.CurrentName()
             });
         }
 

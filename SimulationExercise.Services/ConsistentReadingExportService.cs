@@ -99,6 +99,13 @@ namespace SimulationExercise.Services
                     var fullPath = Path.Combine(outDirectoryPath, fileName);
 
                     await File.WriteAllBytesAsync(fullPath, outputFile.Bytes);
+
+                    var updateDTO = new OutputFileUpdateDTO(outputFile.OutputFileId, true);
+                    using (IContext updateContext = _contextFactory.Create())
+                    {
+                        await _outputFileRepository.UpdateAsync(updateDTO, updateContext);
+                        updateContext.Commit();
+                    }
                 }
             }
             catch (Exception ex)

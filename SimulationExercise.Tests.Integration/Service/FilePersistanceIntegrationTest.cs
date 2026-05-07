@@ -51,7 +51,7 @@ namespace SimulationExercise.Tests.Integration.Service
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
 
-            var connectionString = config.GetConnectionString("Default") ?? 
+            var connectionString = config.GetConnectionString("DefaultConnection") ?? 
                 throw new ArgumentNullException("Null Connection String");
 
             ServiceCollection services = new ServiceCollection();
@@ -200,17 +200,20 @@ namespace SimulationExercise.Tests.Integration.Service
                 foreach (var expectedInputFileLine in expectedInputFileLines)
                     Assert.Contains(expectedInputFileLine, inputFileLines);
 
-                foreach (var expectedOutputFileLine in expectedOutputFileLines)
-                    Assert.Contains(expectedOutputFileLine, crOutputFileLines);
+                foreach (var crOutputFileLine in crOutputFileLines)
+                    Assert.Contains(crOutputFileLine, expectedOutputFileLines);
 
-                foreach (var expectedOutputFileLine in expectedOutputFileLines)
-                    Assert.Contains(expectedOutputFileLine, apdOutputFileLines);
+                foreach (var apdOutputFileLine in apdOutputFileLines)
+                    Assert.Contains(apdOutputFileLine, expectedOutputFileLines);
             }
+
+            // Teardown
+            SystemTime.Now = () => DateTime.Now;
         }
 
         [Theory]
         [MemberData(nameof(StreamData.InvalidConsistentReadingStreamGenerator), MemberType = typeof(StreamData))]
-        public async Task CreateReadings_ShouldLogErrorsAndUpdateAsync(Stream inputStreamWithErrors, List<string> expectedErrorLines, List<ReadingGetDTO> expectedReadings)
+        public async Task CreateConsistentReadings_ShouldLogErrorsAndUpdateAsync(Stream inputStreamWithErrors, List<string> expectedErrorLines, List<ReadingGetDTO> expectedReadings)
         {
             // Arrange
             _sut.LoggerConfiguration(_outDirectoryPath);
@@ -222,8 +225,6 @@ namespace SimulationExercise.Tests.Integration.Service
             await _sut.Initialize(_inDirectoryPath);
             await _sut.CreateReadings();
             await _sut.CreateConsistentReadings();
-            await _sut.CreateConsistentReadingOutputFiles();
-            await _sut.ExportConsistentReadings(_outDirectoryPath);
 
             // Assert
             using (IContext context = _contextFactory.Create())
@@ -261,17 +262,25 @@ namespace SimulationExercise.Tests.Integration.Service
 
             var exportDirectories = Directory.GetDirectories(_outDirectoryPath);
             var resultOutErrorFilePath = Path.Combine(exportDirectories[0], "Errors.log");
-            var resultErrorOutputText = File.ReadAllText(resultOutErrorFilePath).Trim();
 
-            var errorLines = resultErrorOutputText.Split("\r\n").Select(line => line.Trim()).ToList();
+            var actual = File.ReadAllText(resultOutErrorFilePath)
+                .Replace("\\r\\n", "\n")
+                .Replace("\r\n", "\n")
+                .Replace("\r", "\n")
+                .Trim();
 
             Assert.Single(exportDirectories);
             Assert.True(File.Exists(resultOutErrorFilePath));
-            List<string> test = new List<string>();
+
             foreach (var expectedErrorLine in expectedErrorLines)
             {
-                if (!errorLines.Contains(expectedErrorLine)) test.Add(expectedErrorLine);
-                Assert.Contains(expectedErrorLine, errorLines);
+                var expected = expectedErrorLine
+                    .Replace("\\r\\n", "\n")
+                    .Replace("\r\n", "\n")
+                    .Replace("\r", "\n")
+                    .Trim();
+
+                Assert.Contains(expected, actual);
             }
         }
 

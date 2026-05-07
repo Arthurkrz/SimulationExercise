@@ -12,8 +12,7 @@ namespace SimulationExercise.Infrastructure
 
         public DapperContext(SqlTransaction transaction)
         {
-            if (transaction == null) throw new
-                    ArgumentNullException(nameof(transaction));
+            ArgumentNullException.ThrowIfNull(transaction);
 
             this.Connection = transaction.Connection;
             this.Transaction = transaction;

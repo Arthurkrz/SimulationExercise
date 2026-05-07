@@ -4,11 +4,8 @@ namespace SimulationExercise.Infrastructure
 {
     public class RepositoryInitializer : IRepositoryInitializer
     {
-        public void Initialize(IContext context)
-        {
-            var connectionString = context.GetConnectionString();
+        public void Initialize(IContext context) =>
             SimulationDatabaseInitializer(context);
-        }
 
         private void SimulationDatabaseInitializer(IContext context)
         {

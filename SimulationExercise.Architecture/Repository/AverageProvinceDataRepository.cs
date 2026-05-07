@@ -11,8 +11,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task InsertAsync(AverageProvinceDataInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName} (PROVINCE, SENSORTYPENAME, 
                                 AVERAGEVALUE, UNIT, AVERAGEDAYSOFMEASURE, 
@@ -35,8 +35,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task UpdateAsync(AverageProvinceDataUpdateDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             await context.ExecuteAsync($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
                                           WHERE AVERAGEPROVINCEDATAID = @AVERAGEPROVINCEDATAID;",
@@ -45,7 +45,7 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task<IList<AverageProvinceDataGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             var sql = $@"SELECT AVERAGEPROVINCEDATAID, PROVINCE, 
                              SENSORTYPENAME, AVERAGEVALUE, UNIT, AVERAGEDAYSOFMEASURE, 

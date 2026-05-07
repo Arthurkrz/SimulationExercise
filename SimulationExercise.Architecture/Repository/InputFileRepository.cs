@@ -13,8 +13,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task InsertAsync(InputFileInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (NAME, BYTES, EXTENSION, CREATIONTIME,
@@ -35,8 +35,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task UpdateAsync(InputFileUpdateDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             await context.ExecuteAsync($@"UPDATE {_mainTableName} SET STATUSID = @STATUS 
                                           WHERE INPUTFILEID = @INPUTFILEID;", 
@@ -65,7 +65,7 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task<IList<InputFileGetDTO>> GetByStatusAsync(Status status, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             int statusId = (int)status;
             var sql = $@"SELECT INPUTFILEID, NAME, BYTES, EXTENSION, STATUSID AS STATUS 

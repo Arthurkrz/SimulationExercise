@@ -32,7 +32,7 @@ namespace SimulationExercise.Services
             await _inputFileService.ProcessFilesAsync(inDirectoryPath);
 
         public async Task CreateReadings() => 
-            await _readingService.ProcessInputFilesAsync();
+           await _readingService.ProcessInputFilesAsync();
 
         public async Task CreateConsistentReadings() => 
             await _consistentReadingService.ProcessReadingsAsync();

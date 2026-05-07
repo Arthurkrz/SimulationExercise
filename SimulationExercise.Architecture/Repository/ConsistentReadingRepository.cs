@@ -11,8 +11,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task InsertAsync(ConsistentReadingInsertDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             string sql = $@"INSERT INTO {_mainTableName}
                             (READINGID, SENSORID, SENSORTYPENAME, UNIT, VALUE, PROVINCE, 
@@ -38,8 +38,8 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task UpdateAsync(ConsistentReadingUpdateDTO dto, IContext context)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(context);
 
             await context.ExecuteAsync($@"UPDATE {_mainTableName} SET ISEXPORTED = @ISEXPORTED 
                                           WHERE CONSISTENTREADINGID = @CONSISTENTREADINGID;",
@@ -48,7 +48,7 @@ namespace SimulationExercise.Infrastructure.Repository
 
         public async Task<IList<ConsistentReadingGetDTO>> GetByIsExportedAsync(bool isExported, IContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            ArgumentNullException.ThrowIfNull(context);
 
             var sql = $@"SELECT CONSISTENTREADINGID, READINGID, SENSORID, 
                          SENSORTYPENAME, UNIT, VALUE, PROVINCE, CITY, 
